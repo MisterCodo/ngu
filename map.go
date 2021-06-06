@@ -76,7 +76,7 @@ func (m *Map) Score() float64 {
 	for y, row := range m.Tiles {
 		for x, val := range row {
 			// TODO: Fix this once not just speed beacons are used.
-			if val.Type == "*" || val.Type == "<" || val.Type == ">" || val.Type == "v" || val.Type == "^" {
+			if val.Type == "*" || val.Type == "<" || val.Type == ">" || val.Type == "v" || val.Type == "^" || val.Type == "k" || val.Type == "-" || val.Type == "|" {
 				effects := beacons.Beacons[val.Type]().Effect()
 				for _, effect := range effects {
 					impactedX := x + effect.X
@@ -170,7 +170,7 @@ func (m *Map) Copy() *Map {
 }
 
 func randTileType() string {
-	r := rand.Intn(6)
+	r := rand.Intn(10)
 	switch {
 	case r == 0:
 		return "*"
@@ -182,6 +182,12 @@ func randTileType() string {
 		return "v"
 	case r == 4:
 		return "^"
+	case r == 5:
+		return "k"
+	case r == 6:
+		return "-"
+	case r == 7:
+		return "|"
 	default:
 		return "."
 	}
