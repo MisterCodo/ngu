@@ -178,11 +178,15 @@ func (m *Map) Score(optimizationType string) float64 {
 	// Measure score
 	speedScore := 0.0
 	productionScore := 0.0
+	productionAndSpeedScore := 0.0
 	for _, row := range m.Tiles {
 		for _, val := range row {
 			if val.Type == "." {
-				speedScore += 1.0 * ((100.0 + val.SpeedMultiplier) / 100)
-				productionScore += 1.0 * ((100.0 + val.ProductionMultiplier) / 100)
+				tSpeedScore := (100.0 + val.SpeedMultiplier) / 100
+				speedScore += tSpeedScore
+				tProductionScore := (100.0 + val.ProductionMultiplier) / 100
+				productionScore += tProductionScore
+				productionAndSpeedScore += tSpeedScore * tProductionScore
 			}
 		}
 	}
@@ -202,7 +206,7 @@ func (m *Map) Score(optimizationType string) float64 {
 	if optimizationType == "Production" {
 		return productionScore
 	}
-	return speedScore * productionScore
+	return productionAndSpeedScore
 }
 
 // Print displays the map layout.
@@ -242,10 +246,9 @@ func (m *Map) Adjust(optimizationType string) {
 
 // Randomize picks random tile types for the entire map.
 func (m *Map) Randomize(optimizationType string) {
-	// For a change on only a subset of tiles at the start
 	for y, row := range m.Tiles {
 		for x := range row {
-			if m.Mask[y][x] == 1 && rand.Intn(5) == 0 {
+			if m.Mask[y][x] == 1 {
 				m.Tiles[y][x].Type = randTileType(optimizationType)
 			}
 		}
@@ -313,7 +316,7 @@ func randTileType(optimizationType string) string {
 	}
 
 	// Production&Speed
-	r := rand.Intn(20)
+	r := rand.Intn(18)
 	switch {
 	case r == 0:
 		return "*"

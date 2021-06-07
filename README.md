@@ -43,55 +43,34 @@ Beacons of a given type have their gains added together. Beacons of different ty
 
 ## Tutorial Island
 
+```
+xxxxxxxxdwxxxxxxxxxx
+xxxxxxxxddvxxxxwxxxx
+xxxxxxxvxvvxxx*.*.<x
+xxxxxxxvvvvrxr..*.<x
+xxxxxxxxv.xxl<*.*.lx
+xxxr>>>x..xxxlx.xw*x
+xxxhr>>....x<hhwu...
+xxxrr>....lxlxxwxxxx
+xxxr>r*...<<<xxwxxxx
+xxx>rr..uuu<lxxwxxxx
+xxxxxx^uxuu>r...*.lx
+xxxxxxxxxxxxx&*.xx<x
+xxxxxxxxxxxxx&*.*&<x
+xx.xxxxw.wxxxh..*.<x
+xx.hxxx.*.xxxxxxxxxx
+xxxxxxx.*.xxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxx
+```
+Score: 294.90
+
 ## Flesh World
 
 ## Planet Tronne
 
 ## Candy Land
 
-```
-....xxxxxx...xh.x...
-.**..xxxxxxxxxxx*.*.
-....xx...xxxh.......
-.*xxxxx.xx.xx.*.*.xx
-..xx.xxx.xxx......xw
-..xx.h....x..*.*&xxx
-.*.xx..x*.xh.....x..
-....xxh...x..h^...*.
-wx.*.xx...x..hxxx...
-wxx...xxx.x.w.x.xxx.
-..xx.*.&xxxxxxxxx.x.
-.*.xx..xx..h..x...xw
-....xh...xx..xxxxxx.
-..*..<xx.x.*.x.<..*.
-x.....xx.....xhxx...
-xx..*.h..*.*.x..x.*.
-xxx...h......xxxx...
-```
-Score: 52706.34
-
 ## Mansions & Managers
-
-```
-.....hxxx....xxx....
-.*.*x.x..*..xx.xx.*.
-......xh...xx...xx..
-.*x.*.xxx.xx..*..xx.
-......xxxxx.>.....xx
-xxxxxxxxxxxxxxxxxxxx
-.....hx.....hx..xx..
-.*.*..x.*.*..xxx..*.
-.*.x.hx......hhx....
-.....xxxh.*....xxx..
-xxxxxx.xxx.xxx...x.w
-w.w.wxxx.xxx&xxxxxxx
-.....hx....xxx......
-.*.*x.xxxx..x..*.x*.
-.x....h..x..xh......
-.*.*..xxxx*.x.x.*.*.
-.....hxh....x.h.....
-```
-Score: 56396.04
 
 # Best Speed Maps
 
