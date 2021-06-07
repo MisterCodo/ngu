@@ -16,14 +16,17 @@ const (
 )
 
 func init() {
+	// change rand seed so that each run is different
 	rand.Seed(time.Now().UnixNano())
 }
 
+// Map is a NGU Industries map layout consisting of tiles and a map mask.
 type Map struct {
 	Tiles [MapY][MapX]Tile
 	Mask  MapMask
 }
 
+// Tile consists of either a regular resource tile, a unusable tile or a beacon tile.
 type Tile struct {
 	Type                 string
 	ProductionMultiplier float64
@@ -31,13 +34,13 @@ type Tile struct {
 	EfficiencyMultiplier float64
 }
 
+// NewMap generates a new map based on the provided mask. Each tile which can be
+// modified by the gamer is set to a regular resource tile.
 func NewMap(mask MapMask) *Map {
 	m := &Map{
 		Tiles: [MapY][MapX]Tile{},
 		Mask:  mask,
 	}
-
-	// Default to all normal production tiles based on map mask.
 	for y, row := range m.Mask {
 		for x, val := range row {
 			if val == 1 {
@@ -73,8 +76,9 @@ func (m *Map) Copy() *Map {
 	return newMap
 }
 
+// Score evaluates the score of the map.
 func (m *Map) Score(optimizationType string) float64 {
-	// Apply beacons. Go through all map tiles and apply the effect of each beacon found.
+	// Go through all map tiles and apply the effect of each beacon found.
 	for y, row := range m.Tiles {
 		for x, val := range row {
 			// Speed beacons
@@ -172,6 +176,7 @@ func (m *Map) Adjust(optimizationType string) {
 	m.Tiles[impactedY][impactedX].Type = newType
 }
 
+// randTileType returns a random tile type based on which beacons are available.
 func randTileType(optimizationType string) string {
 	if optimizationType == "Speed" {
 		r := rand.Intn(10)
@@ -269,6 +274,7 @@ func randTileType(optimizationType string) string {
 	}
 }
 
+// Optimize attempts to find the best map possible for a specific optimization type, be it speed, production or a combination of speed and production.
 func Optimize(mapMaskName string, optimizationType string, optimizationSpread int, mapGoodCount int, mapRandomCount int, mapAdjustCount int) {
 	mask, ok := MapMasks[mapMaskName]
 	if !ok {
@@ -278,9 +284,10 @@ func Optimize(mapMaskName string, optimizationType string, optimizationSpread in
 
 	bestMap := findBestMap(mask, optimizationType, optimizationSpread, mapGoodCount, mapRandomCount, mapAdjustCount)
 	bestMap.Print()
-	fmt.Printf("\nFinal map for %s scored: %.2f\n", mapMaskName, bestMap.Score(optimizationType))
+	fmt.Printf("\nScore: %.2f\n", bestMap.Score(optimizationType))
 }
 
+// findBestMap returns the best map from all good map candidates generated.
 func findBestMap(mask MapMask, optimizationType string, optimizationSpread int, mapGoodCount int, mapRandomCount int, mapAdjustCount int) *Map {
 	var bestMap *Map
 	highScore := -1.0
@@ -305,6 +312,7 @@ func findBestMap(mask MapMask, optimizationType string, optimizationSpread int, 
 	return bestMap
 }
 
+// findGoodMap finds a good map candidate.
 func findGoodMap(mask MapMask, optimizationType string, optimizationSpread int, mapRandomCount int, mapAdjustCount int) *Map {
 	// Generate random map
 	bestMap := generateGoodRandomMap(mask, optimizationType, mapRandomCount)
@@ -317,6 +325,7 @@ func findGoodMap(mask MapMask, optimizationType string, optimizationSpread int, 
 	return bestMap
 }
 
+// generateGoodRandomMap tries to find a good starting random map.
 func generateGoodRandomMap(mask MapMask, optimizationType string, mapRandomCount int) *Map {
 	highScore := 0.0
 	bestMap := NewMap(mask)
@@ -332,6 +341,7 @@ func generateGoodRandomMap(mask MapMask, optimizationType string, mapRandomCount
 	return bestMap
 }
 
+// optimizeMap performs adjustments on provided map and slowly makes it better.
 func optimizeMap(bestMap *Map, optimizationType string, numChangedTiles int, mapAdjustCount int) *Map {
 	highScore := bestMap.Score(optimizationType)
 	for i := 0; i < mapAdjustCount; i++ {
