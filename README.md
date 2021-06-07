@@ -26,8 +26,8 @@ O = donut (production)
 
 Beacons of a given type have their gains added together. Beacons of different type are not added together.
 
-`SpeedGain = BaseSpeed * (100% + SumOfAllSpeedBeacons)`
-`ProductionGain = BaseProduction * (100% + SumOfAllProductionBeacons)`
+- `SpeedGain = BaseSpeed * (100% + SumOfAllSpeedBeacons)`
+- `ProductionGain = BaseProduction * (100% + SumOfAllProductionBeacons)`
 
 # Tips
 
