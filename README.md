@@ -39,5 +39,4 @@ TBD
 - Merge best in here
 - Production only
 - Production and speed combined
-- User input when launching
 - Add donut

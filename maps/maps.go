@@ -1,4 +1,4 @@
-package ngu
+package maps
 
 import (
 	"fmt"
