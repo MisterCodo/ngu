@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/MisterCodo/ngu/maps"
 	"github.com/spf13/cobra"
@@ -49,94 +48,7 @@ var optimizeCmd = &cobra.Command{
 		}
 
 		fmt.Printf("Running %s optimization of map %s with %d cycles, %d random map per cycle and %d adjustments for each random map\n\n", optimizationTypeName, mapMaskName, mapGoodCount, mapRandomCount, mapAdjustCount)
-		optimize(mapMaskName, optimizationTypeName, optimizationSpread)
+		maps.Optimize(mapMaskName, optimizationTypeName, optimizationSpread, mapGoodCount, mapRandomCount, mapAdjustCount)
 		return nil
 	},
-}
-
-func optimize(mapMaskName string, optimizationType string, optimizationSpread int) {
-	mask, ok := maps.MapMasks[mapMaskName]
-	if !ok {
-		fmt.Printf("could not find map mask %s\n", mapMaskName)
-		os.Exit(-1)
-	}
-
-	bestMap := findBestMap(mask, optimizationType, optimizationSpread)
-	bestMap.Print()
-	fmt.Printf("\nFinal map for %s scored: %.2f\n", mapMaskName, bestMap.Score(optimizationType))
-}
-
-func findBestMap(mask maps.MapMask, optimizationType string, optimizationSpread int) *maps.Map {
-	var bestMap *maps.Map
-	highScore := -1.0
-
-	// Find a very good map
-	for i := 0; i < mapGoodCount; i++ {
-		m := findGoodMap(mask, optimizationType, optimizationSpread)
-		newScore := m.Score(optimizationType)
-		fmt.Printf("Cycle i:%d map scored:%.2f\n", i, newScore)
-		if newScore > highScore {
-			bestMap = m
-			highScore = newScore
-		}
-	}
-
-	// Optimize this best candidate to get the best map
-	fmt.Println("")
-	fmt.Println("Found one best candidate, performing final optimization")
-	bestMap = optimizeMap(bestMap, optimizationType, optimizationSpread)
-
-	fmt.Println("")
-	return bestMap
-}
-
-func findGoodMap(mask maps.MapMask, optimizationType string, optimizationSpread int) *maps.Map {
-	// Generate random map
-	bestMap := findRandomMap(mask, optimizationType)
-
-	// Optimize map
-	for i := 1; i < optimizationSpread+1; i++ {
-		bestMap = optimizeMap(bestMap, optimizationType, i)
-	}
-
-	return bestMap
-}
-
-func optimizeMap(bestMap *maps.Map, optimizationType string, numChangedTiles int) *maps.Map {
-	highScore := bestMap.Score(optimizationType)
-	for i := 0; i < mapAdjustCount; i++ {
-		m := bestMap.Copy()
-		for j := 0; j < numChangedTiles; j++ {
-			m.Adjust(optimizationType)
-		}
-		newScore := m.Score(optimizationType)
-		if newScore > highScore {
-			// if numChangedTiles != 1 {
-			// 	fmt.Printf("new:%f old:%f numChangedTiles:%d\n", newScore, highScore, numChangedTiles)
-			// }
-			bestMap = m
-			highScore = newScore
-			// repeat cycle if a change was made
-			if numChangedTiles != 1 {
-				bestMap = optimizeMap(bestMap, optimizationType, numChangedTiles-1)
-				i = 0
-			}
-		}
-	}
-	return bestMap
-}
-
-func findRandomMap(mask maps.MapMask, optimizationType string) *maps.Map {
-	highScore := 0.0
-	bestMap := maps.NewMap(mask)
-	for i := 0; i < mapRandomCount; i++ {
-		m := maps.NewMap(mask)
-		m.Randomize(optimizationType)
-		newScore := m.Score(optimizationType)
-		if newScore > highScore {
-			bestMap = m
-			highScore = newScore
-		}
-	}
-	return bestMap
 }

@@ -147,7 +147,7 @@ rx....OlhxhrxO...O<<
 r>**.*xxxx>>xOx.*O<l
 >>O...x<lhh>xO...O<<
 ```
-score: 493.96
+Score: 493.96
 
 # Best Speed Maps
 

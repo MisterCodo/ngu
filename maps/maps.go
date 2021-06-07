@@ -3,6 +3,7 @@ package maps
 import (
 	"fmt"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/MisterCodo/ngu/plugins/beacons"
@@ -30,101 +31,6 @@ type Tile struct {
 	EfficiencyMultiplier float64
 }
 
-type MapMask [MapY][MapX]int
-
-var MapMasks = map[string]MapMask{
-	"TutorialIsland": {
-		{0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0},
-		{0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0},
-		{0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0},
-		{0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1},
-		{0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0},
-		{0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0},
-		{0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0},
-		{0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0},
-		{0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-	"FleshWorld": {
-		{0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
-		{1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0},
-		{1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0},
-		{1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0},
-		{1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
-		{1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-		{1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-		{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1},
-		{1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0},
-		{0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0},
-		{1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0},
-		{1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0},
-		{1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0},
-		{1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0},
-		{1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0},
-		{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0},
-		{0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0}},
-	"PlanetTronne": {
-		{1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-		{0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0},
-		{1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1},
-		{1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1},
-		{1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1},
-		{1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1},
-		{1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1},
-		{0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
-		{1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-		{1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1},
-		{1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1},
-		{0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1},
-		{1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1},
-		{1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0},
-		{0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1},
-		{1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1},
-		{1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1}},
-	"CandyLand": {
-		{1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1},
-		{1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1},
-		{1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
-		{1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0},
-		{1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1},
-		{1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0},
-		{1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1},
-		{1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-		{1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1},
-		{1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1},
-		{1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1},
-		{1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
-		{1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1},
-		{1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1},
-		{0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1},
-		{0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1},
-		{0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1}},
-	"MansionsAndManagers": {
-		{1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1},
-		{1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1},
-		{1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1},
-		{1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1},
-		{1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1},
-		{1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1},
-		{1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1},
-		{1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1},
-		{0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1},
-		{1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-		{1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1},
-		{1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1},
-		{1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1},
-		{1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1},
-		{1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1}},
-}
-
 func NewMap(mask MapMask) *Map {
 	m := &Map{
 		Tiles: [MapY][MapX]Tile{},
@@ -143,6 +49,28 @@ func NewMap(mask MapMask) *Map {
 	}
 
 	return m
+}
+
+// Randomize picks random tile types for the entire map.
+func (m *Map) Randomize(optimizationType string) {
+	for y, row := range m.Tiles {
+		for x := range row {
+			if m.Mask[y][x] == 1 {
+				m.Tiles[y][x].Type = randTileType(optimizationType)
+			}
+		}
+	}
+}
+
+// Copy creates a new map with the same tiles as the original map.
+func (m *Map) Copy() *Map {
+	newMap := NewMap(m.Mask)
+	for y, row := range m.Tiles {
+		for x := range row {
+			newMap.Tiles[y][x] = m.Tiles[y][x]
+		}
+	}
+	return newMap
 }
 
 func (m *Map) Score(optimizationType string) float64 {
@@ -244,28 +172,6 @@ func (m *Map) Adjust(optimizationType string) {
 	m.Tiles[impactedY][impactedX].Type = newType
 }
 
-// Randomize picks random tile types for the entire map.
-func (m *Map) Randomize(optimizationType string) {
-	for y, row := range m.Tiles {
-		for x := range row {
-			if m.Mask[y][x] == 1 {
-				m.Tiles[y][x].Type = randTileType(optimizationType)
-			}
-		}
-	}
-}
-
-// Copy creates a new map with the same tiles as the original map.
-func (m *Map) Copy() *Map {
-	newMap := NewMap(m.Mask)
-	for y, row := range m.Tiles {
-		for x := range row {
-			newMap.Tiles[y][x] = m.Tiles[y][x]
-		}
-	}
-	return newMap
-}
-
 func randTileType(optimizationType string) string {
 	if optimizationType == "Speed" {
 		r := rand.Intn(10)
@@ -361,4 +267,91 @@ func randTileType(optimizationType string) string {
 	default:
 		return "."
 	}
+}
+
+func Optimize(mapMaskName string, optimizationType string, optimizationSpread int, mapGoodCount int, mapRandomCount int, mapAdjustCount int) {
+	mask, ok := MapMasks[mapMaskName]
+	if !ok {
+		fmt.Printf("could not find map mask %s\n", mapMaskName)
+		os.Exit(-1)
+	}
+
+	bestMap := findBestMap(mask, optimizationType, optimizationSpread, mapGoodCount, mapRandomCount, mapAdjustCount)
+	bestMap.Print()
+	fmt.Printf("\nFinal map for %s scored: %.2f\n", mapMaskName, bestMap.Score(optimizationType))
+}
+
+func findBestMap(mask MapMask, optimizationType string, optimizationSpread int, mapGoodCount int, mapRandomCount int, mapAdjustCount int) *Map {
+	var bestMap *Map
+	highScore := -1.0
+
+	// Find a very good map
+	for i := 0; i < mapGoodCount; i++ {
+		m := findGoodMap(mask, optimizationType, optimizationSpread, mapRandomCount, mapAdjustCount)
+		newScore := m.Score(optimizationType)
+		fmt.Printf("Cycle i:%d map scored:%.2f\n", i, newScore)
+		if newScore > highScore {
+			bestMap = m
+			highScore = newScore
+		}
+	}
+
+	// Optimize this best candidate to get the best map
+	fmt.Println("")
+	fmt.Println("Found one best candidate, performing final optimization")
+	bestMap = optimizeMap(bestMap, optimizationType, optimizationSpread, mapAdjustCount)
+
+	fmt.Println("")
+	return bestMap
+}
+
+func findGoodMap(mask MapMask, optimizationType string, optimizationSpread int, mapRandomCount int, mapAdjustCount int) *Map {
+	// Generate random map
+	bestMap := generateGoodRandomMap(mask, optimizationType, mapRandomCount)
+
+	// Optimize map
+	for i := 1; i < optimizationSpread+1; i++ {
+		bestMap = optimizeMap(bestMap, optimizationType, i, mapAdjustCount)
+	}
+
+	return bestMap
+}
+
+func generateGoodRandomMap(mask MapMask, optimizationType string, mapRandomCount int) *Map {
+	highScore := 0.0
+	bestMap := NewMap(mask)
+	for i := 0; i < mapRandomCount; i++ {
+		m := NewMap(mask)
+		m.Randomize(optimizationType)
+		newScore := m.Score(optimizationType)
+		if newScore > highScore {
+			bestMap = m
+			highScore = newScore
+		}
+	}
+	return bestMap
+}
+
+func optimizeMap(bestMap *Map, optimizationType string, numChangedTiles int, mapAdjustCount int) *Map {
+	highScore := bestMap.Score(optimizationType)
+	for i := 0; i < mapAdjustCount; i++ {
+		m := bestMap.Copy()
+		for j := 0; j < numChangedTiles; j++ {
+			m.Adjust(optimizationType)
+		}
+		newScore := m.Score(optimizationType)
+		if newScore > highScore {
+			// if numChangedTiles != 1 {
+			// 	fmt.Printf("new:%f old:%f numChangedTiles:%d\n", newScore, highScore, numChangedTiles)
+			// }
+			bestMap = m
+			highScore = newScore
+			// repeat cycle if a change was made
+			if numChangedTiles != 1 {
+				bestMap = optimizeMap(bestMap, optimizationType, numChangedTiles-1, mapAdjustCount)
+				i = 0
+			}
+		}
+	}
+	return bestMap
 }
