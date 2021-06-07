@@ -30,6 +30,7 @@ O = donut (production)
 - Improve performance
 - Add more maps here
 - Add option to select which beacons to include
+- Add extra optimization step (beam?)
 
 # Best Combined Speed & Production Maps
 
