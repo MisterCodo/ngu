@@ -8,13 +8,13 @@ import (
 )
 
 const (
-	mapGoodCount   = 100
-	mapRandomCount = 10000
-	mapAdjustCount = 100000
+	mapGoodCount   = 1000
+	mapRandomCount = 100
+	mapAdjustCount = 50000
 )
 
 func main() {
-	mapMaskName := "TutorialIsland"
+	mapMaskName := "CandyLand"
 	mask, ok := ngu.MapMasks[mapMaskName]
 	if !ok {
 		fmt.Printf("could not find map mask %s\n", mapMaskName)
