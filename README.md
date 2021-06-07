@@ -4,7 +4,6 @@ The design relies on 3 steps. The first step consists of generating randomized m
 
 The resulting map is presented to the console where tile types are:
 
-
 ```
 x = unusable space
 . = resource
@@ -22,55 +21,132 @@ hw = horizontal, vertical wall (production)
 O = donut (production)
 ```
 
-# Beacons
-
-Beacons of a given type have their gains added together. Beacons of different type are not added together.
-
-- `SpeedGain = BaseSpeed * (100% + SumOfAllSpeedBeacons)`
-- `ProductionGain = BaseProduction * (100% + SumOfAllProductionBeacons)`
-
 # Tips
 
-- Labs are only impacted by speed gain, you will get lower gains from using combined speed and production maps.
+- Labs are only impacted by speed gain, you will get max output by using speed maps.
 
 # TODO
 
 - Improve performance
 - Add more maps here
-- Add donut
+- Add option to select which beacons to include
 
 # Best Combined Speed & Production Maps
 
 ## Tutorial Island
 
 ```
-xxxxxxxxdwxxxxxxxxxx
-xxxxxxxxddvxxxxwxxxx
-xxxxxxxvxvvxxx*.*.<x
-xxxxxxxvvvvrxr..*.<x
-xxxxxxxxv.xxl<*.*.lx
-xxxr>>>x..xxxlx.xw*x
-xxxhr>>....x<hhwu...
-xxxrr>....lxlxxwxxxx
-xxxr>r*...<<<xxwxxxx
-xxx>rr..uuu<lxxwxxxx
-xxxxxx^uxuu>r...*.lx
-xxxxxxxxxxxxx&*.xx<x
-xxxxxxxxxxxxx&*.*&<x
-xx.xxxxw.wxxxh..*.<x
+xxxxxxxx..xxxxxxxxxx
+xxxxxxxxvdvxxxxwxxxx
+xxxxxxxdxdvxxx..*O<x
+xxxxxxxvvvd>xO*.*O<x
+xxxxxxxxddxx>O*.*O<x
+xxx>>>Ox..xxxOx.xO<x
+xxxh>>.....xlh-.*O<.
+xxx>>>O...Ox<xxwxxxx
+xxxrr>O...O<lxxwxxxx
+xxxh>>O...O<<xxwxxxx
+xxxxxx^uxu^<>O..*O<x
+xxxxxxxxxxxxxO*.xx<x
+xxxxxxxxxxxxxO*.*O<x
+xx.xxxxw^wxxxO*.*O<x
 xx.hxxx.*.xxxxxxxxxx
 xxxxxxx.*.xxxxxxxxxx
 xxxxxxxxxxxxxxxxxxxx
 ```
-Score: 294.90
+Score: 313.81
 
 ## Flesh World
 
+```
+xxxxxxxxvxxxxxvvvv..
+.h.hx..OOOxxxxxdvdxx
+.*>>&**xx*<xxvvvvvvx
+.xxhh......h-vvxdOxx
+^xxxxvv***>>rO...Oxx
+|xxxxOOOOOrr>.....ll
+>xx*.**^^hrr>.....<l
+h>-.....hhhh>...xO<<
+>rO*.**<xxxxOuu^uO<x
+x>OO.OOxxxxxxu^^u^ux
+.>Oxwx^xxxxxx^w^^uxx
+.>Ox.x^xxxxxxvwwuxxx
+>>Ox.xOxxxxxxO..O<<x
+>>Ox.xO<xxxxO*.*Olxx
+>>Ox.xO<hh>>....xxxx
+r>O*.*O<<r>>x*.xxxxx
+x>O....<hhh>..xxxxxx
+```
+Score: 595.19
+
 ## Planet Tronne
+
+```
+dxwdrxx>....hhhh....
+xxdvvx>...*x<lvxx**x
+vdvvvr>x*..Ovvdxx..O
+OO.xxO>O&.^OxvdvO^^*
+O*.xxl<l^^^OxvdvOO..
+.....<hxhx>Ox...<x<h
+...x.lxxx>>r....x<<h
+xxOOOOOhhrxx....lllh
+^^^^^xxhxrrr....<<<h
+^^^^x..xx>>>...xx<<h
+wuu^.*vvdx>x^u^xxxl|
+xxxxxxOO.xO^uu^xxxx.
+.*x>>xx*xxxl^xxxxx..
+..xhhx...x.<huwx.O*x
+xxxxxxx*.*<xxx&.*Ox.
+..xhrxO..Oxxhx*..xl<
+^^x..xxx^^hx>...xO<<
+```
+Score: 567.64
 
 ## Candy Land
 
+```
+dd.*xxxxxx.vvxd&x..<
+vvd..xxxxxxxxxxx.*Ol
+dvddxx...xxxdv.*.*O<
+vvxxxxx*xxOxxdO*.*xx
+..xxlxxxrxxx..OO.<x<
+..xxl<hh>>x...Ol<xxx
+...xxhhx>>x...Ol<xh.
+.*.lxxhhr>x...O<<lh.
+^x^vvxxh>rx...xxxhh.
+^xxdvvxxx>x^^^x<xxx|
+u^xxvvvOxxxxxxxxxvxw
+>>rxx.*xxvv^u^x.vvxv
+rr>.x..Olxxw^xxxxxx.
+>>r...xxlx*.<xr>&O*.
+x>>O..xx....hxhxx...
+xxOOu.OO*.*O<x>.x.*.
+xxx^u^^O..OO<xxxxOOO
+```
+Score: 470.29
+
 ## Mansions & Managers
+
+```
+..OOOOxxx..OOxxxOO*.
+****x*x&*.*&xx*xx.*.
+-.....x--.hxx...xx.-
+vvx***xxxwxxv***&xxw
+OOOOOOxxxxxOOO..OOxx
+xxxxxxxxxxxxxxxxxxxx
+....hhxhh....xhhxx..
+****l<x>*****xxx&***
+...xhhxh.....hhxh...
+^^^dvxxx.*^^^vdxxx**
+xxxxxxOxxxOxxxvdOx..
+uuwdvxxx^xxx^xxxxxxx
+>>....x<hhhxxx...O<<
+r>**x*xxxx>rx.*.*x<<
+rx....OlhxhrxO...O<<
+r>**.*xxxx>>xOx.*O<l
+>>O...x<lhh>xO...O<<
+```
+score: 493.96
 
 # Best Speed Maps
 

@@ -150,7 +150,7 @@ func (m *Map) Score(optimizationType string) float64 {
 	for y, row := range m.Tiles {
 		for x, val := range row {
 			// Speed beacons
-			if val.Type == "*" || val.Type == "<" || val.Type == ">" || val.Type == "v" || val.Type == "^" || val.Type == "k" || val.Type == "-" || val.Type == "|" {
+			if val.Type == "*" || val.Type == "<" || val.Type == ">" || val.Type == "v" || val.Type == "^" || val.Type == "k" || val.Type == "-" || val.Type == "|" || val.Type == "o" {
 				effects := beacons.Beacons[val.Type]().Effect()
 				for _, effect := range effects {
 					impactedX := x + effect.X
@@ -162,7 +162,7 @@ func (m *Map) Score(optimizationType string) float64 {
 			}
 
 			// Production beacons
-			if val.Type == "b" || val.Type == "l" || val.Type == "r" || val.Type == "d" || val.Type == "u" || val.Type == "&" || val.Type == "h" || val.Type == "w" {
+			if val.Type == "b" || val.Type == "l" || val.Type == "r" || val.Type == "d" || val.Type == "u" || val.Type == "&" || val.Type == "h" || val.Type == "w" || val.Type == "O" {
 				effects := beacons.Beacons[val.Type]().Effect()
 				for _, effect := range effects {
 					impactedX := x + effect.X
@@ -286,6 +286,8 @@ func randTileType(optimizationType string) string {
 			return "-"
 		case r == 7:
 			return "|"
+		case r == 8:
+			return "o"
 		default:
 			return "."
 		}
@@ -310,13 +312,15 @@ func randTileType(optimizationType string) string {
 			return "h"
 		case r == 7:
 			return "w"
+		case r == 8:
+			return "O"
 		default:
 			return "."
 		}
 	}
 
 	// Production&Speed
-	r := rand.Intn(18)
+	r := rand.Intn(20)
 	switch {
 	case r == 0:
 		return "*"
@@ -334,6 +338,8 @@ func randTileType(optimizationType string) string {
 		return "-"
 	case r == 7:
 		return "|"
+	case r == 8:
+		return "o"
 	case r == 10:
 		return "b"
 	case r == 11:
@@ -350,6 +356,8 @@ func randTileType(optimizationType string) string {
 		return "h"
 	case r == 17:
 		return "w"
+	case r == 18:
+		return "O"
 	default:
 		return "."
 	}
