@@ -2,44 +2,71 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/MisterCodo/ngu"
 )
 
-func main() {
-	// New map
-	mask := ngu.TutorialIslandMask
-	baseMap := ngu.NewMap(mask)
+const (
+	mapGoodCount   = 100
+	mapRandomCount = 10000
+	mapAdjustCount = 100000
+)
 
-	// m.Print()
+func main() {
+	mapMaskName := "TutorialIsland"
+	mask, ok := ngu.MapMasks[mapMaskName]
+	if !ok {
+		fmt.Printf("could not find map mask %s\n", mapMaskName)
+		os.Exit(-1)
+	}
+
+	bestMap := findBestMap(mask)
+	bestMap.Print()
+	fmt.Printf("Final map of score: %.2f\n", bestMap.Score())
+}
+
+func findBestMap(mask ngu.MapMask) *ngu.Map {
+	var bestMap *ngu.Map
+	highScore := -1.0
+
+	for i := 0; i < mapGoodCount; i++ {
+		m := findGoodMap(mask)
+		newScore := m.Score()
+		fmt.Printf("Good map i:%d scored:%.2f\n", i, newScore)
+		if newScore > highScore {
+			bestMap = m
+			highScore = newScore
+		}
+	}
+
+	return bestMap
+}
+
+func findGoodMap(mask ngu.MapMask) *ngu.Map {
+	baseMap := ngu.NewMap(mask)
 	highScore := baseMap.Score()
-	fmt.Printf("Base score: %.2f\n", highScore)
 
 	bestMap := ngu.NewMap(mask)
-	for i := 0; i < 100000; i++ {
+	for i := 0; i < mapRandomCount; i++ {
 		m := ngu.NewMap(mask)
 		m.Randomize()
 		newScore := m.Score()
 		if newScore > highScore {
 			bestMap = m
 			highScore = newScore
-			fmt.Printf("Better randomized map i:%d score: %.2f\n", i, newScore)
 		}
 	}
-	bestMap.Print()
-	fmt.Printf("Best randomized map score: %.2f\n", bestMap.Score())
 
-	for i := 0; i < 300000; i++ {
+	for i := 0; i < mapAdjustCount; i++ {
 		m := bestMap.Copy()
 		m.Adjust()
 		newScore := m.Score()
 		if newScore > highScore {
 			bestMap = m
 			highScore = newScore
-			fmt.Printf("Better adjusted map i:%d score: %.2f\n", i, newScore)
 		}
 	}
 
-	bestMap.Print()
-	fmt.Printf("Final map of score: %.2f\n", bestMap.Score())
+	return bestMap
 }

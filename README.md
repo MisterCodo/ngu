@@ -1,6 +1,8 @@
 # Design
 
-The design relies on 2 steps. The first step consists of generating randomized maps and only keeping the highest scoring randomized map. The second step consists on making slight adjustments to the randomized map, slowly making it better. The end result is presented to the console where tile types are:
+The design relies on 3 steps. The first step consists of generating randomized maps and only keeping the highest scoring randomized map. The second step consists on making slight adjustments to the randomized map, slowly making it better, this provides a good map (local optimization). The third step consists of generating a bunch of good maps and keeping the best one (global optimization).
+
+The resulting map is presented to the console where tile types are:
 
 
 ```
@@ -11,8 +13,6 @@ k = knight
 -| = horizontal, vertical wall
 o = donut
 ```
-
-Note that this could result in a locally optimized map, and not an optimized map. Future work consists of adding another step to the design.
 
 # Speed Beacons
 
