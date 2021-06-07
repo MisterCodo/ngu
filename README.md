@@ -6,12 +6,20 @@ The resulting map is presented to the console where tile types are:
 
 
 ```
+x = unusable space
 . = resource
-* = box
-k = knight
-^v<> = up, down, left, right arrows
--| = horizontal, vertical wall
-o = donut
+
+* = box (speed)
+k = knight (speed)
+^v<> = up, down, left, right arrows (speed)
+-| = horizontal, vertical wall (speed)
+o = donut (speed)
+
+b = box (production)
+& = knight (production)
+udlr = up, down, left, right arrows (production)
+hw = horizontal, vertical wall (production)
+O = donut (production)
 ```
 
 # Speed Beacons
@@ -37,6 +45,4 @@ TBD
 
 - Trace to see bottlenecks and improve performance
 - Merge best in here
-- Production only
-- Production and speed combined
 - Add donut

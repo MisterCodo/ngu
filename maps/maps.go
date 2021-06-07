@@ -145,11 +145,11 @@ func NewMap(mask MapMask) *Map {
 	return m
 }
 
-func (m *Map) Score() float64 {
+func (m *Map) Score(optimizationType string) float64 {
 	// Apply beacons. Go through all map tiles and apply the effect of each beacon found.
 	for y, row := range m.Tiles {
 		for x, val := range row {
-			// TODO: Fix this once not just speed beacons are used.
+			// Speed beacons
 			if val.Type == "*" || val.Type == "<" || val.Type == ">" || val.Type == "v" || val.Type == "^" || val.Type == "k" || val.Type == "-" || val.Type == "|" {
 				effects := beacons.Beacons[val.Type]().Effect()
 				for _, effect := range effects {
@@ -160,15 +160,29 @@ func (m *Map) Score() float64 {
 					}
 				}
 			}
+
+			// Production beacons
+			if val.Type == "b" || val.Type == "l" || val.Type == "r" || val.Type == "d" || val.Type == "u" || val.Type == "&" || val.Type == "h" || val.Type == "w" {
+				effects := beacons.Beacons[val.Type]().Effect()
+				for _, effect := range effects {
+					impactedX := x + effect.X
+					impactedY := y + effect.Y
+					if impactedX >= 0 && impactedX < MapX && impactedY >= 0 && impactedY < MapY {
+						m.Tiles[impactedY][impactedX].ProductionMultiplier += effect.Gain
+					}
+				}
+			}
 		}
 	}
 
 	// Measure score
 	speedScore := 0.0
+	productionScore := 0.0
 	for _, row := range m.Tiles {
 		for _, val := range row {
 			if val.Type == "." {
 				speedScore += 1.0 * ((100.0 + val.SpeedMultiplier) / 100)
+				productionScore += 1.0 * ((100.0 + val.ProductionMultiplier) / 100)
 			}
 		}
 	}
@@ -182,7 +196,13 @@ func (m *Map) Score() float64 {
 		}
 	}
 
-	return speedScore
+	if optimizationType == "Speed" {
+		return speedScore
+	}
+	if optimizationType == "Production" {
+		return productionScore
+	}
+	return speedScore * productionScore
 }
 
 // Print displays the map layout.
@@ -196,7 +216,7 @@ func (m *Map) Print() {
 }
 
 // Adjust changes one tile of the map to another type.
-func (m *Map) Adjust() {
+func (m *Map) Adjust(optimizationType string) {
 	// Find a tile to adjust, it must be a valid spot based on the map mask.
 	var impactedX, impactedY int
 	for {
@@ -210,7 +230,7 @@ func (m *Map) Adjust() {
 	// Find a new type for the tile, it must be different than the current type.
 	var newType string
 	for {
-		newType = randTileType()
+		newType = randTileType(optimizationType)
 		if m.Tiles[impactedY][impactedX].Type != newType {
 			break
 		}
@@ -221,12 +241,12 @@ func (m *Map) Adjust() {
 }
 
 // Randomize picks random tile types for the entire map.
-func (m *Map) Randomize() {
+func (m *Map) Randomize(optimizationType string) {
 	// For a change on only a subset of tiles at the start
 	for y, row := range m.Tiles {
 		for x := range row {
 			if m.Mask[y][x] == 1 && rand.Intn(5) == 0 {
-				m.Tiles[y][x].Type = randTileType()
+				m.Tiles[y][x].Type = randTileType(optimizationType)
 			}
 		}
 	}
@@ -243,8 +263,57 @@ func (m *Map) Copy() *Map {
 	return newMap
 }
 
-func randTileType() string {
-	r := rand.Intn(10)
+func randTileType(optimizationType string) string {
+	if optimizationType == "Speed" {
+		r := rand.Intn(10)
+		switch {
+		case r == 0:
+			return "*"
+		case r == 1:
+			return "<"
+		case r == 2:
+			return ">"
+		case r == 3:
+			return "v"
+		case r == 4:
+			return "^"
+		case r == 5:
+			return "k"
+		case r == 6:
+			return "-"
+		case r == 7:
+			return "|"
+		default:
+			return "."
+		}
+	}
+
+	if optimizationType == "Production" {
+		r := rand.Intn(10)
+		switch {
+		case r == 0:
+			return "b"
+		case r == 1:
+			return "l"
+		case r == 2:
+			return "r"
+		case r == 3:
+			return "d"
+		case r == 4:
+			return "u"
+		case r == 5:
+			return "&"
+		case r == 6:
+			return "h"
+		case r == 7:
+			return "w"
+		default:
+			return "."
+		}
+	}
+
+	// Production&Speed
+	r := rand.Intn(20)
 	switch {
 	case r == 0:
 		return "*"
@@ -262,6 +331,22 @@ func randTileType() string {
 		return "-"
 	case r == 7:
 		return "|"
+	case r == 10:
+		return "b"
+	case r == 11:
+		return "l"
+	case r == 12:
+		return "r"
+	case r == 13:
+		return "d"
+	case r == 14:
+		return "u"
+	case r == 15:
+		return "&"
+	case r == 16:
+		return "h"
+	case r == 17:
+		return "w"
 	default:
 		return "."
 	}
