@@ -32,3 +32,12 @@ TBD
 
 - One beacon type does not impact a beacon of a different type.
 - Labs are only impacted by speed beacons.
+
+# TODO
+
+- Trace to see bottlenecks and improve performance
+- Merge best in here
+- Production only
+- Production and speed combined
+- User input when launching
+- Add donut

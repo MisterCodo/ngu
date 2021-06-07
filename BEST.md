@@ -26,25 +26,25 @@ Final map of score: 202.88
 
 ```
 xxxxxxxxvxxxxxvvvvv.
-.*..x<vvvvxxxxxvvvxx
-...<-vvxx..xxvvvvv.x
-.xxvvvv..**.<vvx..xx
-.xxxxv.....--.....xx
-^xxxx.....<--......<
-|xx>.....<->......<<
-|>>.....<<>>>...x.<<
->>.....^xxxx>....^<x
-x..*.^^xxxxxx^^^^^^x
-.*.x.x^xxxxxx^^.^.xx
-...x^xvxxxxxxv^^*xxx
-.*.x|xvxxxxxx.....<x
-..^x|x.*xxxx*.*.*<xx
-^^>x.x...--.....xxxx
-^>>>...*.<<*x*.xxxxx
-x>>>.....--...xxxxxx
+...<xvvvvvxxxxxvvvxx
+.*.<vvvxx..xxvvvvvvx
+.xx>vvv..*.<<vvx..xx
+.xxxx......--.....xx
+|xxxx.....<-.......<
+|xx>.....<--.......<
+|>>.....<---....x..<
+.>.*...^xxxx^^^^^^^x
+x*.*.^^xxxxxx^^^^^^x
+...x.x^xxxxxx^v^^^xx
+.*|x^x|xxxxxxv...xxx
+.*.x|xvxxxxxx..*.<<x
+.*.xvx..xxxx*.*..<xx
+.*.x.x.*-->.....xxxx
+.*.*.*...<<*x*.xxxxx
+x>.....---....xxxxxx
 ```
 
-Final map of score: 359.40
+Final map of score: 362.55
 
 # Planet Tronne
 
@@ -73,26 +73,26 @@ Final map of score: 372.64
 # Candy Land:
 
 ```
-v...xxxxxx..-x.-x...
-.***.xxxxxxxxxxxv***
-....xxvvvxxxvvvv....
-.*xxxxx.xx.xxvvv**xx
-..xx<xxx.xxxvv....x<
-.*xx>.....x-.....xxx
-...xx.*x.>x>.....x<<
-|*.*xx..->x.....<<<<
-|x...xx^>>x...xxx<vv
-|xx*vvxxx>x...x^xxxv
-..xx....xxxxxxxxxvxv
-.*vxx.*xxkvv^^x>..x.
-.>..x...<xx.^xxxxxx.
-.*.*..xx.x...x--....
-x.....xx>*.*.x<xx**.
-xx*.^^->.....x--x...
-xxx^^^^>.*..^xxxx^^^
+....xxxxxx..vxvvx.*.
+.**.<xxxxxxxxxxx*.*.
+...<xxvvvxxxvvv.*.*.
+..xxxxx.xx-xx.....xx
+.*xx<xxx.xxxv.*.*<x|
+..xx>....-x.....<xxx
+|.*xx.*x>>x....<<x<.
+|^..xx..->x....<<.*.
+|x.*vxx^>>x...xxx.*.
+.xx..vxxx<x^.^xkxxx.
+.*xx*...xxxxxxxxx.x|
+...xx.*xxkvv|^x<.|x|
+.**.x...<xx..xxxxxx|
+......xx-x...x.<-...
+x****.xx>..*.x<xx.*.
+xx....---....x<-x.*.
+xxx^^^>>.*..^xxxx.*.
 ```
 
-Final map of score: 317.48
+Final map of score: 318.64
 
 # Mansions & Managers
 
