@@ -5,7 +5,7 @@ The design relies on 3 steps. The first step consists of generating randomized m
 The resulting map is presented to the console where tile types are:
 
 ```
-x = unusable space
+  = unusable (space character)
 . = resource
 
 * = box (speed)
@@ -37,231 +37,230 @@ O = donut (production)
 ## Tutorial Island
 
 ```
-xxxxxxxx..xxxxxxxxxx
-xxxxxxxxvdvxxxxwxxxx
-xxxxxxxdxdvxxx..*O<x
-xxxxxxxvvvd>xO*.*O<x
-xxxxxxxxddxx>O*.*O<x
-xxx>>>Ox..xxxOx.xO<x
-xxxh>>.....xlh-.*O<.
-xxx>>>O...Ox<xxwxxxx
-xxxrr>O...O<lxxwxxxx
-xxxh>>O...O<<xxwxxxx
-xxxxxx^uxu^<>O..*O<x
-xxxxxxxxxxxxxO*.xx<x
-xxxxxxxxxxxxxO*.*O<x
-xx.xxxxw^wxxxO*.*O<x
-xx.hxxx.*.xxxxxxxxxx
-xxxxxxx.*.xxxxxxxxxx
-xxxxxxxxxxxxxxxxxxxx
+        ..          
+        vdv    w    
+       d dv   ..*O< 
+       vvvd> O*.*O< 
+        dd  >O*.*O< 
+   >>>O ..   O . O< 
+   h>>..... lh-.*O<.
+   >>>O...O <  w    
+   rr>O...O<l  w    
+   h>>O...O<<  w    
+      ^u u^<>O..*O< 
+             O*.  < 
+             O*.*O< 
+  .    w^w   O*.*O< 
+  .h   .*.          
+       .*.          
+                    
 ```
 Score: 313.81
 
 ## Flesh World
 
 ```
-xxxxxxxxvxxxxxvvvv..
-.h.hx..OOOxxxxxdvdxx
-.*>>&**xx*<xxvvvvvvx
-.xxhh......h-vvxdOxx
-^xxxxvv***>>rO...Oxx
-|xxxxOOOOOrr>.....ll
->xx*.**^^hrr>.....<l
-h>-.....hhhh>...xO<<
->rO*.**<xxxxOuu^uO<x
-x>OO.OOxxxxxxu^^u^ux
-.>Oxwx^xxxxxx^w^^uxx
-.>Ox.x^xxxxxxvwwuxxx
->>Ox.xOxxxxxxO..O<<x
->>Ox.xO<xxxxO*.*Olxx
->>Ox.xO<hh>>....xxxx
-r>O*.*O<<r>>x*.xxxxx
-x>O....<hhh>..xxxxxx
+        v     vvvv..
+.h.h ..OOO     dvd  
+.*>>&**  *<  vvvvvv 
+.  hh......h-vv dO  
+^    vv***>>rO...O  
+|    OOOOOrr>.....ll
+>  *.**^^hrr>.....<l
+h>-.....hhhh>... O<<
+>rO*.**<    Ouu^uO< 
+ >OO.OO      u^^u^u 
+.>O w ^      ^w^^u  
+.>O . ^      vwwu   
+>>O . O      O..O<< 
+>>O . O<    O*.*Ol  
+>>O . O<hh>>....    
+r>O*.*O<<r>> *.     
+ >O....<hhh>..      
 ```
 Score: 595.19
 
 ## Planet Tronne
 
 ```
-dxwdrxx>....hhhh....
-xxdvvx>...*x<lvxx**x
-vdvvvr>x*..Ovvdxx..O
-OO.xxO>O&.^OxvdvO^^*
-O*.xxl<l^^^OxvdvOO..
-.....<hxhx>Ox...<x<h
-...x.lxxx>>r....x<<h
-xxOOOOOhhrxx....lllh
-^^^^^xxhxrrr....<<<h
-^^^^x..xx>>>...xx<<h
-wuu^.*vvdx>x^u^xxxl|
-xxxxxxOO.xO^uu^xxxx.
-.*x>>xx*xxxl^xxxxx..
-..xhhx...x.<huwx.O*x
-xxxxxxx*.*<xxx&.*Ox.
-..xhrxO..Oxxhx*..xl<
-^^x..xxx^^hx>...xO<<
+d wdr  >....hhhh....
+  dvv >...* <lv  ** 
+vdvvvr> *..Ovvd  ..O
+OO.  O>O&.^O vdvO^^*
+O*.  l<l^^^O vdvOO..
+.....<h h >O ...< <h
+... .l   >>r.... <<h
+  OOOOOhhr  ....lllh
+^^^^^  h rrr....<<<h
+^^^^ ..  >>>...  <<h
+wuu^.*vvd > ^u^   l|
+      OO. O^uu^    .
+.* >>  *   l^     ..
+.. hh ... .<huw .O* 
+       *.*<   &.*O .
+.. hr O..O  h *.. l<
+^^ ..   ^^h >... O<<
 ```
 Score: 567.64
 
 ## Candy Land
 
 ```
-dd.*xxxxxx.vvxd&x..<
-vvd..xxxxxxxxxxx.*Ol
-dvddxx...xxxdv.*.*O<
-vvxxxxx*xxOxxdO*.*xx
-..xxlxxxrxxx..OO.<x<
-..xxl<hh>>x...Ol<xxx
-...xxhhx>>x...Ol<xh.
-.*.lxxhhr>x...O<<lh.
-^x^vvxxh>rx...xxxhh.
-^xxdvvxxx>x^^^x<xxx|
-u^xxvvvOxxxxxxxxxvxw
->>rxx.*xxvv^u^x.vvxv
-rr>.x..Olxxw^xxxxxx.
->>r...xxlx*.<xr>&O*.
-x>>O..xx....hxhxx...
-xxOOu.OO*.*O<x>.x.*.
-xxx^u^^O..OO<xxxxOOO
+dd.*      .vv d& ..<
+vvd..           .*Ol
+dvdd  ...   dv.*.*O<
+vv     *  O  dO*.*  
+..  l   r   ..OO.< <
+..  l<hh>> ...Ol<   
+...  hh >> ...Ol< h.
+.*.l  hhr> ...O<<lh.
+^ ^vv  h>r ...   hh.
+^  dvv   > ^^^ <   |
+u^  vvvO         v w
+>>r  .*  vv^u^ .vv v
+rr>. ..Ol  w^      .
+>>r...  l *.< r>&O*.
+ >>O..  ....h h  ...
+  OOu.OO*.*O< >. .*.
+   ^u^^O..OO<    OOO
 ```
 Score: 470.29
 
 ## Mansions & Managers
 
 ```
-..OOOOxxx..OOxxxOO*.
-****x*x&*.*&xx*xx.*.
--.....x--.hxx...xx.-
-vvx***xxxwxxv***&xxw
-OOOOOOxxxxxOOO..OOxx
-xxxxxxxxxxxxxxxxxxxx
-....hhxhh....xhhxx..
-****l<x>*****xxx&***
-...xhhxh.....hhxh...
-^^^dvxxx.*^^^vdxxx**
-xxxxxxOxxxOxxxvdOx..
-uuwdvxxx^xxx^xxxxxxx
->>....x<hhhxxx...O<<
-r>**x*xxxx>rx.*.*x<<
-rx....OlhxhrxO...O<<
-r>**.*xxxx>>xOx.*O<l
->>O...x<lhh>xO...O<<
+..OOOO   ..OO   OO..
+h..... --h.  ...  ..
+vv ***   v  &***&  w
+OOOOOO     OOO..OO  
+                    
+....hh h..... hh  ..
+***ww> r*****   ****
+.dd vv r....hhh ....
+vvvdv   ^u^^^vv   **
+      O   ^   vdO OO
+r.*..   l   O       
+>..... <hhh   ....<<
+>.*. .    >r ...* <<
+. OOOOOO< rr O..OO<l
+^u^^^^    >> O .*Ol<
+^uuu^. ..--h .....<<
 ```
-Score: 493.96
+Score: 495.32
 
 # Best Speed Maps
 
 ## Tutorial Island
 
 ```
-xxxxxxxx..xxxxxxxxxx
-xxxxxxxx.*.xxxxvxxxx
-xxxxxxxvxv.xxx..vv<x
-xxxxxxxvvv>>x....<<x
-xxxxxxxxvvxx>.....<x
-xxx>>..x..xxx>x.x*.x
-xxx>>>.....x---....<
-xxx>>>....<x<xx^xxxx
-xxx>>>....<<<xx|xxxx
-xxx>>>....<<<xxvxxxx
-xxxxxx..x..--.....<x
-xxxxxxxxxxxxx.*.xx<x
-xxxxxxxxxxxxx.*.*.<x
-xx.xxxx^^^xxx.....<x
-xx..xxx.*.xxxxxxxxxx
-xxxxxxx.*.xxxxxxxxxx
-xxxxxxxxxxxxxxxxxxxx
+        ..          
+        .*.    v    
+       v v.   ..vv< 
+       vvv>> ....<< 
+        vv  >.....< 
+   >>.. ..   > . *. 
+   >>>..... ---....<
+   >>>....< <  ^    
+   >>>....<<<  |    
+   >>>....<<<  v    
+      .. ..--.....< 
+             .*.  < 
+             .*.*.< 
+  .    ^^^   .....< 
+  ..   .*.          
+       .*.          
+                    
 ```
 Score: 202.88
 
 ## Flesh World
 
 ```
-xxxxxxxxvxxxxxvvvvv.
-...<xvvvvvxxxxxvvvxx
-.*.<vvvxx..xxvvvvvvx
-.xx>vvv..*.<<vvx..xx
-.xxxx......--.....xx
-|xxxx.....<-.......<
-|xx>.....<--.......<
-|>>.....<---....x..<
-.>.*...^xxxx^^^^^^^x
-x*.*.^^xxxxxx^^^^^^x
-...x.x^xxxxxx^v^^^xx
-.*|x^x|xxxxxxv...xxx
-.*.x|xvxxxxxx..*.<<x
-.*.xvx..xxxx*.*..<xx
-.*.x.x.*-->.....xxxx
-.*.*.*...<<*x*.xxxxx
-x>.....---....xxxxxx
+        v     vvvvv.
+...< vvvvv     vvv  
+.*.<vvv  ..  vvvvvv 
+.  >vvv..*.<<vv ..  
+.    ......--.....  
+|    .....<-.......<
+|  >.....<--.......<
+|>>.....<---.... ..<
+.>.*...^    ^^^^^^^ 
+ *.*.^^      ^^^^^^ 
+... . ^      ^v^^^  
+.*| ^ |      v...   
+.*. | v      ..*.<< 
+.*. v ..    *.*..<  
+.*. . .*-->.....    
+.*.*.*...<<* *.     
+ >.....---....      
 ```
 Score: 362.55
 
 ## Planet Tronne
 
 ```
->x...xx-.....---....
-xx**.x>>...x<<<xxv*x
-....->>x....<<<xx...
-***xx>>>....x<vv*.*.
-...xx--.....x-v.....
-.*vvv<.x^x^^xv..*x*.
-...xv<xxx^^>....x.<|
-xx...<<-^^xx....<<<|
->....xx-x>>.....<<<.
->...x.<xx>.*...xx<*.
->.....<--x.x..^xxx..
-xxxxxx..vx|k^^^xxxx.
-v^x^^xx*xxxk^xxxxx*.
-.^x^^x...x.--..x...x
-xxxxxxx*.*.xxx**k*x|
-..x->x....xx-x...x.<
-..x.-xxx...x---.x...
+> ...  -.....---....
+  **. >>... <<<  v* 
+....->> ....<<<  ...
+***  >>>.... <vv*.*.
+...  --..... -v.....
+.*vvv<. ^ ^^ v..* *.
+... v<   ^^>.... .<|
+  ...<<-^^  ....<<<|
+>....  - >>.....<<<.
+>... .<  >.*...  <*.
+>.....<-- . ..^   ..
+      ..v |k^^^    .
+v^ ^^  *   k^     *.
+.^ ^^ ... .--.. ... 
+       *.*.   **k* |
+.. -> ....  - ... .<
+.. .-   ... ---. ...
 ```
 Score: 372.64
 
 ## Candy Land
 
 ```
-....xxxxxx..vxvvx.*.
-.**.<xxxxxxxxxxx*.*.
-...<xxvvvxxxvvv.*.*.
-..xxxxx.xx-xx.....xx
-.*xx<xxx.xxxv.*.*<x|
-..xx>....-x.....<xxx
-|.*xx.*x>>x....<<x<.
-|^..xx..->x....<<.*.
-|x.*vxx^>>x...xxx.*.
-.xx..vxxx<x^.^xkxxx.
-.*xx*...xxxxxxxxx.x|
-...xx.*xxkvv|^x<.|x|
-.**.x...<xx..xxxxxx|
-......xx-x...x.<-...
-x****.xx>..*.x<xx.*.
-xx....---....x<-x.*.
-xxx^^^>>.*..^xxxx.*.
+....      ..v vv .*.
+.**.<           *.*.
+...<  vvv   vvv.*.*.
+..     .  -  .....  
+.*  <   .   v.*.*< |
+..  >....- .....<   
+|.*  .* >> ....<< <.
+|^..  ..-> ....<<.*.
+| .*v  ^>> ...   .*.
+.  ..v   < ^.^ k   .
+.*  *...         . |
+...  .*  kvv|^ <.| |
+.**. ...<  ..      |
+......  - ... .<-...
+ ****.  >..*. <  .*.
+  ....---.... <- .*.
+   ^^^>>.*..^    .*.
 ```
 Score: 318.64
 
 ## Mansions & Managers
 
 ```
-.....-xxx...-xxx-...
-****xkx.***.xxvxx.*.
-....--x....xx-..xx..
-.*x*.<xxxvxxv.*.*xx|
-.....<xxxxx>.....<xx
-xxxxxxxxxxxxxxxxxxxx
->....-x-.....x.-xx..
-|^^*.>x>.*.*.xxx>.*.
-vvvx.>x>.....<-x>...
-vvvv|xxx.*.*.<vxxx*.
-xxxxxx.xxx.xxxvvvx..
-...v|xxx^xxx^xxxxxxx
-.....<x.--^xxx...<<<
-....x<xxxx>>x....x<<
->x....<<-x>>x....<<<
->^.*.*xxxx>>x.x..<<<
-^^^...x..---x.....<<
+.....-   ...-   -...
+**** k .***.  v  .*.
+....-- ....  -..  ..
+.* *.<   v  v.*.*  |
+.....<     >.....<  
+                    
+>....- -..... .-  ..
+|^^*.> >.*.*.   >.*.
+vvv .> >.....<- >...
+vvvv|   .*.*.<v   *.
+      .   .   vvv ..
+...v|   ^   ^       
+.....< .--^   ...<<<
+.... <    >> .... <<
+> ....<<- >> ....<<<
+>^.*.*    >> . ..<<<
+^^^... ..--- .....<<
 ```
 Score: 329.48

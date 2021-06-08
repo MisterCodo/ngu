@@ -47,7 +47,7 @@ func NewMap(mask MapMask) *Map {
 				m.Tiles[y][x] = Tile{Type: ".", ProductionMultiplier: 0.0, SpeedMultiplier: 0.0, EfficiencyMultiplier: 0.0}
 				continue
 			}
-			m.Tiles[y][x] = Tile{Type: "x", ProductionMultiplier: 0.0, SpeedMultiplier: 0.0, EfficiencyMultiplier: 0.0}
+			m.Tiles[y][x] = Tile{Type: " ", ProductionMultiplier: 0.0, SpeedMultiplier: 0.0, EfficiencyMultiplier: 0.0}
 		}
 	}
 
