@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"sort"
 	"time"
 
 	"github.com/MisterCodo/ngu/plugins/beacons"
@@ -306,7 +307,7 @@ func findBestMap(mask MapMask, optimizationType string, optimizationSpread int, 
 	// Optimize this best candidate to get the best map
 	fmt.Println("")
 	fmt.Println("Found one best candidate, performing final optimization")
-	bestMap = optimizeMap(bestMap, optimizationType, optimizationSpread, mapAdjustCount)
+	bestMap = beamOptimize(bestMap, optimizationType, 2, 5)
 
 	fmt.Println("")
 	return bestMap
@@ -351,8 +352,10 @@ func optimizeMap(bestMap *Map, optimizationType string, numChangedTiles int, map
 		}
 		newScore := m.Score(optimizationType)
 		if newScore > highScore {
-			// if numChangedTiles != 1 {
-			// 	fmt.Printf("new:%f old:%f numChangedTiles:%d\n", newScore, highScore, numChangedTiles)
+			// // Beam it a bit if it's close to known best score
+			// if newScore > 200.0 {
+			// 	fmt.Println("beaming")
+			// 	m = beamOptimize(m, optimizationType, 2, 3)
 			// }
 			bestMap = m
 			highScore = newScore
@@ -364,4 +367,88 @@ func optimizeMap(bestMap *Map, optimizationType string, numChangedTiles int, map
 		}
 	}
 	return bestMap
+}
+
+func beamOptimize(m *Map, optimizationType string, beamSize int, beamKeep int) *Map {
+	highScore := m.Score(optimizationType)
+
+	maps := []*Map{m}
+	for b := 0; b < beamSize; b++ {
+		// fmt.Printf("Beam cycle %d\n", b)
+		maps = beam(maps, optimizationType, beamKeep)
+	}
+	sort.Sort(BySpeedScore{maps})
+
+	// if it's better! might be worse
+	if maps[0].Score(optimizationType) > highScore {
+		// fmt.Println("it did something :D")
+		m = maps[0]
+	}
+	return m
+}
+
+func beam(maps Maps, optimizationType string, beamKeep int) Maps {
+	var beaconTypes []string
+	if optimizationType == "Speed" {
+		beaconTypes = []string{".", "*", "<", ">", "v", "^", "k", "-", "|", "o"}
+	} else if optimizationType == "Production" {
+		beaconTypes = []string{".", "b", "l", "r", "d", "u", "&", "h", "w", "O"}
+	} else {
+		beaconTypes = []string{".", "*", "<", ">", "v", "^", "k", "-", "|", "o", "b", "l", "r", "d", "u", "&", "h", "w", "O"}
+	}
+
+	returnMaps := []*Map{}
+	for _, m := range maps {
+		tmpMaps := []*Map{}
+		for y, row := range m.Tiles {
+			for x := range row {
+				if m.Mask[y][x] == 1 {
+					for _, bt := range beaconTypes {
+						if m.Tiles[y][x].Type == bt {
+							continue
+						}
+						tmpMap := m.Copy()
+						tmpMap.Tiles[y][x].Type = bt
+						tmpMaps = append(tmpMaps, tmpMap)
+					}
+				}
+			}
+		}
+		if optimizationType == "Speed" {
+			sort.Sort(BySpeedScore{tmpMaps})
+		} else if optimizationType == "Production" {
+			sort.Sort(ByProductionScore{tmpMaps})
+		} else {
+			sort.Sort(BySpeedAndProductionScore{tmpMaps})
+		}
+		howMany := beamKeep
+		if len(tmpMaps) < howMany {
+			howMany = len(tmpMaps)
+		}
+		returnMaps = append(returnMaps, tmpMaps[0:howMany-1]...)
+	}
+	return returnMaps
+}
+
+type Maps []*Map
+
+func (m Maps) Len() int      { return len(m) }
+func (m Maps) Swap(i, j int) { m[i], m[j] = m[j], m[i] }
+
+type BySpeedScore struct{ Maps }
+
+func (s BySpeedScore) Less(i, j int) bool {
+	return s.Maps[i].Score("Speed") > s.Maps[j].Score("Speed")
+}
+
+type ByProductionScore struct{ Maps }
+
+func (s ByProductionScore) Less(i, j int) bool {
+	return s.Maps[i].Score("Production") > s.Maps[j].Score("Production")
+}
+
+type BySpeedAndProductionScore struct{ Maps }
+
+func (s BySpeedAndProductionScore) Less(i, j int) bool {
+	return s.Maps[i].Score("SpeedAndProduction") > s.Maps[j].Score("SpeedAndProduction")
 }
