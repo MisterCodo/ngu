@@ -8,6 +8,7 @@ type productionwallvertical struct{}
 
 func (p *productionwallvertical) Effect() []beacons.Effect {
 	return []beacons.Effect{
+		{X: 0, Y: -6, Gain: 27.0},
 		{X: 0, Y: -5, Gain: 27.0},
 		{X: 0, Y: -4, Gain: 27.0},
 		{X: 0, Y: -3, Gain: 27.0},
@@ -19,6 +20,7 @@ func (p *productionwallvertical) Effect() []beacons.Effect {
 		{X: 0, Y: 3, Gain: 27.0},
 		{X: 0, Y: 4, Gain: 27.0},
 		{X: 0, Y: 5, Gain: 27.0},
+		{X: 0, Y: 6, Gain: 27.0},
 	}
 }
 
