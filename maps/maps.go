@@ -297,7 +297,8 @@ func findBestMap(mask MapMask, optimizationType string, optimizationSpread int, 
 	for i := 0; i < mapGoodCount; i++ {
 		m := findGoodMap(mask, optimizationType, optimizationSpread, mapRandomCount, mapAdjustCount)
 		newScore := m.Score(optimizationType)
-		fmt.Printf("Cycle i:%d map scored:%.2f\n", i, newScore)
+		m.Print()
+		fmt.Printf("Cycle i:%d map scored:%.2f\n\n", i, newScore)
 		if newScore > highScore {
 			bestMap = m
 			highScore = newScore
@@ -307,8 +308,10 @@ func findBestMap(mask MapMask, optimizationType string, optimizationSpread int, 
 	// Optimize this best candidate to get the best map
 	fmt.Println("")
 	fmt.Println("Found one best candidate, performing final optimization")
-	bestMap = beamOptimize(bestMap, optimizationType, 2, 5)
-
+	didSomething := true
+	for didSomething {
+		bestMap, didSomething = beamOptimize(bestMap, optimizationType, 3, 5)
+	}
 	fmt.Println("")
 	return bestMap
 }
@@ -316,14 +319,28 @@ func findBestMap(mask MapMask, optimizationType string, optimizationSpread int, 
 // findGoodMap finds a good map candidate.
 func findGoodMap(mask MapMask, optimizationType string, optimizationSpread int, mapRandomCount int, mapAdjustCount int) *Map {
 	// Generate random map
-	bestMap := generateGoodRandomMap(mask, optimizationType, mapRandomCount)
+	m := generateGoodRandomMap(mask, optimizationType, mapRandomCount)
 
 	// Optimize map
 	for i := 1; i < optimizationSpread+1; i++ {
-		bestMap = optimizeMap(bestMap, optimizationType, i, mapAdjustCount)
+		m = optimizeMap(m, optimizationType, i, mapAdjustCount)
 	}
 
-	return bestMap
+	// Alternate beam and optimize for a few cycles
+	for i := 0; i < 5; i++ {
+		var didSomething bool
+		m, didSomething = beamOptimize(m, optimizationType, 2, 3)
+		if !didSomething {
+			break
+		}
+	}
+
+	// Optimize map
+	for i := 1; i < optimizationSpread+1; i++ {
+		m = optimizeMap(m, optimizationType, i, mapAdjustCount)
+	}
+
+	return m
 }
 
 // generateGoodRandomMap tries to find a good starting random map.
@@ -352,11 +369,6 @@ func optimizeMap(bestMap *Map, optimizationType string, numChangedTiles int, map
 		}
 		newScore := m.Score(optimizationType)
 		if newScore > highScore {
-			// // Beam it a bit if it's close to known best score
-			// if newScore > 200.0 {
-			// 	fmt.Println("beaming")
-			// 	m = beamOptimize(m, optimizationType, 2, 3)
-			// }
 			bestMap = m
 			highScore = newScore
 			// repeat cycle if a change was made
@@ -369,7 +381,7 @@ func optimizeMap(bestMap *Map, optimizationType string, numChangedTiles int, map
 	return bestMap
 }
 
-func beamOptimize(m *Map, optimizationType string, beamSize int, beamKeep int) *Map {
+func beamOptimize(m *Map, optimizationType string, beamSize int, beamKeep int) (*Map, bool) {
 	highScore := m.Score(optimizationType)
 
 	maps := []*Map{m}
@@ -380,11 +392,13 @@ func beamOptimize(m *Map, optimizationType string, beamSize int, beamKeep int) *
 	sort.Sort(BySpeedScore{maps})
 
 	// if it's better! might be worse
+	didSomething := false
 	if maps[0].Score(optimizationType) > highScore {
 		// fmt.Println("it did something :D")
 		m = maps[0]
+		didSomething = true
 	}
-	return m
+	return m, didSomething
 }
 
 func beam(maps Maps, optimizationType string, beamKeep int) Maps {

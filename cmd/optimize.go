@@ -27,7 +27,7 @@ func init() {
 	optimizeCmd.Flags().IntVarP(&optimizationSpread, "spread", "s", 3, "optimization modifies up to X tiles at once where X is the spread")
 	optimizeCmd.Flags().IntVarP(&mapGoodCount, "cycle", "c", 100, "how many global optimization cycles to run")
 	optimizeCmd.Flags().IntVarP(&mapRandomCount, "random", "r", 100, "how many random map to generate per cycle")
-	optimizeCmd.Flags().IntVarP(&mapAdjustCount, "adjust", "a", 50000, "how many adjustments to perform on each random map")
+	optimizeCmd.Flags().IntVarP(&mapAdjustCount, "adjust", "a", 10000, "how many adjustments to perform on each random map")
 	rootCmd.AddCommand(optimizeCmd)
 }
 

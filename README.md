@@ -21,16 +21,15 @@ hw = horizontal, vertical wall (production)
 O = donut (production)
 ```
 
-# Tips
-
-- Labs are only impacted by speed gain, you will get max output by using speed maps.
-
 # TODO
 
 - Improve performance
 - Add more maps here
 - Add option to select which beacons to include
-- Add extra optimization step (beam?)
+- Cleanup code, it's getting messy
+- Improve beam
+- Automatically render image
+- Add instructions on how to modify base maps to your currently unlocked tiles in the map
 
 # Best Combined Speed & Production Maps
 
@@ -38,93 +37,92 @@ O = donut (production)
 
 ```
         ..          
-        vdv    w    
-       d dv   ..*O< 
-       vvvd> O*.*O< 
+        vdd    w    
+       v vv   ..*O< 
+       vvvv> O*.*O< 
         dd  >O*.*O< 
-   >>>O ..   O . O< 
-   h>>..... lh-.*O<.
-   >>>O...O <  w    
-   rr>O...O<l  w    
-   h>>O...O<<  w    
-      ^u u^<>O..*O< 
+   >r>O ..   O . O< 
+   h>>..... lhh.*.<<
+   >>>O...O l  w    
+   rr>O*..O<l  w    
+   hr>....O<<  w    
+      uu ^u<>O..*O< 
              O*.  < 
              O*.*O< 
-  .    w^w   O*.*O< 
+  .    ^^w   O*.*O< 
   .h   .*.          
        .*.          
-                    
 ```
-Score: 313.81
+Score: 314.13
 
 ## Flesh World
 
 ```
-        v     vvvv..
-.h.h ..OOO     dvd  
-.*>>&**  *<  vvvvvv 
-.  hh......h-vv dO  
-^    vv***>>rO...O  
-|    OOOOOrr>.....ll
->  *.**^^hrr>.....<l
-h>-.....hhhh>... O<<
->rO*.**<    Ouu^uO< 
- >OO.OO      u^^u^u 
-.>O w ^      ^w^^u  
-.>O . ^      vwwu   
->>O . O      O..O<< 
->>O . O<    O*.*Ol  
->>O . O<hh>>....    
-r>O*.*O<<r>> *.     
- >O....<hhh>..      
+        v     dvvd..
+h>r> ..OOl     dvv
+.rrrO*.  <<  vdddvv
+h  >.....<<hOvv vO
+r    *.*.hh>>....O
+>    OOOOh>r>.....ll
+>  ..*^^hh>>>.....<l
+>>O....<hhhrr... Oll
+>>O*.*O<    O^u^^O<
+ >O..OO      w^^u^u
+>>O . O      w^^^u
+>>O . O      w^^u
+>>O . O      ..O<lh
+>>O . O<    *.*O<<
+>>O . O<l>>O*..O
+r>O*.*O<l>>O .*     
+ >O....<hh-O..
 ```
-Score: 595.19
+Score: 599.64
 
 ## Planet Tronne
 
 ```
-d wdr  >....hhhh....
-  dvv >...* <lv  ** 
-vdvvvr> *..Ovvd  ..O
-OO.  O>O&.^O vdvO^^*
-O*.  l<l^^^O vdvOO..
-.....<h h >O ...< <h
-... .l   >>r.... <<h
-  OOOOOhhr  ....lllh
-^^^^^  h rrr....<<<h
-^^^^ ..  >>>...  <<h
-wuu^.*vvd > ^u^   l|
-      OO. O^uu^    .
-.* >>  *   l^     ..
-.. hh ... .<huw .O* 
-       *.*<   &.*O .
-.. hr O..O  h *.. l<
-^^ ..   ^^h >... O<<
+O .*.  vvvvv..vvvvvd
+  .*. OOvvO .*O  vv
+O*.*>>O ..OOl<O  OOO
+O*.  >>....h hh...*.
+..w  >>....h hh.....
+vdwvr>O . OO vvO* *.
+Ovw vv   uOOOOOO OO.
+  vvvvv^^u  ..*^^^^^
+O..OO  h >>.....l<hh
+.*.* <<  >rO*.*  <lw
+h......hh h ...   h|
+      *.l r^^^^    w
+u^ OO  .   uu     v.
+^u ^^ ^^v v^^uu vvv
+       OOO.   ..OO .
+.* .l >.**  & *.* *.
+.. h-   ... hhh. ...
 ```
-Score: 567.64
+Score: 573.11
 
 ## Candy Land
 
 ```
-dd.*      .vv d& ..<
-vvd..           .*Ol
-dvdd  ...   dv.*.*O<
-vv     *  O  dO*.*  
-..  l   r   ..OO.< <
-..  l<hh>> ...Ol<   
-...  hh >> ...Ol< h.
-.*.l  hhr> ...O<<lh.
-^ ^vv  h>r ...   hh.
-^  dvv   > ^^^ <   |
-u^  vvvO         v w
->>r  .*  vv^u^ .vv v
-rr>. ..Ol  w^      .
->>r...  l *.< r>&O*.
- >>O..  ....h h  ...
-  OOu.OO*.*O< >. .*.
-   ^u^^O..OO<    OOO
+r...      .dw rO .*.
+dw*.*           *.*O
+ddv.  .*.   vdd.*.*O
+vv     .  O  dvO*.
+vv  <   >   .vOO<w .
+..  <<hh>> ...O<<
+...  <h rr ....<< h.
+...l  hh>> ....<l<h.
+. OOv  hr> O..   <hw
+^  vdd   > u^^ O   |
+u^  ddvO         d v
+^ur  .*  lduw^ >OO .
+r>>. ..Ol  vw      .
+hr>...  < h.. hh....
+ >>O*.  l<*** k  ***
+  >O..hhh.... hh ...
+   ^^^^O<***.    ^^u
 ```
-Score: 470.29
+Score: 477.91
 
 ## Mansions & Managers
 
