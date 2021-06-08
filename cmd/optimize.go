@@ -8,11 +8,11 @@ import (
 )
 
 var mapsIntToName = map[int]string{
-	1: "TutorialIsland",
-	2: "FleshWorld",
-	3: "PlanetTronne",
-	4: "CandyLand",
-	5: "MansionsAndManagers",
+	1: "Tutorial Island",
+	2: "Flesh World",
+	3: "Planet Tronne",
+	4: "Candy Land",
+	5: "Mansions & Managers",
 }
 
 var optimizationIntToName = map[int]string{
