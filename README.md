@@ -32,6 +32,7 @@ If you have not yet unlocked all the tiles of a given map, you can go into subfo
 - Cleanup code, it's getting messy
 - Improve beam
 - Automatically render image
+- Add heat maps
 
 # Best Combined Speed & Production Maps
 
@@ -178,25 +179,25 @@ Score: 203.38
 ## Flesh World
 
 ```
-        v     vvvvv.
-.... -vv..     vvv
-.*.*vvv  *.  vvvvvv
-.  >.v.....--.. ..
-.    ...*.<->.....
-.    ....<<>>......<
-|  >.....<---......<
-|>>.....<<---... ..<
-|>.*...^    .|^^^^^
- *.*.^^      ||^^^^
+        v     vvv...
+...< vvvv.     vvv
+.*.<<vv  *.  vvvvvk
+.  >vv.....--.. ..
+.    .....<--.....
+.    ....<>>>.....<<
+|  >....<<>>>.....<<
+|>>....^<<>>>... .<<
+|>.*...^    >.....<
+ *.*.^|      ||^^^.
 .*. . |      ||^^^
-.*. ^ |      ....
+.*. ^ |      |.^^
 .*. o .      ..*.<<
-.*. o .*    k..*.<
-.*. o .....--...    
-.*.*.<.****. .^
- ...--......-^
+.*. o .*    o....<
+.*. o .*...oo..*
+.*.*.*.*.*.* ..
+ ......--.....
 ```
-Score: 364.92
+Score: 365.96
 
 ## Planet Tronne
 
