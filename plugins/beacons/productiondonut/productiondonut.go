@@ -31,6 +31,14 @@ func (p *productiondonut) Effect() []beacons.Effect {
 	}
 }
 
+func (p *productiondonut) Category() beacons.Category {
+	return beacons.Production
+}
+
+func (p *productiondonut) BType() beacons.BType {
+	return beacons.Donut
+}
+
 func init() {
 	beacons.Add("O", func() beacons.Beacon { return &productiondonut{} })
 }

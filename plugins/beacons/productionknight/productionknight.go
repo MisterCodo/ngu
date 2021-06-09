@@ -22,6 +22,14 @@ func (p *productionknight) Effect() []beacons.Effect {
 	}
 }
 
+func (p *productionknight) Category() beacons.Category {
+	return beacons.Production
+}
+
+func (p *productionknight) BType() beacons.BType {
+	return beacons.Knight
+}
+
 func init() {
 	beacons.Add("&", func() beacons.Beacon { return &productionknight{} })
 }

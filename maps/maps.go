@@ -3,8 +3,6 @@ package maps
 import (
 	"fmt"
 	"math/rand"
-	"os"
-	"sort"
 	"time"
 
 	"github.com/MisterCodo/ngu/plugins/beacons"
@@ -25,14 +23,6 @@ func init() {
 type Map struct {
 	Tiles [MapY][MapX]Tile
 	Mask  MapMask
-}
-
-// Tile consists of either a regular resource tile, a unusable tile or a beacon tile.
-type Tile struct {
-	Type                 string
-	ProductionMultiplier float64
-	SpeedMultiplier      float64
-	EfficiencyMultiplier float64
 }
 
 // NewMap generates a new map based on the provided mask. Each tile which can be
@@ -56,11 +46,11 @@ func NewMap(mask MapMask) *Map {
 }
 
 // Randomize picks random tile types for the entire map.
-func (m *Map) Randomize(optimizationType string) {
+func (m *Map) Randomize(t *TileRandomizer) {
 	for y, row := range m.Tiles {
 		for x := range row {
 			if m.Mask[y][x] == 1 {
-				m.Tiles[y][x].Type = randTileType(optimizationType)
+				m.Tiles[y][x].Type = t.randomTile()
 			}
 		}
 	}
@@ -153,7 +143,7 @@ func (m *Map) Print() {
 }
 
 // Adjust changes one tile of the map to another type.
-func (m *Map) Adjust(optimizationType string) {
+func (m *Map) Adjust(tr *TileRandomizer) {
 	// Find a tile to adjust, it must be a valid spot based on the map mask.
 	var impactedX, impactedY int
 	for {
@@ -167,7 +157,7 @@ func (m *Map) Adjust(optimizationType string) {
 	// Find a new type for the tile, it must be different than the current type.
 	var newType string
 	for {
-		newType = randTileType(optimizationType)
+		newType = tr.randomTile()
 		if m.Tiles[impactedY][impactedX].Type != newType {
 			break
 		}
@@ -175,273 +165,6 @@ func (m *Map) Adjust(optimizationType string) {
 
 	// Apply change
 	m.Tiles[impactedY][impactedX].Type = newType
-}
-
-// randTileType returns a random tile type based on which beacons are available.
-func randTileType(optimizationType string) string {
-	if optimizationType == "Speed" {
-		r := rand.Intn(10)
-		switch {
-		case r == 0:
-			return "*"
-		case r == 1:
-			return "<"
-		case r == 2:
-			return ">"
-		case r == 3:
-			return "v"
-		case r == 4:
-			return "^"
-		case r == 5:
-			return "k"
-		case r == 6:
-			return "-"
-		case r == 7:
-			return "|"
-		case r == 8:
-			return "o"
-		default:
-			return "."
-		}
-	}
-
-	if optimizationType == "Production" {
-		r := rand.Intn(10)
-		switch {
-		case r == 0:
-			return "b"
-		case r == 1:
-			return "l"
-		case r == 2:
-			return "r"
-		case r == 3:
-			return "d"
-		case r == 4:
-			return "u"
-		case r == 5:
-			return "&"
-		case r == 6:
-			return "h"
-		case r == 7:
-			return "w"
-		case r == 8:
-			return "O"
-		default:
-			return "."
-		}
-	}
-
-	// Production&Speed
-	r := rand.Intn(20)
-	switch {
-	case r == 0:
-		return "*"
-	case r == 1:
-		return "<"
-	case r == 2:
-		return ">"
-	case r == 3:
-		return "v"
-	case r == 4:
-		return "^"
-	case r == 5:
-		return "k"
-	case r == 6:
-		return "-"
-	case r == 7:
-		return "|"
-	case r == 8:
-		return "o"
-	case r == 10:
-		return "b"
-	case r == 11:
-		return "l"
-	case r == 12:
-		return "r"
-	case r == 13:
-		return "d"
-	case r == 14:
-		return "u"
-	case r == 15:
-		return "&"
-	case r == 16:
-		return "h"
-	case r == 17:
-		return "w"
-	case r == 18:
-		return "O"
-	default:
-		return "."
-	}
-}
-
-// Optimize attempts to find the best map possible for a specific optimization type, be it speed, production or a combination of speed and production.
-func Optimize(mapMaskName string, optimizationType string, optimizationSpread int, mapGoodCount int, mapRandomCount int, mapAdjustCount int) {
-	mask, ok := MapMasks[mapMaskName]
-	if !ok {
-		fmt.Printf("could not find map mask %s\n", mapMaskName)
-		os.Exit(-1)
-	}
-
-	bestMap := findBestMap(mask, optimizationType, optimizationSpread, mapGoodCount, mapRandomCount, mapAdjustCount)
-	bestMap.Print()
-	fmt.Printf("\nScore: %.2f\n", bestMap.Score(optimizationType))
-}
-
-// findBestMap returns the best map from all good map candidates generated.
-func findBestMap(mask MapMask, optimizationType string, optimizationSpread int, mapGoodCount int, mapRandomCount int, mapAdjustCount int) *Map {
-	var bestMap *Map
-	highScore := -1.0
-
-	// Find a very good map
-	for i := 0; i < mapGoodCount; i++ {
-		m := findGoodMap(mask, optimizationType, optimizationSpread, mapRandomCount, mapAdjustCount)
-		newScore := m.Score(optimizationType)
-		m.Print()
-		fmt.Printf("Cycle i:%d map scored:%.2f\n\n", i, newScore)
-		if newScore > highScore {
-			bestMap = m
-			highScore = newScore
-		}
-	}
-
-	// Optimize this best candidate to get the best map
-	fmt.Println("")
-	fmt.Println("Found one best candidate, performing final optimization")
-	didSomething := true
-	for didSomething {
-		bestMap, didSomething = beamOptimize(bestMap, optimizationType, 3, 5)
-	}
-	fmt.Println("")
-	return bestMap
-}
-
-// findGoodMap finds a good map candidate.
-func findGoodMap(mask MapMask, optimizationType string, optimizationSpread int, mapRandomCount int, mapAdjustCount int) *Map {
-	// Generate random map
-	m := generateGoodRandomMap(mask, optimizationType, mapRandomCount)
-
-	// Optimize map
-	for i := 1; i < optimizationSpread+1; i++ {
-		m = optimizeMap(m, optimizationType, i, mapAdjustCount)
-	}
-
-	// Alternate beam and optimize for a few cycles
-	for i := 0; i < 5; i++ {
-		var didSomething bool
-		m, didSomething = beamOptimize(m, optimizationType, 2, 3)
-		if !didSomething {
-			break
-		}
-	}
-
-	// Optimize map
-	for i := 1; i < optimizationSpread+1; i++ {
-		m = optimizeMap(m, optimizationType, i, mapAdjustCount)
-	}
-
-	return m
-}
-
-// generateGoodRandomMap tries to find a good starting random map.
-func generateGoodRandomMap(mask MapMask, optimizationType string, mapRandomCount int) *Map {
-	highScore := 0.0
-	bestMap := NewMap(mask)
-	for i := 0; i < mapRandomCount; i++ {
-		m := NewMap(mask)
-		m.Randomize(optimizationType)
-		newScore := m.Score(optimizationType)
-		if newScore > highScore {
-			bestMap = m
-			highScore = newScore
-		}
-	}
-	return bestMap
-}
-
-// optimizeMap performs adjustments on provided map and slowly makes it better.
-func optimizeMap(bestMap *Map, optimizationType string, numChangedTiles int, mapAdjustCount int) *Map {
-	highScore := bestMap.Score(optimizationType)
-	for i := 0; i < mapAdjustCount; i++ {
-		m := bestMap.Copy()
-		for j := 0; j < numChangedTiles; j++ {
-			m.Adjust(optimizationType)
-		}
-		newScore := m.Score(optimizationType)
-		if newScore > highScore {
-			bestMap = m
-			highScore = newScore
-			// repeat cycle if a change was made
-			if numChangedTiles != 1 {
-				bestMap = optimizeMap(bestMap, optimizationType, numChangedTiles-1, mapAdjustCount)
-				i = 0
-			}
-		}
-	}
-	return bestMap
-}
-
-func beamOptimize(m *Map, optimizationType string, beamSize int, beamKeep int) (*Map, bool) {
-	highScore := m.Score(optimizationType)
-
-	maps := []*Map{m}
-	for b := 0; b < beamSize; b++ {
-		// fmt.Printf("Beam cycle %d\n", b)
-		maps = beam(maps, optimizationType, beamKeep)
-	}
-	sort.Sort(BySpeedScore{maps})
-
-	// if it's better! might be worse
-	didSomething := false
-	if maps[0].Score(optimizationType) > highScore {
-		// fmt.Println("it did something :D")
-		m = maps[0]
-		didSomething = true
-	}
-	return m, didSomething
-}
-
-func beam(maps Maps, optimizationType string, beamKeep int) Maps {
-	var beaconTypes []string
-	if optimizationType == "Speed" {
-		beaconTypes = []string{".", "*", "<", ">", "v", "^", "k", "-", "|", "o"}
-	} else if optimizationType == "Production" {
-		beaconTypes = []string{".", "b", "l", "r", "d", "u", "&", "h", "w", "O"}
-	} else {
-		beaconTypes = []string{".", "*", "<", ">", "v", "^", "k", "-", "|", "o", "b", "l", "r", "d", "u", "&", "h", "w", "O"}
-	}
-
-	returnMaps := []*Map{}
-	for _, m := range maps {
-		tmpMaps := []*Map{}
-		for y, row := range m.Tiles {
-			for x := range row {
-				if m.Mask[y][x] == 1 {
-					for _, bt := range beaconTypes {
-						if m.Tiles[y][x].Type == bt {
-							continue
-						}
-						tmpMap := m.Copy()
-						tmpMap.Tiles[y][x].Type = bt
-						tmpMaps = append(tmpMaps, tmpMap)
-					}
-				}
-			}
-		}
-		if optimizationType == "Speed" {
-			sort.Sort(BySpeedScore{tmpMaps})
-		} else if optimizationType == "Production" {
-			sort.Sort(ByProductionScore{tmpMaps})
-		} else {
-			sort.Sort(BySpeedAndProductionScore{tmpMaps})
-		}
-		howMany := beamKeep
-		if len(tmpMaps) < howMany {
-			howMany = len(tmpMaps)
-		}
-		returnMaps = append(returnMaps, tmpMaps[0:howMany-1]...)
-	}
-	return returnMaps
 }
 
 type Maps []*Map

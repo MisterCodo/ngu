@@ -24,6 +24,14 @@ func (p *productionwallvertical) Effect() []beacons.Effect {
 	}
 }
 
+func (p *productionwallvertical) Category() beacons.Category {
+	return beacons.Production
+}
+
+func (p *productionwallvertical) BType() beacons.BType {
+	return beacons.Wall
+}
+
 func init() {
 	beacons.Add("w", func() beacons.Beacon { return &productionwallvertical{} })
 }

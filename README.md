@@ -28,8 +28,6 @@ If you have not yet unlocked all the tiles of a given map, you can go into subfo
 
 - Improve performance
 - Add more maps here
-- Add option to select which beacons to include
-- Cleanup code, it's getting messy
 - Improve beam
 - Automatically render image
 - Add heat maps

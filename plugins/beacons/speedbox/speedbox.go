@@ -19,6 +19,14 @@ func (p *speedbox) Effect() []beacons.Effect {
 	}
 }
 
+func (p *speedbox) Category() beacons.Category {
+	return beacons.Speed
+}
+
+func (p *speedbox) BType() beacons.BType {
+	return beacons.Box
+}
+
 func init() {
 	beacons.Add("*", func() beacons.Beacon { return &speedbox{} })
 }

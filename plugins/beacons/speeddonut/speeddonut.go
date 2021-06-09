@@ -31,6 +31,14 @@ func (p *speeddonut) Effect() []beacons.Effect {
 	}
 }
 
+func (p *speeddonut) Category() beacons.Category {
+	return beacons.Speed
+}
+
+func (p *speeddonut) BType() beacons.BType {
+	return beacons.Donut
+}
+
 func init() {
 	beacons.Add("o", func() beacons.Beacon { return &speeddonut{} })
 }

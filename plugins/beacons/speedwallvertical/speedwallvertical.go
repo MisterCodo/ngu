@@ -24,6 +24,14 @@ func (p *speedwallvertical) Effect() []beacons.Effect {
 	}
 }
 
+func (p *speedwallvertical) Category() beacons.Category {
+	return beacons.Speed
+}
+
+func (p *speedwallvertical) BType() beacons.BType {
+	return beacons.Wall
+}
+
 func init() {
 	beacons.Add("|", func() beacons.Beacon { return &speedwallvertical{} })
 }

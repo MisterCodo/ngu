@@ -22,6 +22,14 @@ func (p *speedknight) Effect() []beacons.Effect {
 	}
 }
 
+func (p *speedknight) Category() beacons.Category {
+	return beacons.Speed
+}
+
+func (p *speedknight) BType() beacons.BType {
+	return beacons.Knight
+}
+
 func init() {
 	beacons.Add("k", func() beacons.Beacon { return &speedknight{} })
 }

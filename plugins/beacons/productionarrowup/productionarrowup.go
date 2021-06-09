@@ -26,6 +26,14 @@ func (p *productionarrowup) Effect() []beacons.Effect {
 	}
 }
 
+func (p *productionarrowup) Category() beacons.Category {
+	return beacons.Production
+}
+
+func (p *productionarrowup) BType() beacons.BType {
+	return beacons.Arrow
+}
+
 func init() {
 	beacons.Add("u", func() beacons.Beacon { return &productionarrowup{} })
 }

@@ -26,6 +26,14 @@ func (p *speedarrowleft) Effect() []beacons.Effect {
 	}
 }
 
+func (p *speedarrowleft) Category() beacons.Category {
+	return beacons.Speed
+}
+
+func (p *speedarrowleft) BType() beacons.BType {
+	return beacons.Arrow
+}
+
 func init() {
 	beacons.Add("<", func() beacons.Beacon { return &speedarrowleft{} })
 }

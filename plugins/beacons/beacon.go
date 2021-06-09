@@ -2,10 +2,12 @@ package beacons
 
 type Beacon interface {
 	Effect() []Effect
+	Category() Category
+	BType() BType
 }
 
-// Genre represents the beacon type
-type Genre int
+// Category represents the beacon category (Speed, Production or Efficiency)
+type Category int
 
 const (
 	Speed = iota
@@ -13,8 +15,23 @@ const (
 	Efficiency
 )
 
-func (g Genre) String() string {
-	return [...]string{"Speed", "Production", "Efficiency"}[g]
+func (c Category) String() string {
+	return [...]string{"Speed", "Production", "Efficiency"}[c]
+}
+
+// BType represents the beacon type (Box, Knight, Arrow, Wall, Donut)
+type BType int
+
+const (
+	Box = iota
+	Knight
+	Arrow
+	Wall
+	Donut
+)
+
+func (bt BType) String() string {
+	return [...]string{"Box", "Knight", "Arrow", "Wall", "Donut"}[bt]
 }
 
 // Effect indicates the impact at a location.
