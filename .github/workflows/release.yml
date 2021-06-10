@@ -16,7 +16,7 @@ jobs:
 
     - name: BuildLinux
       run: |
-        go build -v ./... 
+        go build 
         pwd
         ls
 
