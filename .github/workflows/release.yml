@@ -15,7 +15,10 @@ jobs:
         go-version: 1.16
 
     - name: BuildLinux
-      run: go build -v ./...
+      run: |
+        go build 
+        pwd
+        ls
 
     - name: Release
       run: gh release create ${{ env.VERSION }} -n "${{ env.MESSAGE }}" -t "${{ env.NAME }}" ${{ env.FILES }}
@@ -25,4 +28,4 @@ jobs:
       VERSION: "v.0.1"
       MESSAGE: "initial release of ngu optimizer"
       NAME: "initial release"
-      FILES: ngu
+      FILES: /home/runner/work/ngu/ngu/ngu
