@@ -33,4 +33,4 @@ changelog:
 release:
   github:
     owner: MisterCodo
-    repo: ngu
+    name: ngu
