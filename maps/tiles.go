@@ -24,14 +24,14 @@ type TileRandomizer struct {
 	Beacons []string // Available beacons (symbols only)
 }
 
-func NewTileRandomizer(categories []beacons.Category, btypes []string) *TileRandomizer {
+func NewTileRandomizer(categories []beacons.Category, btypes []beacons.BType) *TileRandomizer {
 	// Find available beacons based on category and beacon types
 	beaconsAvailable := []string{}
 	for beaconSymbol, beacon := range beacons.Beacons {
 		for _, c := range categories {
 			if beacon().Category() == c {
 				for _, btype := range btypes {
-					if btype == beacon().BType().String() {
+					if btype == beacon().BType() {
 						beaconsAvailable = append(beaconsAvailable, beaconSymbol)
 						continue
 					}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/MisterCodo/ngu/maps"
+	"github.com/MisterCodo/ngu/plugins/beacons"
 	"github.com/spf13/cobra"
 )
 
@@ -21,12 +22,12 @@ var goalMapping = map[int]maps.OptimizationGoal{
 	3: maps.ProductionGoal,
 }
 
-var beaconTypesMapping = map[int][]string{
-	1: {"Box"},
-	2: {"Box", "Knight"},
-	3: {"Box", "Knight", "Arrow"},
-	4: {"Box", "Knight", "Arrow", "Wall"},
-	5: {"Box", "Knight", "Arrow", "Wall", "Donut"},
+var beaconTypesMapping = map[int][]beacons.BType{
+	1: {beacons.Box},
+	2: {beacons.Box, beacons.Knight},
+	3: {beacons.Box, beacons.Knight, beacons.Arrow},
+	4: {beacons.Box, beacons.Knight, beacons.Arrow, beacons.Wall},
+	5: {beacons.Box, beacons.Knight, beacons.Arrow, beacons.Wall, beacons.Donut},
 }
 
 func init() {

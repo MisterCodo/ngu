@@ -10,7 +10,6 @@ import (
 // Optimizer performs map optimization with randomised hill climbing and beam search.
 type Optimizer struct {
 	Goal           OptimizationGoal // Either Speed, Production or Production&Speed
-	Beacons        []string         // Available beacons for the optimization
 	Mask           MapMask          // Map mask
 	TileRandomizer *TileRandomizer  // Allows switching tiles randomly
 
@@ -34,7 +33,7 @@ func (og OptimizationGoal) String() string {
 }
 
 // NewOptimizer returns a map optimizer for a specific map, specific goal and using a list of available beacons.
-func NewOptimizer(goal OptimizationGoal, beaconTypes []string, mapMaskName string, spread int, candidateCount int, randomMapCount int, adjustCycle int) (*Optimizer, error) {
+func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, mapMaskName string, spread int, candidateCount int, randomMapCount int, adjustCycle int) (*Optimizer, error) {
 	mask, ok := MapMasks[mapMaskName]
 	if !ok {
 		return nil, fmt.Errorf("could not find map mask %s", mapMaskName)
@@ -51,7 +50,6 @@ func NewOptimizer(goal OptimizationGoal, beaconTypes []string, mapMaskName strin
 
 	o := &Optimizer{
 		Goal:            goal,
-		Beacons:         beaconTypes,
 		Mask:            mask,
 		TileRandomizer:  NewTileRandomizer(beaconCategories, beaconTypes),
 		CandidatesCount: candidateCount,
