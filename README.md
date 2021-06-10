@@ -1,10 +1,16 @@
-# Design
+# NGU Optimizer
+
+## How to Use
+
+TBD
+
+## Design
 
 The design relies on 3 steps. The first step consists of generating randomized maps and only keeping the highest scoring randomized map. The second step consists on generating a good map (local optimization) by making slight adjustments to the randomized map, both randomly and with beam search. The third step consists of generating a bunch of good candidate maps and keeping the best candidate (global optimization), followed by one last beam search on this best candidate.
 
 The resulting map is presented to the console where tile types are:
 
-```
+```ascii
   = unusable (space character)
 . = resource
 
@@ -20,23 +26,26 @@ udlr = up, down, left, right arrows (production)
 hw = horizontal, vertical wall (production)
 O = donut (production)
 ```
-# Custom Map
+
+## Custom Map
 
 If you have not yet unlocked all the tiles of a given map, you can go into subfolder `maps/data` and edit the corresponding map accordingly before running the optimizer.
 
-# TODO
+## TODO / Upcoming Features
 
 - Improve performance
 - Add more maps here
 - Improve beam
 - Automatically render image
-- Add heat maps
+- Add heat maps of both speed and production gains
+- Add run/improve forever option
+- Automatically build and release windows, linux and macos versions
 
-# Best Combined Speed & Production Maps
+## Best Combined Speed & Production Maps
 
-## Tutorial Island
+```ascii
+Tutorial Island (324.62)
 
-```
         ww
         www    .
        v dv   *.*O<
@@ -55,11 +64,10 @@ If you have not yet unlocked all the tiles of a given map, you can go into subfo
        .*.
 
 ```
-Score: 324.62
 
-## Flesh World
+```ascii
+Flesh World (607.87)
 
-```
         *     www...
 .*.h dw...     vdd
 .*.vvvv  *.  vvvvd.
@@ -78,11 +86,10 @@ h  .....hhh>>....<<<
 ^>r>.*.*<<<l **
  >h>.....lhh-.
 ```
-Score: 607.87
 
-## Planet Tronne
+```ascii
+Planet Tronne (579.34)
 
-```
 w wvw  dddvvvdvdvdvv
   vvv vvvvv vvv  vv
 vdvvvvv OOOOOOv  OOO
@@ -101,11 +108,10 @@ vv >.  *   *.     v.
 .. hh O..O  O .*o *.
 .. .<   ^^^ ^^.. ...
 ```
-Score: 579.34
 
-## Candy Land
+```ascii
+Candy Land (484.03)
 
-```
 .OO.      .ww >O .b.
 w***.           *.*.
 ....  -h.   dvv...*.
@@ -124,11 +130,10 @@ rr>...  < -.. hh....
   OOuu^^>>O*. O< OO|
    ^uuu^>>...    ^^^
 ```
-Score: 484.03
 
-## Mansions & Managers
+```ascii
+Mansions & Managers (498.46)
 
-```
 >OO..O   h..O   OO..
 >O*. O <<*.*  *  *.*
 >.*..O <-h.  ...  .-
@@ -147,13 +152,12 @@ r OO.OO<l hr O...O<l
 ^^^^^^    r> O .*O<<
 ^uuu^^ ..-h> O...O<<
 ```
-Score: 498.46
 
-# Best Speed Maps
+## Best Speed Maps
 
-## Tutorial Island
+```ascii
+Tutorial Island (203.38)
 
-```
         ..
         .*.    v
        v v.   ..vv<
@@ -172,11 +176,10 @@ Score: 498.46
        .*.
 
 ```
-Score: 203.38
 
-## Flesh World
+```ascii
+Flesh World (365.96)
 
-```
         v     vvv...
 ...< vvvv.     vvv
 .*.<<vv  *.  vvvvvk
@@ -195,11 +198,10 @@ Score: 203.38
 .*.*.*.*.*.* ..
  ......--.....
 ```
-Score: 365.96
 
-## Planet Tronne
+```ascii
+Planet Tronne (375.36)
 
-```
 > ...  --.....<-vvvv
   **. >>... .<<  .v
 ....--> ....<<<  *.v
@@ -218,11 +220,10 @@ Score: 365.96
 .. -> ...*  o .*o ..
 .. .-   ... --.. ...
 ```
-Score: 375.36
 
-## Candy Land
+```ascii
+Candy Land (321.90)
 
-```
 ....      ..- vv ...
 .**.<           v**.
 ...<  vvv   >......<
@@ -241,11 +242,10 @@ Score: 375.36
   ....---.... << .*.
    ^^^>>>...^    .*.
 ```
-Score: 321.90
 
-## Mansions & Managers
+```ascii
+Mansions & Managers (330.28)
 
-```
 >....-   ....   -...
 >.*. o .*.**  .  .*.
 >.*..o ..-.  .*.  ..
@@ -264,4 +264,115 @@ vvv|v   .....<v   *.
 ^^^.**    >> . ..<<<
 ^^^^.. ..--- .....<<
 ```
-Score: 330.28
+
+## Best Production Maps
+
+```ascii
+Tutorial Island (191.17)
+
+        .d
+        OOO    w
+       . ..   .....
+       ..... hh....
+        OO  OOO.OOO
+   .... OO   O . O.
+   .h...... .h......
+   OOOOO... .  w
+   ..OOOOOOOO  w
+   ......hh..  .
+      .. ...hh.....
+             O..  l
+             O..OOl
+  .    ...   h..u..
+  ..   .b.
+       ..O
+
+```
+
+```ascii
+Flesh World (360.53)
+
+        d     .....h
+...h ..O..     O&.
+.b.hO..  ..  ..OOw.
+.  OO..OO..OO.. O.
+.    ..OO..OO..OO.
+.    ..OO..OO..OO..O
+w  OO..OO..OO..OO..O
+w..OO..OO..OO..O ..O
+w..OO..O    O..OO..
+ ..OO..      .wOO..
+.b. O w      w.OO.
+... O w      ..OO
+.b. . .      ..OO..
+.OO O ..    O..OO.
+.OO O .OO..OO..O
+.....h.hh... ..
+ ....h.hh.....
+```
+
+```ascii
+Planet Tronne (376.35)
+
+. O..  .....hh.h....
+  O.. ...h. h..  ..
+.OO..OO OO..OO.  Oww
+.OO  OO.OO.. Ow.OO..
+...  h...O.. O..OO..
+.....h. . .. O..O ..
+wOO OO   Ow.OO.. O..
+  O.OO..OO  OO..OO..
+.....  . h......hh..
+.b.. O.  ......  .ww
+.OO.OO.wO . OOw   ww
+      ..O OOOOw    w
+.. ..  .   ..     ..
+wu wr O.. ..... O&.
+       .bOO   ..OO .
+.. h. h...  O .b. ..
+.. .h   ... hh.. ...
+```
+
+```ascii
+Candy Land (320.27)
+
+....      ... .. ...
+..b.l           OO..
+..OO  ddd   OOOOOOO.
+..     O  .  .....
+..  .   .   ...... .
+w.  ...... O..OOO
+wwO  .O .. O..OOO Ow
+wwOO  OO.. O......h.
+. OO.  Ow. Ow.   ...
+.  ...   . OwO O   w
+..  ....         w w
+..O  wO  w.... ... .
+..OO .OO.  ..      .
+..OO..  . OO. OO&O&w
+ .OO..  ..OO. h  ...
+  OO..OO..O.. h. .b.
+   ...hh.....    O..
+```
+
+```ascii
+Mansions & Managers (328.04)
+
+....h.   ..h.   ....
+...O . O..OO  O  .b.
+OOOOO. O..O  .OO  Ow
+.. O..   .  ..b..  .
+......     .......  
+                     
+wwOOOw OwwOOO OO  O.
+.....h h.....   ..b.
+... .. h...h... ....
+wOOOw   ..OO.wO   dw
+      O   O   OOO Ow
+.....   .   .       
+..h... ...h   ......
+.OOO O    .O .h.. ..
+. OO.OOOO OO .OOOOO.
+..O...    .O . O.Ob.
+.....h ..... hh.....
+```
