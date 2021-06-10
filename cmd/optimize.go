@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var mapsIntToName = map[int]string{
+var mapsMapping = map[int]string{
 	1: "Tutorial Island",
 	2: "Flesh World",
 	3: "Planet Tronne",
@@ -15,13 +15,13 @@ var mapsIntToName = map[int]string{
 	5: "Mansions & Managers",
 }
 
-var goalIntToName = map[int]string{
-	1: "SpeedAndProduction",
-	2: "Speed",
-	3: "Production",
+var goalMapping = map[int]maps.OptimizationGoal{
+	1: maps.SpeedAndProductionGoal,
+	2: maps.SpeedGoal,
+	3: maps.ProductionGoal,
 }
 
-var optimizationBeaconsIntToStrings = map[int][]string{
+var beaconTypesMapping = map[int][]string{
 	1: {"Box"},
 	2: {"Box", "Knight"},
 	3: {"Box", "Knight", "Arrow"},
@@ -46,23 +46,23 @@ var optimizeCmd = &cobra.Command{
 	Short: "Optimize map beacons.",
 	Long:  `Optimize placement of beacons on NGU Industries map.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		mapMaskName, ok := mapsIntToName[mapToOptimize]
+		mapMaskName, ok := mapsMapping[mapToOptimize]
 		if !ok {
 			return fmt.Errorf("provided map number invalid")
 		}
 
-		goal, ok := goalIntToName[optimizationGoal]
+		goal, ok := goalMapping[optimizationGoal]
 		if !ok {
 			return fmt.Errorf("provided optimization goal number invalid")
 		}
 
-		beacons, ok := optimizationBeaconsIntToStrings[optimizationBeacons]
+		beaconTypes, ok := beaconTypesMapping[optimizationBeacons]
 		if !ok {
 			return fmt.Errorf("provided optimization beacons number invalid")
 		}
 
-		fmt.Printf("Running %s optimization of map %s with %d cycles, %d random map per cycle and %d adjustments for each random map\n\n", goal, mapMaskName, mapGoodCount, mapRandomCount, mapAdjustCount)
-		optimizer, err := maps.NewOptimizer(goal, beacons, mapMaskName, optimizationSpread, mapGoodCount, mapRandomCount, mapAdjustCount)
+		fmt.Printf("Running %s optimization of map %s with %d cycles, %d random map per cycle and %d adjustments for each random map\n\n", goal.String(), mapMaskName, mapGoodCount, mapRandomCount, mapAdjustCount)
+		optimizer, err := maps.NewOptimizer(goal, beaconTypes, mapMaskName, optimizationSpread, mapGoodCount, mapRandomCount, mapAdjustCount)
 		if err != nil {
 			return fmt.Errorf("could not start optimization: %s", err.Error())
 		}

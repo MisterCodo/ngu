@@ -3,14 +3,16 @@ package maps
 import (
 	"fmt"
 	"sort"
+
+	"github.com/MisterCodo/ngu/plugins/beacons"
 )
 
 // Optimizer performs map optimization with randomised hill climbing and beam search.
 type Optimizer struct {
-	Goal           string          // Either Speed, Production or Production&Speed
-	Beacons        []string        // Available beacons for the optmization
-	Mask           MapMask         // Map mask
-	TileRandomizer *TileRandomizer // Allows switching tiles randomly
+	Goal           OptimizationGoal // Either Speed, Production or Production&Speed
+	Beacons        []string         // Available beacons for the optimization
+	Mask           MapMask          // Map mask
+	TileRandomizer *TileRandomizer  // Allows switching tiles randomly
 
 	CandidatesCount int // How many map candidates to generate during optimization
 	RandomMapCount  int // How many random map to generate for each candidate map
@@ -18,18 +20,40 @@ type Optimizer struct {
 	Spread          int // How much spread during randomised hill climbing
 }
 
+// OptimizationGoal represents the optimization goal.
+type OptimizationGoal int
+
+const (
+	SpeedAndProductionGoal = iota
+	SpeedGoal
+	ProductionGoal
+)
+
+func (og OptimizationGoal) String() string {
+	return [...]string{"SpeedAndProduction", "Speed", "Production"}[og]
+}
+
 // NewOptimizer returns a map optimizer for a specific map, specific goal and using a list of available beacons.
-func NewOptimizer(goal string, beacons []string, mapMaskName string, spread int, candidateCount int, randomMapCount int, adjustCycle int) (*Optimizer, error) {
+func NewOptimizer(goal OptimizationGoal, beaconTypes []string, mapMaskName string, spread int, candidateCount int, randomMapCount int, adjustCycle int) (*Optimizer, error) {
 	mask, ok := MapMasks[mapMaskName]
 	if !ok {
 		return nil, fmt.Errorf("could not find map mask %s", mapMaskName)
 	}
 
+	var beaconCategories []beacons.Category
+	if goal == SpeedAndProductionGoal {
+		beaconCategories = []beacons.Category{beacons.Speed, beacons.Production}
+	} else if goal == SpeedGoal {
+		beaconCategories = []beacons.Category{beacons.Speed}
+	} else if goal == ProductionGoal {
+		beaconCategories = []beacons.Category{beacons.Production}
+	}
+
 	o := &Optimizer{
 		Goal:            goal,
-		Beacons:         beacons,
+		Beacons:         beaconTypes,
 		Mask:            mask,
-		TileRandomizer:  NewTileRandomizer(goal, beacons),
+		TileRandomizer:  NewTileRandomizer(beaconCategories, beaconTypes),
 		CandidatesCount: candidateCount,
 		RandomMapCount:  randomMapCount,
 		AdjustCycle:     adjustCycle,
@@ -157,9 +181,9 @@ func (o *Optimizer) beam(maps Maps, beamKeep int) Maps {
 				}
 			}
 		}
-		if o.Goal == "Speed" {
+		if o.Goal == SpeedGoal {
 			sort.Sort(BySpeedScore{tmpMaps})
-		} else if o.Goal == "Production" {
+		} else if o.Goal == ProductionGoal {
 			sort.Sort(ByProductionScore{tmpMaps})
 		} else {
 			sort.Sort(BySpeedAndProductionScore{tmpMaps})

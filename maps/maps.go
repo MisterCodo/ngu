@@ -35,10 +35,10 @@ func NewMap(mask MapMask) *Map {
 	for y, row := range m.Mask {
 		for x, val := range row {
 			if val == 1 {
-				m.Tiles[y][x] = Tile{Type: ".", ProductionMultiplier: 0.0, SpeedMultiplier: 0.0, EfficiencyMultiplier: 0.0}
+				m.Tiles[y][x] = Tile{Type: ProductionTile, ProductionMultiplier: 0.0, SpeedMultiplier: 0.0, EfficiencyMultiplier: 0.0}
 				continue
 			}
-			m.Tiles[y][x] = Tile{Type: " ", ProductionMultiplier: 0.0, SpeedMultiplier: 0.0, EfficiencyMultiplier: 0.0}
+			m.Tiles[y][x] = Tile{Type: UnusableTile, ProductionMultiplier: 0.0, SpeedMultiplier: 0.0, EfficiencyMultiplier: 0.0}
 		}
 	}
 
@@ -68,12 +68,18 @@ func (m *Map) Copy() *Map {
 }
 
 // Score evaluates the score of the map.
-func (m *Map) Score(optimizationType string) float64 {
+func (m *Map) Score(goal OptimizationGoal) float64 {
 	// Go through all map tiles and apply the effect of each beacon found.
 	for y, row := range m.Tiles {
 		for x, val := range row {
+			// Skip production and unusable tiles
+			if val.Type == ProductionTile || val.Type == UnusableTile {
+				continue
+			}
+
 			// Speed beacons
-			if val.Type == "*" || val.Type == "<" || val.Type == ">" || val.Type == "v" || val.Type == "^" || val.Type == "k" || val.Type == "-" || val.Type == "|" || val.Type == "o" {
+			b := beacons.Beacons[val.Type]
+			if b().Category() == beacons.Speed {
 				effects := beacons.Beacons[val.Type]().Effect()
 				for _, effect := range effects {
 					impactedX := x + effect.X
@@ -82,10 +88,11 @@ func (m *Map) Score(optimizationType string) float64 {
 						m.Tiles[impactedY][impactedX].SpeedMultiplier += effect.Gain
 					}
 				}
+				continue
 			}
 
 			// Production beacons
-			if val.Type == "b" || val.Type == "l" || val.Type == "r" || val.Type == "d" || val.Type == "u" || val.Type == "&" || val.Type == "h" || val.Type == "w" || val.Type == "O" {
+			if b().Category() == beacons.Production {
 				effects := beacons.Beacons[val.Type]().Effect()
 				for _, effect := range effects {
 					impactedX := x + effect.X
@@ -104,7 +111,7 @@ func (m *Map) Score(optimizationType string) float64 {
 	productionAndSpeedScore := 0.0
 	for _, row := range m.Tiles {
 		for _, val := range row {
-			if val.Type == "." {
+			if val.Type == ProductionTile {
 				tSpeedScore := (100.0 + val.SpeedMultiplier) / 100
 				speedScore += tSpeedScore
 				tProductionScore := (100.0 + val.ProductionMultiplier) / 100
@@ -123,13 +130,16 @@ func (m *Map) Score(optimizationType string) float64 {
 		}
 	}
 
-	if optimizationType == "Speed" {
+	if goal == SpeedGoal {
 		return speedScore
 	}
-	if optimizationType == "Production" {
+	if goal == ProductionGoal {
 		return productionScore
 	}
-	return productionAndSpeedScore
+	if goal == SpeedAndProductionGoal {
+		return productionAndSpeedScore
+	}
+	return 0.0
 }
 
 // Print displays the map layout.
@@ -175,17 +185,17 @@ func (m Maps) Swap(i, j int) { m[i], m[j] = m[j], m[i] }
 type BySpeedScore struct{ Maps }
 
 func (s BySpeedScore) Less(i, j int) bool {
-	return s.Maps[i].Score("Speed") > s.Maps[j].Score("Speed")
+	return s.Maps[i].Score(SpeedGoal) > s.Maps[j].Score(SpeedGoal)
 }
 
 type ByProductionScore struct{ Maps }
 
 func (s ByProductionScore) Less(i, j int) bool {
-	return s.Maps[i].Score("Production") > s.Maps[j].Score("Production")
+	return s.Maps[i].Score(ProductionGoal) > s.Maps[j].Score(ProductionGoal)
 }
 
 type BySpeedAndProductionScore struct{ Maps }
 
 func (s BySpeedAndProductionScore) Less(i, j int) bool {
-	return s.Maps[i].Score("SpeedAndProduction") > s.Maps[j].Score("SpeedAndProduction")
+	return s.Maps[i].Score(SpeedAndProductionGoal) > s.Maps[j].Score(SpeedAndProductionGoal)
 }
