@@ -2,6 +2,7 @@ package maps
 
 import (
 	"fmt"
+	"math/rand"
 	"sort"
 
 	"github.com/MisterCodo/ngu/plugins/beacons"
@@ -164,6 +165,7 @@ func (o *Optimizer) beamOptimize(m *Map, beamSize int, beamKeep int) *Map {
 func (o *Optimizer) beam(maps Maps, beamKeep int) Maps {
 	returnMaps := []*Map{}
 	for _, m := range maps {
+		// Generate all possible maps 1 change away from map m
 		tmpMaps := []*Map{}
 		for y, row := range m.Tiles {
 			for x := range row {
@@ -179,6 +181,11 @@ func (o *Optimizer) beam(maps Maps, beamKeep int) Maps {
 				}
 			}
 		}
+
+		// Shuffle the maps so that two maps with the same score have an equal chance of being in the top scoring maps
+		rand.Shuffle(len(tmpMaps), func(i, j int) { tmpMaps[i], tmpMaps[j] = tmpMaps[j], tmpMaps[i] })
+
+		// Keep the best X maps only
 		if o.Goal == SpeedGoal {
 			sort.Sort(BySpeedScore{tmpMaps})
 		} else if o.Goal == ProductionGoal {
@@ -190,6 +197,7 @@ func (o *Optimizer) beam(maps Maps, beamKeep int) Maps {
 		if len(tmpMaps) < howMany {
 			howMany = len(tmpMaps)
 		}
+
 		returnMaps = append(returnMaps, tmpMaps[0:howMany-1]...)
 	}
 	return returnMaps
