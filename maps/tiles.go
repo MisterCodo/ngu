@@ -24,8 +24,8 @@ type TileRandomizer struct {
 	Beacons []string // Available beacons (symbols only)
 }
 
+// NewTileRandomizer returns a new tile randomizer. It sets available beacons based on category and beacon types.
 func NewTileRandomizer(categories []beacons.Category, btypes []beacons.BType) *TileRandomizer {
-	// Find available beacons based on category and beacon types
 	beaconsAvailable := []string{}
 	for beaconSymbol, beacon := range beacons.Beacons {
 		for _, c := range categories {
@@ -45,7 +45,7 @@ func NewTileRandomizer(categories []beacons.Category, btypes []beacons.BType) *T
 
 // randomTile returns either an available beacon (symbol) or a regular production tile symbol.
 func (tr *TileRandomizer) randomTile() string {
-	r := rand.Intn(len(tr.Beacons) + 2)
+	r := rand.Intn(len(tr.Beacons) + 2) // +2 is arbitrary, just using a bit more production tiles
 	if r < len(tr.Beacons) {
 		return tr.Beacons[r]
 	}
