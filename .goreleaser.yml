@@ -30,3 +30,7 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+release:
+  github:
+    owner: MisterCodo
+    repo: ngu
