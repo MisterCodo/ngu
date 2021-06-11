@@ -3,17 +3,17 @@ package maps
 import (
 	"fmt"
 	"math/rand"
-	"os"
 	"sort"
 
 	"github.com/MisterCodo/ngu/plugins/beacons"
+	"github.com/MisterCodo/ngu/plugins/locations"
 )
 
 // Optimizer performs map optimization with randomised hill climbing and beam search.
 type Optimizer struct {
-	Goal           OptimizationGoal // Either Speed, Production or Production&Speed
-	Mask           MapMask          // Map mask
-	TileRandomizer *TileRandomizer  // Allows switching tiles randomly
+	Goal           OptimizationGoal   // Either Speed, Production or Production&Speed
+	Location       locations.Location // Location (e.g. tutorial island)
+	TileRandomizer *TileRandomizer    // Allows switching tiles randomly
 
 	CandidatesCount int // How many map candidates to generate during optimization
 	RandomMapCount  int // How many random map to generate for each candidate map
@@ -34,11 +34,11 @@ func (og OptimizationGoal) String() string {
 	return [...]string{"SpeedAndProduction", "Speed", "Production"}[og]
 }
 
-// NewOptimizer returns a map optimizer for a specific map, specific goal and using a list of available beacons.
-func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, mapMaskName string, spread int, candidateCount int, randomMapCount int, adjustCycle int) (*Optimizer, error) {
-	mask, ok := MapMasks[mapMaskName]
+// NewOptimizer returns a map optimizer for a specific map location, specific goal and using a list of available beacons.
+func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, locationName string, spread int, candidateCount int, randomMapCount int, adjustCycle int) (*Optimizer, error) {
+	location, ok := locations.Locations[locationName]
 	if !ok {
-		return nil, fmt.Errorf("could not find map mask %s", mapMaskName)
+		return nil, fmt.Errorf("could not find map location %s", locationName)
 	}
 
 	var beaconCategories []beacons.Category
@@ -52,7 +52,7 @@ func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, mapMaskNam
 
 	o := &Optimizer{
 		Goal:            goal,
-		Mask:            mask,
+		Location:        location(),
 		TileRandomizer:  NewTileRandomizer(beaconCategories, beaconTypes),
 		CandidatesCount: candidateCount,
 		RandomMapCount:  randomMapCount,
@@ -64,7 +64,7 @@ func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, mapMaskNam
 }
 
 // Optimize attempts to find the best map possible for a specific optimization type, be it speed, production or a combination of speed and production.
-func (o *Optimizer) Run(mapMaskName string) {
+func (o *Optimizer) Run() error {
 	var bestMap *Map
 	highScore := -1.0
 
@@ -86,16 +86,17 @@ func (o *Optimizer) Run(mapMaskName string) {
 
 	// Print results
 	score := bestMap.Score(o.Goal)
-	fmt.Printf("\n%s (%.2f)\n", mapMaskName, score)
+	fmt.Printf("\n%s (%.2f)\n", o.Location.PrettyName(), score)
 	bestMap.Print()
 	fmt.Println("")
 
 	// Generate map image
-	err := DrawMap(bestMap, mapMaskName, o.Goal.String(), score)
+	err := bestMap.Draw()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(-1)
+		return err
 	}
+
+	return nil
 }
 
 // generateGoodMapCandidate finds a good map candidate by first generating a random map, hill climbing and then beam searching.
@@ -114,9 +115,9 @@ func (o *Optimizer) generateGoodMapCandidate() *Map {
 // generateGoodRandomMap tries to find a good random map.
 func (o *Optimizer) generateGoodRandomMap() *Map {
 	highScore := 0.0
-	bestMap := NewMap(o.Mask)
+	bestMap := NewMap(o.Location)
 	for i := 0; i < o.RandomMapCount; i++ {
-		m := NewMap(o.Mask)
+		m := NewMap(o.Location)
 		m.Randomize(o.TileRandomizer)
 		newScore := m.Score(o.Goal)
 		if newScore > highScore {
@@ -177,7 +178,7 @@ func (o *Optimizer) beam(maps Maps, beamKeep int) Maps {
 		tmpMaps := []*Map{}
 		for y, row := range m.Tiles {
 			for x := range row {
-				if m.Mask[y][x] == 1 {
+				if m.Tiles[y][x].Type == ProductionTile {
 					for _, bt := range o.TileRandomizer.Beacons {
 						if m.Tiles[y][x].Type == bt {
 							continue

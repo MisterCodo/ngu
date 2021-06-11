@@ -50,7 +50,7 @@ O = donut (production)
 
 ## Custom Map
 
-If you have not yet unlocked all the tiles of a given map, you can go into subfolder `maps/data` and edit the corresponding map accordingly before running the optimizer. This is currently only available by running the optimizer from code with Go.
+If you have not yet unlocked all the tiles of a given map, you can go into subfolder `plugins/locations/<mapname>/data` and edit the corresponding txt file before running the optimizer. This is currently only available by running the optimizer from code with Go.
 
 ## TODO / Upcoming Features
 

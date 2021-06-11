@@ -8,12 +8,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var mapsMapping = map[int]string{
-	1: "Tutorial Island",
-	2: "Flesh World",
-	3: "Planet Tronne",
-	4: "Candy Land",
-	5: "Mansions & Managers",
+var locationsMapping = map[int]string{
+	1: "TutorialIsland",
+	2: "FleshWorld",
+	3: "PlanetTronne",
+	4: "CandyLand",
+	5: "MansionsAndManagers",
 }
 
 var goalMapping = map[int]maps.OptimizationGoal{
@@ -47,7 +47,7 @@ var optimizeCmd = &cobra.Command{
 	Short: "Optimize map beacons.",
 	Long:  `Optimize placement of beacons on NGU Industries map.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		mapMaskName, ok := mapsMapping[mapToOptimize]
+		locationName, ok := locationsMapping[mapToOptimize]
 		if !ok {
 			return fmt.Errorf("provided map number invalid")
 		}
@@ -62,12 +62,17 @@ var optimizeCmd = &cobra.Command{
 			return fmt.Errorf("provided optimization beacons number invalid")
 		}
 
-		fmt.Printf("Running %s optimization of map %s with %d cycles, %d random map per cycle and %d adjustments for each random map\n\n", goal.String(), mapMaskName, mapGoodCount, mapRandomCount, mapAdjustCount)
-		optimizer, err := maps.NewOptimizer(goal, beaconTypes, mapMaskName, optimizationSpread, mapGoodCount, mapRandomCount, mapAdjustCount)
+		optimizer, err := maps.NewOptimizer(goal, beaconTypes, locationName, optimizationSpread, mapGoodCount, mapRandomCount, mapAdjustCount)
 		if err != nil {
 			return fmt.Errorf("could not start optimization: %s", err.Error())
 		}
-		optimizer.Run(mapMaskName)
+
+		fmt.Printf("Running %s optimization of map %s with %d cycles\n\n", goal.String(), optimizer.Location.PrettyName(), mapGoodCount)
+
+		err = optimizer.Run()
+		if err != nil {
+			return fmt.Errorf("could not run optimization: %s", err.Error())
+		}
 
 		return nil
 	},

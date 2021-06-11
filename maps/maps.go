@@ -2,16 +2,23 @@ package maps
 
 import (
 	"fmt"
+	"image"
+	"image/draw"
+	"image/png"
 	"math/rand"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/MisterCodo/ngu/plugins/beacons"
 	_ "github.com/MisterCodo/ngu/plugins/beacons/all"
+	"github.com/MisterCodo/ngu/plugins/locations"
+	_ "github.com/MisterCodo/ngu/plugins/locations/all"
 )
 
 const (
-	MapX = 20
-	MapY = 17
+	MapX = 20 // How many X tiles in a map
+	MapY = 17 // How many Y tiles in a map
 )
 
 func init() {
@@ -19,20 +26,20 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-// Map is a NGU Industries map layout consisting of tiles and a map mask.
+// Map is a NGU Industries map layout consisting of tiles and a location.
 type Map struct {
-	Tiles [MapY][MapX]Tile
-	Mask  MapMask
+	Tiles    [MapY][MapX]Tile
+	Location locations.Location
 }
 
-// NewMap generates a new map based on the provided mask. Each tile which can be
+// NewMap generates a new map based on the provided location. Each tile which can be
 // modified by the gamer is set to a regular resource tile.
-func NewMap(mask MapMask) *Map {
+func NewMap(location locations.Location) *Map {
 	m := &Map{
-		Tiles: [MapY][MapX]Tile{},
-		Mask:  mask,
+		Tiles:    [MapY][MapX]Tile{},
+		Location: location,
 	}
-	for y, row := range m.Mask {
+	for y, row := range m.Location.Mask() {
 		for x, val := range row {
 			if val == 1 {
 				m.Tiles[y][x] = Tile{Type: ProductionTile, ProductionMultiplier: 0.0, SpeedMultiplier: 0.0, EfficiencyMultiplier: 0.0}
@@ -49,7 +56,7 @@ func NewMap(mask MapMask) *Map {
 func (m *Map) Randomize(t *TileRandomizer) {
 	for y, row := range m.Tiles {
 		for x := range row {
-			if m.Mask[y][x] == 1 {
+			if m.Location.Mask()[y][x] == 1 {
 				m.Tiles[y][x].Type = t.randomTile()
 			}
 		}
@@ -58,7 +65,7 @@ func (m *Map) Randomize(t *TileRandomizer) {
 
 // Copy creates a new map with the same tiles as the original map.
 func (m *Map) Copy() *Map {
-	newMap := NewMap(m.Mask)
+	newMap := NewMap(m.Location)
 	for y, row := range m.Tiles {
 		for x := range row {
 			newMap.Tiles[y][x] = m.Tiles[y][x]
@@ -152,6 +159,45 @@ func (m *Map) Print() {
 	}
 }
 
+// DrawMap draws the map image.
+func (m *Map) Draw() error {
+	// Initialize output image
+	img := m.Location.Image()
+	outputImg := image.NewRGBA(image.Rect(0, 0, locations.ImgSizeX, locations.ImgSizeY))
+	sr := img.Bounds()
+	draw.Draw(outputImg, sr, img, image.Point{}, draw.Src)
+
+	// Go through each tile and if it's a beacon, print on top of the loaded image
+	for y, row := range m.Tiles {
+		for x := range row {
+			beaconType := m.Tiles[y][x].Type
+			if beaconType == UnusableTile || beaconType == ProductionTile {
+				continue
+			}
+			beaconImg := beacons.Beacons[beaconType]().Image()
+			sr = beaconImg.Bounds()
+			r := sr.Sub(sr.Min).Add(image.Point{x * beacons.ImgSize, y * beacons.ImgSize})
+			draw.Draw(outputImg, r, beaconImg, image.Point{}, draw.Over)
+		}
+	}
+
+	// Save image to disk
+	outName := strings.Join([]string{m.Location.UglyName(), fmt.Sprintf("%d", time.Now().Unix())}, "_") + ".png"
+	out, err := os.Create(outName)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	err = png.Encode(out, outputImg)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Generated output image %s\n", outName)
+	return nil
+}
+
 // Adjust changes one tile of the map to another type.
 func (m *Map) Adjust(tr *TileRandomizer) {
 	// Find a tile to adjust, it must be a valid spot based on the map mask.
@@ -159,7 +205,7 @@ func (m *Map) Adjust(tr *TileRandomizer) {
 	for {
 		impactedX = rand.Intn(MapX)
 		impactedY = rand.Intn(MapY)
-		if m.Mask[impactedY][impactedX] == 1 {
+		if m.Location.Mask()[impactedY][impactedX] == 1 {
 			break
 		}
 	}
