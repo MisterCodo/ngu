@@ -21,7 +21,7 @@ Flags:
   -s, --spread int    optimization modifies up to X tiles at once during randomised hill climbing where X is the spread (default 3)
 ```
 
-Important flags are `-m` for choosing the map, `-b` for specifying beacons you have unlocked in the game and `-g` for choosing the type of optimization (speed, production or combination of speed&production). For instance, to launch a speed optimization for Candy Land with box and knight beacons, use command `ngu optimize -m 4 -b 2 -g 2`. It will run for a few minutes before offering an optimized map.
+Important flags are `-m` for choosing the map, `-b` for specifying beacons you have unlocked in the game and `-g` for choosing the type of optimization (speed, production or combination of speed&production). For instance, to launch a speed optimization for Candy Land with box and knight beacons, use command `ngu optimize -m 4 -b 2 -g 2`. It will run for a few minutes before offering an optimized map in console and will also generate an output png image on disk.
 
 If you want to make modifications to the code, the only dependency is [GoLang](https://golang.org/). Once GoLang is installed, clone the repo and from its root use command `go run ngu.go`.
 
@@ -50,7 +50,7 @@ O = donut (production)
 
 ## Custom Map
 
-If you have not yet unlocked all the tiles of a given map, you can go into subfolder `maps/data` and edit the corresponding map accordingly before running the optimizer.
+If you have not yet unlocked all the tiles of a given map, you can go into subfolder `maps/data` and edit the corresponding map accordingly before running the optimizer. This is currently only available by running the optimizer from code with Go.
 
 ## TODO / Upcoming Features
 
