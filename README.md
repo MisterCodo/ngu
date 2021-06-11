@@ -56,7 +56,6 @@ If you have not yet unlocked all the tiles of a given map, you can go into subfo
 
 - Improve performance
 - Improve beam
-- Automatically render image
 - Add heat maps of both speed and production gains
 - Add run/improve forever option
 
@@ -287,24 +286,23 @@ vvv|v   .....<v   *.
 ## Best Production Maps
 
 ```ascii
-Tutorial Island (191.17)
-
-        .d
-        OOO    w
+Tutorial Island (191.50)
+        &d
+        OO.    .
        . ..   .....
        ..... hh....
-        OO  OOO.OOO
-   .... OO   O . O.
-   .h...... .h......
-   OOOOO... .  w
-   ..OOOOOOOO  w
-   ......hh..  .
+        OO  OOOOOOO
+   .... OO   . . O.
+   .h...... h.......
+   OOO..O.. O  w
+   rOO.OOO.OO  w
+   .....Oh...  .
       .. ...hh.....
              O..  l
              O..OOl
   .    ...   h..u..
   ..   .b.
-       ..O
+       O..
 
 ```
 

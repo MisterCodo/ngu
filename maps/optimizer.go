@@ -81,17 +81,17 @@ func (o *Optimizer) Run(mapMaskName string) {
 	}
 
 	// Optimize this best candidate to get the best map
-	fmt.Println("")
 	fmt.Println("Found one best candidate, performing final optimization")
 	bestMap = o.beamOptimize(bestMap, 3, 5)
 
 	// Print results
-	fmt.Println("")
+	score := bestMap.Score(o.Goal)
+	fmt.Printf("\n%s (%.2f)\n", mapMaskName, score)
 	bestMap.Print()
-	fmt.Printf("\nScore: %.2f\n", bestMap.Score(o.Goal))
+	fmt.Println("")
 
 	// Generate map image
-	err := DrawMap(bestMap, mapMaskName)
+	err := DrawMap(bestMap, mapMaskName, o.Goal.String(), score)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(-1)

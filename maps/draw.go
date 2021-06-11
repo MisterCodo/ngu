@@ -10,6 +10,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
+	"time"
 )
 
 //go:embed assets/*
@@ -104,7 +106,7 @@ func fileToImage(fsys fs.FS, filename string, maxX int, maxY int) (img image.Ima
 }
 
 // DrawMap draws the map image.
-func DrawMap(m *Map, mapMaskName string) error {
+func DrawMap(m *Map, mapMaskName string, goal string, score float64) error {
 	// Find base image
 	mapImageName, ok := MappingMapImageName[mapMaskName]
 	if !ok {
@@ -128,11 +130,11 @@ func DrawMap(m *Map, mapMaskName string) error {
 			}
 			beaconImageName, ok := MappingBeaconSymbolImageName[m.Tiles[y][x].Type]
 			if !ok {
-				return fmt.Errorf("could not find symbol to beacon file name")
+				return fmt.Errorf("could not find symbol %s to beacon file name", m.Tiles[y][x].Type)
 			}
 			beaconImg, ok := BeaconImages[beaconImageName]
 			if !ok {
-				return fmt.Errorf("could not find beacon to draw map")
+				return fmt.Errorf("could not find beacon %s to draw map", beaconImageName)
 			}
 			sr = beaconImg.Bounds()
 			r := sr.Sub(sr.Min).Add(image.Point{x * 60, y * 60})
@@ -141,7 +143,8 @@ func DrawMap(m *Map, mapMaskName string) error {
 	}
 
 	// Save image to disk
-	out, err := os.Create("tmpmap.png")
+	outName := strings.Join([]string{mapImageName, goal, fmt.Sprintf("%.0f", score*100), fmt.Sprintf("%d", time.Now().Unix())}, "_") + ".png"
+	out, err := os.Create(outName)
 	if err != nil {
 		return err
 	}
@@ -152,5 +155,6 @@ func DrawMap(m *Map, mapMaskName string) error {
 		return err
 	}
 
+	fmt.Printf("Generated output image %s\n", outName)
 	return nil
 }
