@@ -1,8 +1,16 @@
 package productiondonut
 
 import (
+	"embed"
+	"image"
+	"log"
+
 	"github.com/MisterCodo/ngu/plugins/beacons"
 )
+
+//go:embed data/*
+var assets embed.FS
+var img image.Image
 
 type productiondonut struct{}
 
@@ -39,6 +47,14 @@ func (p *productiondonut) BType() beacons.BType {
 	return beacons.Donut
 }
 
+func (p *productiondonut) Image() image.Image { return img }
+
 func init() {
 	beacons.Add("O", func() beacons.Beacon { return &productiondonut{} })
+
+	var err error
+	img, err = beacons.FileToImage(assets, "data/ProductionDonut.png")
+	if err != nil {
+		log.Fatalf("beacon image not found: %s", err.Error())
+	}
 }

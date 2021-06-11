@@ -1,8 +1,16 @@
 package speedarrowright
 
 import (
+	"embed"
+	"image"
+	"log"
+
 	"github.com/MisterCodo/ngu/plugins/beacons"
 )
+
+//go:embed data/*
+var assets embed.FS
+var img image.Image
 
 type speedarrowright struct{}
 
@@ -34,6 +42,14 @@ func (p *speedarrowright) BType() beacons.BType {
 	return beacons.Arrow
 }
 
+func (p *speedarrowright) Image() image.Image { return img }
+
 func init() {
 	beacons.Add(">", func() beacons.Beacon { return &speedarrowright{} })
+
+	var err error
+	img, err = beacons.FileToImage(assets, "data/SpeedArrowRight.png")
+	if err != nil {
+		log.Fatalf("beacon image not found: %s", err.Error())
+	}
 }

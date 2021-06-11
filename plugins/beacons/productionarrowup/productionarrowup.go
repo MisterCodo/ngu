@@ -1,8 +1,16 @@
 package productionarrowup
 
 import (
+	"embed"
+	"image"
+	"log"
+
 	"github.com/MisterCodo/ngu/plugins/beacons"
 )
+
+//go:embed data/*
+var assets embed.FS
+var img image.Image
 
 type productionarrowup struct{}
 
@@ -34,6 +42,14 @@ func (p *productionarrowup) BType() beacons.BType {
 	return beacons.Arrow
 }
 
+func (p *productionarrowup) Image() image.Image { return img }
+
 func init() {
 	beacons.Add("u", func() beacons.Beacon { return &productionarrowup{} })
+
+	var err error
+	img, err = beacons.FileToImage(assets, "data/ProductionArrowUp.png")
+	if err != nil {
+		log.Fatalf("beacon image not found: %s", err.Error())
+	}
 }

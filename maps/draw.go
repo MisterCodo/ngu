@@ -12,15 +12,16 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/MisterCodo/ngu/plugins/beacons"
 )
 
 //go:embed assets/*
 var assets embed.FS
 
 const (
-	imgX     = 1200
-	imgY     = 1020
-	tileSize = 60
+	imgX = 1200
+	imgY = 1020
 )
 
 var BaseMapImages = map[string]image.Image{}
@@ -30,28 +31,6 @@ var MappingMapImageName = map[string]string{
 	"Planet Tronne":       "PlanetTronne",
 	"Candy Land":          "CandyLand",
 	"Mansions & Managers": "MansionsAndManagers",
-}
-
-var BeaconImages = map[string]image.Image{}
-var MappingBeaconSymbolImageName = map[string]string{
-	"*": "SpeedBox",
-	"k": "SpeedKnight",
-	"^": "SpeedArrowUp",
-	"v": "SpeedArrowDown",
-	"<": "SpeedArrowLeft",
-	">": "SpeedArrowRight",
-	"-": "SpeedWallHorizontal",
-	"|": "SpeedWallVertical",
-	"o": "SpeedDonut",
-	"b": "ProductionBox",
-	"&": "ProductionKnight",
-	"u": "ProductionArrowUp",
-	"d": "ProductionArrowDown",
-	"l": "ProductionArrowLeft",
-	"r": "ProductionArrowRight",
-	"h": "ProductionWallHorizontal",
-	"w": "ProductionWallVertical",
-	"O": "ProductionDonut",
 }
 
 // init populates image assets from the assets/ directory.
@@ -68,20 +47,6 @@ func init() {
 		base := filepath.Base(entry)
 		extension := filepath.Ext(base)
 		BaseMapImages[base[0:len(base)-len(extension)]] = img
-	}
-
-	entries, err = fs.Glob(assets, "assets/beacons/*")
-	if err != nil {
-		log.Fatalln("bad assets beacon:", err)
-	}
-	for _, entry := range entries {
-		img, err := fileToImage(assets, entry, tileSize, tileSize)
-		if err != nil {
-			log.Fatalln("bad assets beacon data:", err)
-		}
-		base := filepath.Base(entry)
-		extension := filepath.Ext(base)
-		BeaconImages[base[0:len(base)-len(extension)]] = img
 	}
 }
 
@@ -125,19 +90,13 @@ func DrawMap(m *Map, mapMaskName string, goal string, score float64) error {
 	// Go through each tile and if it's a beacon, print on top of the loaded image
 	for y, row := range m.Tiles {
 		for x := range row {
-			if m.Tiles[y][x].Type == UnusableTile || m.Tiles[y][x].Type == ProductionTile {
+			beaconType := m.Tiles[y][x].Type
+			if beaconType == UnusableTile || beaconType == ProductionTile {
 				continue
 			}
-			beaconImageName, ok := MappingBeaconSymbolImageName[m.Tiles[y][x].Type]
-			if !ok {
-				return fmt.Errorf("could not find symbol %s to beacon file name", m.Tiles[y][x].Type)
-			}
-			beaconImg, ok := BeaconImages[beaconImageName]
-			if !ok {
-				return fmt.Errorf("could not find beacon %s to draw map", beaconImageName)
-			}
+			beaconImg := beacons.Beacons[beaconType]().Image()
 			sr = beaconImg.Bounds()
-			r := sr.Sub(sr.Min).Add(image.Point{x * tileSize, y * tileSize})
+			r := sr.Sub(sr.Min).Add(image.Point{x * beacons.ImgSize, y * beacons.ImgSize})
 			draw.Draw(outputImg, r, beaconImg, image.Point{}, draw.Over)
 		}
 	}

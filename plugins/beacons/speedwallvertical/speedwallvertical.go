@@ -1,8 +1,16 @@
 package speedwallvertical
 
 import (
+	"embed"
+	"image"
+	"log"
+
 	"github.com/MisterCodo/ngu/plugins/beacons"
 )
+
+//go:embed data/*
+var assets embed.FS
+var img image.Image
 
 type speedwallvertical struct{}
 
@@ -32,6 +40,14 @@ func (p *speedwallvertical) BType() beacons.BType {
 	return beacons.Wall
 }
 
+func (p *speedwallvertical) Image() image.Image { return img }
+
 func init() {
 	beacons.Add("|", func() beacons.Beacon { return &speedwallvertical{} })
+
+	var err error
+	img, err = beacons.FileToImage(assets, "data/SpeedWallVertical.png")
+	if err != nil {
+		log.Fatalf("beacon image not found: %s", err.Error())
+	}
 }

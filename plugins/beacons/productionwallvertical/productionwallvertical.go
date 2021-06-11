@@ -1,8 +1,16 @@
 package productionwallvertical
 
 import (
+	"embed"
+	"image"
+	"log"
+
 	"github.com/MisterCodo/ngu/plugins/beacons"
 )
+
+//go:embed data/*
+var assets embed.FS
+var img image.Image
 
 type productionwallvertical struct{}
 
@@ -32,6 +40,14 @@ func (p *productionwallvertical) BType() beacons.BType {
 	return beacons.Wall
 }
 
+func (p *productionwallvertical) Image() image.Image { return img }
+
 func init() {
 	beacons.Add("w", func() beacons.Beacon { return &productionwallvertical{} })
+
+	var err error
+	img, err = beacons.FileToImage(assets, "data/ProductionWallVertical.png")
+	if err != nil {
+		log.Fatalf("beacon image not found: %s", err.Error())
+	}
 }
