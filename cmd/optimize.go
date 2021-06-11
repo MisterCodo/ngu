@@ -67,7 +67,7 @@ var optimizeCmd = &cobra.Command{
 		if err != nil {
 			return fmt.Errorf("could not start optimization: %s", err.Error())
 		}
-		optimizer.Run()
+		optimizer.Run(mapMaskName)
 
 		return nil
 	},

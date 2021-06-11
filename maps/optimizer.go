@@ -3,6 +3,7 @@ package maps
 import (
 	"fmt"
 	"math/rand"
+	"os"
 	"sort"
 
 	"github.com/MisterCodo/ngu/plugins/beacons"
@@ -63,7 +64,7 @@ func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, mapMaskNam
 }
 
 // Optimize attempts to find the best map possible for a specific optimization type, be it speed, production or a combination of speed and production.
-func (o *Optimizer) Run() {
+func (o *Optimizer) Run(mapMaskName string) {
 	var bestMap *Map
 	highScore := -1.0
 
@@ -88,6 +89,13 @@ func (o *Optimizer) Run() {
 	fmt.Println("")
 	bestMap.Print()
 	fmt.Printf("\nScore: %.2f\n", bestMap.Score(o.Goal))
+
+	// Generate map image
+	err := DrawMap(bestMap, mapMaskName)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(-1)
+	}
 }
 
 // generateGoodMapCandidate finds a good map candidate by first generating a random map, hill climbing and then beam searching.
