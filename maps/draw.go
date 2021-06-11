@@ -137,7 +137,7 @@ func DrawMap(m *Map, mapMaskName string, goal string, score float64) error {
 				return fmt.Errorf("could not find beacon %s to draw map", beaconImageName)
 			}
 			sr = beaconImg.Bounds()
-			r := sr.Sub(sr.Min).Add(image.Point{x * 60, y * 60})
+			r := sr.Sub(sr.Min).Add(image.Point{x * tileSize, y * tileSize})
 			draw.Draw(outputImg, r, beaconImg, image.Point{}, draw.Over)
 		}
 	}
