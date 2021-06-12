@@ -47,7 +47,7 @@ Flags:
 
 The file should contain the console map layout results, for instance running `ngu draw -m 1 -f beacons.txt` draws the following image:
 
-![Optimized Map Image](/_optimizedMaps/TutorialIslandSample.png)
+![Optimized Map Image](/_images/TutorialIslandSample.png)
 
 Where `beacons.txt` was:
 
@@ -69,8 +69,6 @@ Where `beacons.txt` was:
   .h   .*.
        .*.
 ```
-
-
 
 ## Design
 
@@ -175,25 +173,7 @@ vv >.  *   *.     v.
 ```
 
 ```ascii
-Candy Land (484.03)
-
-.OO.      .ww >O .b.
-w***.           *.*.
-....  -h.   dvv...*.
-vv     <  O  vdO*.
-OO  O   r   .dOO<w |
-.*  .<hh>> ...O<<
-...  hh >r ....<l hw
-.*.l  hh>> ....<l<hw
-. Ovd  vr> O..   <vw
-^  vvv   > ^^^ O   .
-^^  ddvO         v .
-w>r  ..  <lww^ >>O .
->>>. ...l  hw      .
-rr>...  < -.. hh....
- >>O..  <<O*. O  **w
-  OOuu^^>>O*. O< OO|
-   ^uuu^>>...    ^^^
+Candy Land ()
 ```
 
 ```ascii
@@ -287,25 +267,7 @@ Planet Tronne (375.36)
 ```
 
 ```ascii
-Candy Land (321.90)
-
-....      ..- vv ...
-.**.<           v**.
-...<  vvv   >......<
-..     v  >  .*..*
-.*  <   v   >..... <
-..  -..... ->.*..
-|^|  >. .. <-.... ..
-||.>  .... <<|^^^.*.
-| vv>  ... <<|   .*.
-.  vvv   . vv. ^   .
-.*  vv^^         | |
-...  .<  |vv.. <<| |
-.*.. ..-<  ..      |
->.....  - ... .<-...
- >*.*.  >.*.. <  .*.
-  ....---.... << .*.
-   ^^^>>>...^    .*.
+Candy Land ()
 ```
 
 ```ascii
@@ -398,25 +360,7 @@ wu wr O.. ..... O&.
 ```
 
 ```ascii
-Candy Land (320.27)
-
-....      ... .. ...
-..b.l           OO..
-..OO  ddd   OOOOOOO.
-..     O  .  .....
-..  .   .   ...... .
-w.  ...... O..OOO
-wwO  .O .. O..OOO Ow
-wwOO  OO.. O......h.
-. OO.  Ow. Ow.   ...
-.  ...   . OwO O   w
-..  ....         w w
-..O  wO  w.... ... .
-..OO .OO.  ..      .
-..OO..  . OO. OO&O&w
- .OO..  ..OO. h  ...
-  OO..OO..O.. h. .b.
-   ...hh.....    O..
+Candy Land ()
 ```
 
 ```ascii
