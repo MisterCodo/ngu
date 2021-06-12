@@ -70,32 +70,46 @@ func (o *Optimizer) Run() error {
 	var bestMap *Map
 	highScore := -1.0
 
-	// Find a very good map
-	for i := 0; i < o.CandidatesCount; i++ {
-		m := o.generateGoodMapCandidate()
-		newScore := m.Score(o.Goal)
-		m.Print()
-		fmt.Printf("Cycle i:%d map scored:%.2f\n\n", i, newScore)
-		if newScore > highScore {
-			bestMap = m
-			highScore = newScore
-		}
+	infinite := false
+	if o.CandidatesCount == -1 {
+		infinite = true
+		o.CandidatesCount = 3
 	}
 
-	// Optimize this best candidate to get the best map
-	fmt.Println("Found one best candidate, performing final optimization")
-	bestMap = o.beamOptimize(bestMap, 3, 5)
+	bestScore := 0.0
 
-	// Print results
-	score := bestMap.Score(o.Goal)
-	fmt.Printf("\n%s (%.2f)\n", o.Location.PrettyName(), score)
-	bestMap.Print()
-	fmt.Println("")
+	for {
+		// Find a very good map
+		for i := 0; i < o.CandidatesCount; i++ {
+			m := o.generateGoodMapCandidate()
+			newScore := m.Score(o.Goal)
+			if newScore > highScore {
+				bestMap = m
+				highScore = newScore
+			}
+		}
 
-	// Generate map image
-	err := bestMap.Draw(o.Goal, o.BeaconTypes)
-	if err != nil {
-		return err
+		// Optimize this best candidate to get the best map
+		bestMap = o.beamOptimize(bestMap, 3, 5)
+
+		// Print results
+		score := bestMap.Score(o.Goal)
+		if score > bestScore {
+			fmt.Printf("=====\nNew high score of %.2f\n", score)
+			bestScore = score
+			bestMap.Print()
+
+			// Generate map image
+			err := bestMap.Draw(o.Goal, o.BeaconTypes)
+			if err != nil {
+				return err
+			}
+		}
+
+		if infinite {
+			continue
+		}
+		break
 	}
 
 	return nil

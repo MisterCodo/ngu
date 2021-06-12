@@ -35,7 +35,7 @@ func init() {
 	optimizeCmd.Flags().IntVarP(&optimizeCmdGoal, "goal", "g", 1, "optimization goal: (1)Speed&Production, (2)Speed, (3)Production")
 	optimizeCmd.Flags().IntVarP(&optimizeCmdBeacons, "beacons", "b", 5, "optimization beacon types available: (1)Box, (2)Box & Knight, (3)Box, Knight & Arrow, (4) Box, Knight, Arrow & Wall, (5)All")
 	optimizeCmd.Flags().IntVarP(&optimizeCmdSpread, "spread", "s", 3, "optimization modifies up to X tiles at once during randomised hill climbing where X is the spread")
-	optimizeCmd.Flags().IntVarP(&optimizeCmdCycles, "cycle", "c", 100, "how many global optimization cycles to run")
+	optimizeCmd.Flags().IntVarP(&optimizeCmdCycles, "cycle", "c", 100, "how many global optimization cycles to run. Set to -1 to run forever.")
 	optimizeCmd.Flags().IntVarP(&optimizeCmdRandomCycles, "random", "r", 100, "how many random map to generate per cycle")
 	optimizeCmd.Flags().IntVarP(&optimizeCmdAdjustCycles, "adjust", "a", 10000, "how many adjustments to perform on each random map")
 	rootCmd.AddCommand(optimizeCmd)
