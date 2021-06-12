@@ -49,6 +49,7 @@ var drawCmd = &cobra.Command{
 		y := 0
 		for scanner.Scan() {
 			if scanner.Text() == "" {
+				y += 1
 				continue
 			}
 			if y >= maps.MapY {
