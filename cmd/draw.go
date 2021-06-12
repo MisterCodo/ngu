@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/MisterCodo/ngu/maps"
+	"github.com/MisterCodo/ngu/plugins/beacons"
 	"github.com/MisterCodo/ngu/plugins/locations"
 	"github.com/spf13/cobra"
 )
@@ -68,7 +69,7 @@ var drawCmd = &cobra.Command{
 		}
 
 		// Draw it
-		m.Draw()
+		m.Draw(-1, []beacons.BType{})
 
 		return nil
 	},

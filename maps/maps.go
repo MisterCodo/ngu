@@ -160,7 +160,7 @@ func (m *Map) Print() {
 }
 
 // DrawMap draws the map image.
-func (m *Map) Draw() error {
+func (m *Map) Draw(goal OptimizationGoal, beaconTypes []beacons.BType) error {
 	// Initialize output image
 	img := m.Location.Image()
 	outputImg := image.NewRGBA(image.Rect(0, 0, locations.ImgSizeX, locations.ImgSizeY))
@@ -182,7 +182,15 @@ func (m *Map) Draw() error {
 	}
 
 	// Save image to disk
-	outName := strings.Join([]string{m.Location.UglyName(), fmt.Sprintf("%d", time.Now().Unix())}, "_") + ".png"
+	score := m.Score(goal)
+	var outName string
+	if len(beaconTypes) == 0 || goal == -1 {
+		outName = strings.Join([]string{m.Location.UglyName(), fmt.Sprintf("%d", time.Now().Unix())}, "_") + ".png"
+	} else {
+
+		outName = strings.Join([]string{m.Location.UglyName(), OptimizationGoal(goal).String(), beaconTypes[len(beaconTypes)-1].String(), fmt.Sprintf("%.0f", score*100)}, "_") + ".png"
+	}
+
 	out, err := os.Create(outName)
 	if err != nil {
 		return err

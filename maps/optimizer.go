@@ -13,7 +13,8 @@ import (
 type Optimizer struct {
 	Goal           OptimizationGoal   // Either Speed, Production or Production&Speed
 	Location       locations.Location // Location (e.g. tutorial island)
-	TileRandomizer *TileRandomizer    // Allows switching tiles randomly
+	BeaconTypes    []beacons.BType
+	TileRandomizer *TileRandomizer // Allows switching tiles randomly
 
 	CandidatesCount int // How many map candidates to generate during optimization
 	RandomMapCount  int // How many random map to generate for each candidate map
@@ -53,6 +54,7 @@ func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, locationNa
 	o := &Optimizer{
 		Goal:            goal,
 		Location:        location(),
+		BeaconTypes:     beaconTypes,
 		TileRandomizer:  NewTileRandomizer(beaconCategories, beaconTypes),
 		CandidatesCount: candidateCount,
 		RandomMapCount:  randomMapCount,
@@ -91,7 +93,7 @@ func (o *Optimizer) Run() error {
 	fmt.Println("")
 
 	// Generate map image
-	err := bestMap.Draw()
+	err := bestMap.Draw(o.Goal, o.BeaconTypes)
 	if err != nil {
 		return err
 	}
