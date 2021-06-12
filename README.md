@@ -4,6 +4,10 @@
 
 Download the latest release and use command `ngu optimize -h` to see usage instructions:
 
+### Optimize Map
+
+Optimize a map with command `optimize`.
+
 ```ascii
 Optimize placement of beacons on NGU Industries map.
 
@@ -24,6 +28,49 @@ Flags:
 Important flags are `-m` for choosing the map, `-b` for specifying beacons you have unlocked in the game and `-g` for choosing the type of optimization (speed, production or combination of speed&production). For instance, to launch a speed optimization for Candy Land with box and knight beacons, use command `ngu optimize -m 4 -b 2 -g 2`. It will run for a few minutes before offering an optimized map in console and will also generate an output png image on disk.
 
 If you want to make modifications to the code, the only dependency is [GoLang](https://golang.org/). Once GoLang is installed, clone the repo and from its root use command `go run ngu.go`.
+
+### Draw Map
+
+If you already have an optimized map layout, you can draw an image of it by using command `draw`.
+
+```ascii
+Draw map to disk for choosen location according to beacons file provided.
+
+Usage:
+  ngu draw [flags]
+
+Flags:
+  -f, --file string   file consisting of characters defining placement of beacons. These beacons will be drawn on top of selected map.
+  -h, --help          help for draw
+  -m, --map int       map to optimize: (1)Tutorial Island, (2)Flesh World, (3)Planet Tronne, (4)Candy Land, (5)Mansions & Managers (default 1)
+```
+
+The file should contain the console map layout results, for instance running `ngu draw -m 1 -f beacons.txt` draws the following image:
+
+![Optimized Map Image](/_optimizedMaps/TutorialIslandSample.png)
+
+Where `beacons.txt` was:
+
+```ascii
+        ww
+        www    .
+       v dv   *.*O<
+       vvvvd O*.*O<
+        dd  >O*.*O<
+   hr>> ..   < . O<
+   hr>r.... <<hw.O<.
+   hr>r.... l  w
+   h>>>...OO<  w
+   .>>O^uu^O<  w
+      ^^ ^u^>.*.*O<
+             O*.  <
+             O*.*O<
+  .    www   O*.*O<
+  .h   .*.
+       .*.
+```
+
+
 
 ## Design
 
