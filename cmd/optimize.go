@@ -69,7 +69,7 @@ var optimizeCmd = &cobra.Command{
 
 		fmt.Printf("Running %s optimization of map %s with %d cycles\n\n", goal.String(), optimizer.Location.PrettyName(), optimizeCmdCycles)
 
-		err = optimizer.Run()
+		_, err = optimizer.Run(true)
 		if err != nil {
 			return fmt.Errorf("could not run optimization: %s", err.Error())
 		}

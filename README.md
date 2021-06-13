@@ -2,7 +2,7 @@
 
 ## How to Use
 
-Download the latest release and use command `ngu optimize -h` to see usage instructions:
+Download the latest release and use command `ngu -h` to see usage instructions:
 
 ### Optimize Map
 

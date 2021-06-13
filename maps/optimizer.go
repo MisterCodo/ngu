@@ -66,7 +66,7 @@ func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, locationNa
 }
 
 // Optimize attempts to find the best map possible for a specific optimization type, be it speed, production or a combination of speed and production.
-func (o *Optimizer) Run() error {
+func (o *Optimizer) Run(drawMap bool) (*Map, error) {
 	var bestMap *Map
 	highScore := -1.0
 
@@ -100,9 +100,11 @@ func (o *Optimizer) Run() error {
 			bestMap.Print()
 
 			// Generate map image
-			err := bestMap.Draw(o.Goal, o.BeaconTypes)
-			if err != nil {
-				return err
+			if drawMap {
+				err := bestMap.Draw(o.Goal, o.BeaconTypes)
+				if err != nil {
+					return nil, err
+				}
 			}
 		}
 
@@ -112,7 +114,7 @@ func (o *Optimizer) Run() error {
 		break
 	}
 
-	return nil
+	return bestMap, nil
 }
 
 // generateGoodMapCandidate finds a good map candidate by first generating a random map, hill climbing and then beam searching.
