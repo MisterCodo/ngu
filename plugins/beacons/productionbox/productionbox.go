@@ -10,21 +10,14 @@ import (
 
 //go:embed data/*
 var assets embed.FS
-var img image.Image
 
-type productionbox struct{}
+type productionbox struct {
+	effects []beacons.Effect
+	img     image.Image
+}
 
 func (p *productionbox) Effect() []beacons.Effect {
-	return []beacons.Effect{
-		{X: -1, Y: 1, Gain: 30.0},
-		{X: 0, Y: 1, Gain: 30.0},
-		{X: 1, Y: 1, Gain: 30.0},
-		{X: -1, Y: 0, Gain: 30.0},
-		{X: 1, Y: 0, Gain: 30.0},
-		{X: -1, Y: -1, Gain: 30.0},
-		{X: 0, Y: -1, Gain: 30.0},
-		{X: 1, Y: -1, Gain: 30.0},
-	}
+	return p.effects
 }
 
 func (p *productionbox) Category() beacons.Category {
@@ -35,14 +28,24 @@ func (p *productionbox) BType() beacons.BType {
 	return beacons.Box
 }
 
-func (p *productionbox) Image() image.Image { return img }
+func (p *productionbox) Image() image.Image { return p.img }
 
 func init() {
-	beacons.Add("b", func() beacons.Beacon { return &productionbox{} })
-
-	var err error
-	img, err = beacons.FileToImage(assets, "data/ProductionBox.png")
+	img, err := beacons.FileToImage(assets, "data/ProductionBox.png")
 	if err != nil {
 		log.Fatalf("beacon image not found: %s", err.Error())
 	}
+
+	effects := []beacons.Effect{
+		{X: -1, Y: 1, Gain: 30.0},
+		{X: 0, Y: 1, Gain: 30.0},
+		{X: 1, Y: 1, Gain: 30.0},
+		{X: -1, Y: 0, Gain: 30.0},
+		{X: 1, Y: 0, Gain: 30.0},
+		{X: -1, Y: -1, Gain: 30.0},
+		{X: 0, Y: -1, Gain: 30.0},
+		{X: 1, Y: -1, Gain: 30.0},
+	}
+
+	beacons.Add("b", &productionbox{img: img, effects: effects})
 }

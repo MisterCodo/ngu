@@ -29,9 +29,9 @@ func NewTileRandomizer(categories []beacons.Category, btypes []beacons.BType) *T
 	beaconsAvailable := []string{}
 	for beaconSymbol, beacon := range beacons.Beacons {
 		for _, c := range categories {
-			if beacon().Category() == c {
+			if beacon.Category() == c {
 				for _, btype := range btypes {
-					if btype == beacon().BType() {
+					if btype == beacon.BType() {
 						beaconsAvailable = append(beaconsAvailable, beaconSymbol)
 						continue
 					}

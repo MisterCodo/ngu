@@ -10,12 +10,33 @@ import (
 
 //go:embed data/*
 var assets embed.FS
-var img image.Image
 
-type speedwallhorizontal struct{}
+type speedwallhorizontal struct {
+	effects []beacons.Effect
+	img     image.Image
+}
 
 func (p *speedwallhorizontal) Effect() []beacons.Effect {
-	return []beacons.Effect{
+	return p.effects
+}
+
+func (p *speedwallhorizontal) Category() beacons.Category {
+	return beacons.Speed
+}
+
+func (p *speedwallhorizontal) BType() beacons.BType {
+	return beacons.Wall
+}
+
+func (p *speedwallhorizontal) Image() image.Image { return p.img }
+
+func init() {
+	img, err := beacons.FileToImage(assets, "data/SpeedWallHorizontal.png")
+	if err != nil {
+		log.Fatalf("beacon image not found: %s", err.Error())
+	}
+
+	effects := []beacons.Effect{
 		{X: -6, Y: 0, Gain: 27.0},
 		{X: -5, Y: 0, Gain: 27.0},
 		{X: -4, Y: 0, Gain: 27.0},
@@ -30,24 +51,6 @@ func (p *speedwallhorizontal) Effect() []beacons.Effect {
 		{X: 5, Y: 0, Gain: 27.0},
 		{X: 6, Y: 0, Gain: 27.0},
 	}
-}
 
-func (p *speedwallhorizontal) Category() beacons.Category {
-	return beacons.Speed
-}
-
-func (p *speedwallhorizontal) BType() beacons.BType {
-	return beacons.Wall
-}
-
-func (p *speedwallhorizontal) Image() image.Image { return img }
-
-func init() {
-	beacons.Add("-", func() beacons.Beacon { return &speedwallhorizontal{} })
-
-	var err error
-	img, err = beacons.FileToImage(assets, "data/SpeedWallHorizontal.png")
-	if err != nil {
-		log.Fatalf("beacon image not found: %s", err.Error())
-	}
+	beacons.Add("-", &speedwallhorizontal{img: img, effects: effects})
 }

@@ -5,6 +5,7 @@ import (
 	"image"
 	"image/draw"
 	"image/png"
+	"log"
 	"math/rand"
 	"os"
 	"strings"
@@ -75,6 +76,7 @@ func (m *Map) Copy() *Map {
 }
 
 // Score evaluates the score of the map.
+
 func (m *Map) Score(goal OptimizationGoal) float64 {
 	// Go through all map tiles and apply the effect of each beacon found.
 	for y, row := range m.Tiles {
@@ -85,9 +87,12 @@ func (m *Map) Score(goal OptimizationGoal) float64 {
 			}
 
 			// Speed beacons
-			b := beacons.Beacons[val.Type]
-			if b().Category() == beacons.Speed {
-				effects := beacons.Beacons[val.Type]().Effect()
+			b, ok := beacons.Beacons[val.Type]
+			if !ok {
+				log.Fatalf("score func could not find beacon %s", val.Type)
+			}
+			if b.Category() == beacons.Speed {
+				effects := b.Effect()
 				for _, effect := range effects {
 					impactedX := x + effect.X
 					impactedY := y + effect.Y
@@ -99,8 +104,8 @@ func (m *Map) Score(goal OptimizationGoal) float64 {
 			}
 
 			// Production beacons
-			if b().Category() == beacons.Production {
-				effects := beacons.Beacons[val.Type]().Effect()
+			if b.Category() == beacons.Production {
+				effects := b.Effect()
 				for _, effect := range effects {
 					impactedX := x + effect.X
 					impactedY := y + effect.Y
@@ -174,7 +179,11 @@ func (m *Map) Draw(goal OptimizationGoal, beaconTypes []beacons.BType) error {
 			if beaconType == UnusableTile || beaconType == ProductionTile {
 				continue
 			}
-			beaconImg := beacons.Beacons[beaconType]().Image()
+			b, ok := beacons.Beacons[beaconType]
+			if !ok {
+				log.Fatalf("draw func could not find beacon %s", beaconType)
+			}
+			beaconImg := b.Image()
 			sr = beaconImg.Bounds()
 			r := sr.Sub(sr.Min).Add(image.Point{x * beacons.ImgSize, y * beacons.ImgSize})
 			draw.Draw(outputImg, r, beaconImg, image.Point{}, draw.Over)

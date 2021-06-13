@@ -10,12 +10,33 @@ import (
 
 //go:embed data/*
 var assets embed.FS
-var img image.Image
 
-type productionarrowup struct{}
+type productionarrowup struct {
+	effects []beacons.Effect
+	img     image.Image
+}
 
 func (p *productionarrowup) Effect() []beacons.Effect {
-	return []beacons.Effect{
+	return p.effects
+}
+
+func (p *productionarrowup) Category() beacons.Category {
+	return beacons.Production
+}
+
+func (p *productionarrowup) BType() beacons.BType {
+	return beacons.Arrow
+}
+
+func (p *productionarrowup) Image() image.Image { return p.img }
+
+func init() {
+	img, err := beacons.FileToImage(assets, "data/ProductionArrowUp.png")
+	if err != nil {
+		log.Fatalf("beacon image not found: %s", err.Error())
+	}
+
+	effects := []beacons.Effect{
 		{X: -2, Y: -3, Gain: 22.0},
 
 		{X: -1, Y: -4, Gain: 22.0},
@@ -32,24 +53,6 @@ func (p *productionarrowup) Effect() []beacons.Effect {
 
 		{X: 2, Y: -3, Gain: 22.0},
 	}
-}
 
-func (p *productionarrowup) Category() beacons.Category {
-	return beacons.Production
-}
-
-func (p *productionarrowup) BType() beacons.BType {
-	return beacons.Arrow
-}
-
-func (p *productionarrowup) Image() image.Image { return img }
-
-func init() {
-	beacons.Add("u", func() beacons.Beacon { return &productionarrowup{} })
-
-	var err error
-	img, err = beacons.FileToImage(assets, "data/ProductionArrowUp.png")
-	if err != nil {
-		log.Fatalf("beacon image not found: %s", err.Error())
-	}
+	beacons.Add("u", &productionarrowup{img: img, effects: effects})
 }
