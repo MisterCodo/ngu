@@ -1,15 +1,15 @@
 package productionwallhorizontal
 
 import (
-	"embed"
+	_ "embed"
 	"image"
 	"log"
 
 	"github.com/MisterCodo/ngu/plugins/beacons"
 )
 
-//go:embed data/*
-var assets embed.FS
+//go:embed ProductionWallHorizontal.png
+var imageData []byte
 
 type productionwallhorizontal struct {
 	effects []beacons.Effect
@@ -31,9 +31,9 @@ func (p *productionwallhorizontal) BType() beacons.BType {
 func (p *productionwallhorizontal) Image() image.Image { return p.img }
 
 func init() {
-	img, err := beacons.FileToImage(assets, "data/ProductionWallHorizontal.png")
+	img, err := beacons.ImageFromBytes(imageData)
 	if err != nil {
-		log.Fatalf("beacon image not found: %s", err.Error())
+		log.Fatalf("beacon image error: %s", err.Error())
 	}
 
 	effects := []beacons.Effect{

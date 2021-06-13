@@ -2,11 +2,9 @@ package beacons
 
 import (
 	"bytes"
-	"embed"
 	"fmt"
 	"image"
 	"image/png"
-	"io/fs"
 )
 
 const (
@@ -58,20 +56,15 @@ type Effect struct {
 	Gain float64
 }
 
-// FileToImage reads a file and returns a decoded png image.
-func FileToImage(assets embed.FS, filename string) (image.Image, error) {
-	f, err := fs.ReadFile(assets, filename)
-	if err != nil {
-		return nil, err
-	}
-
-	img, err := png.Decode(bytes.NewReader(f))
+// ImageFromBytes reads a file and returns a decoded png image.
+func ImageFromBytes(data []byte) (image.Image, error) {
+	img, err := png.Decode(bytes.NewReader(data))
 	if err != nil {
 		return nil, err
 	}
 
 	if img.Bounds().Max.X != ImgSize || img.Bounds().Max.Y != ImgSize {
-		return img, fmt.Errorf("image %s should be %d by %d pixels", filename, ImgSize, ImgSize)
+		return img, fmt.Errorf("image should be %d by %d pixels", ImgSize, ImgSize)
 	}
 
 	return img, nil

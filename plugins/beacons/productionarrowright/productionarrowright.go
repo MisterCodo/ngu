@@ -1,15 +1,15 @@
 package productionarrowright
 
 import (
-	"embed"
+	_ "embed"
 	"image"
 	"log"
 
 	"github.com/MisterCodo/ngu/plugins/beacons"
 )
 
-//go:embed data/*
-var assets embed.FS
+//go:embed ProductionArrowRight.png
+var imageData []byte
 
 type productionarrowright struct {
 	effects []beacons.Effect
@@ -31,9 +31,9 @@ func (p *productionarrowright) BType() beacons.BType {
 func (p *productionarrowright) Image() image.Image { return p.img }
 
 func init() {
-	img, err := beacons.FileToImage(assets, "data/ProductionArrowRight.png")
+	img, err := beacons.ImageFromBytes(imageData)
 	if err != nil {
-		log.Fatalf("beacon image not found: %s", err.Error())
+		log.Fatalf("beacon image error: %s", err.Error())
 	}
 
 	effects := []beacons.Effect{
