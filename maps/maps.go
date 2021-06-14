@@ -215,10 +215,10 @@ func (m *Map) Draw(goal OptimizationGoal, beaconTypes []beacons.BType) error {
 	return nil
 }
 
-// Adjust changes one tile of the map to another type.
-func (m *Map) Adjust(tr *TileRandomizer) {
+// Adjust changes one tile of the map to another type. It sends details about which tile got modified and
+// what was the previous tile type.
+func (m *Map) Adjust(tr *TileRandomizer) (impactedX int, impactedY int, oldType string) {
 	// Find a tile to adjust, it must be a valid spot based on the map mask.
-	var impactedX, impactedY int
 	for {
 		impactedX = rand.Intn(MapX)
 		impactedY = rand.Intn(MapY)
@@ -237,7 +237,10 @@ func (m *Map) Adjust(tr *TileRandomizer) {
 	}
 
 	// Apply change
+	oldType = m.Tiles[impactedY][impactedX].Type
 	m.Tiles[impactedY][impactedX].Type = newType
+
+	return impactedX, impactedY, oldType
 }
 
 type Maps []*Map

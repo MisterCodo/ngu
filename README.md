@@ -17,12 +17,11 @@ Usage:
 Flags:
   -a, --adjust int    how many adjustments to perform on each random map (default 10000)
   -b, --beacons int   optimization beacon types available: (1)Box, (2)Box & Knight, (3)Box, Knight & Arrow, (4) Box, Knight, Arrow & Wall, (5)All (default 5)
-  -c, --cycle int     how many global optimization cycles to run (default 100)
+  -c, --cycle int     how many global optimization cycles to run. Set to -1 to run forever. (default 100)
   -g, --goal int      optimization goal: (1)Speed&Production, (2)Speed, (3)Production (default 1)
   -h, --help          help for optimize
   -m, --map int       map to optimize: (1)Tutorial Island, (2)Flesh World, (3)Planet Tronne, (4)Candy Land, (5)Mansions & Managers (default 1)
   -r, --random int    how many random map to generate per cycle (default 100)
-  -s, --spread int    optimization modifies up to X tiles at once during randomised hill climbing where X is the spread (default 3)
 ```
 
 Important flags are `-m` for choosing the map, `-b` for specifying beacons you have unlocked in the game and `-g` for choosing the type of optimization (speed, production or combination of speed&production). For instance, to launch a speed optimization for Candy Land with box and knight beacons, use command `ngu optimize -m 4 -b 2 -g 2`. It will run for a few minutes before offering an optimized map in console and will also generate an output png image on disk.

@@ -19,7 +19,6 @@ type Optimizer struct {
 	CandidatesCount int // How many map candidates to generate during optimization
 	RandomMapCount  int // How many random map to generate for each candidate map
 	AdjustCycle     int // How many optimization cycles during randomised hill climbing
-	Spread          int // How much spread during randomised hill climbing
 }
 
 // OptimizationGoal represents the optimization goal.
@@ -36,7 +35,7 @@ func (og OptimizationGoal) String() string {
 }
 
 // NewOptimizer returns a map optimizer for a specific map location, specific goal and using a list of available beacons.
-func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, locationName string, spread int, candidateCount int, randomMapCount int, adjustCycle int) (*Optimizer, error) {
+func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, locationName string, candidateCount int, randomMapCount int, adjustCycle int) (*Optimizer, error) {
 	location, ok := locations.Locations[locationName]
 	if !ok {
 		return nil, fmt.Errorf("could not find map location %s", locationName)
@@ -59,7 +58,6 @@ func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, locationNa
 		CandidatesCount: candidateCount,
 		RandomMapCount:  randomMapCount,
 		AdjustCycle:     adjustCycle,
-		Spread:          spread,
 	}
 
 	return o, nil
@@ -121,9 +119,7 @@ func (o *Optimizer) Run(drawMap bool) (*Map, error) {
 func (o *Optimizer) generateGoodMapCandidate() *Map {
 	m := o.generateGoodRandomMap()
 
-	for i := 1; i < o.Spread+1; i++ {
-		m = o.hillClimbMap(m, i)
-	}
+	m = o.hillClimbMap(m)
 
 	m = o.beamOptimize(m, 2, 3)
 
@@ -147,25 +143,19 @@ func (o *Optimizer) generateGoodRandomMap() *Map {
 }
 
 // hillClimbMap performs adjustments on provided map and slowly makes it better.
-func (o *Optimizer) hillClimbMap(bestMap *Map, numChangedTiles int) *Map {
-	highScore := bestMap.Score(o.Goal)
+func (o *Optimizer) hillClimbMap(m *Map) *Map {
+	highScore := m.Score(o.Goal)
 	for i := 0; i < o.AdjustCycle; i++ {
-		m := bestMap.Copy()
-		for j := 0; j < numChangedTiles; j++ {
-			m.Adjust(o.TileRandomizer)
-		}
+		impactedX, impactedY, oldType := m.Adjust(o.TileRandomizer)
 		newScore := m.Score(o.Goal)
 		if newScore > highScore {
-			bestMap = m
 			highScore = newScore
-			// repeat cycle if a change was made
-			if numChangedTiles != 1 {
-				bestMap = o.hillClimbMap(bestMap, numChangedTiles-1)
-				i = 0
-			}
+		} else {
+			//reset move
+			m.Tiles[impactedY][impactedX].Type = oldType
 		}
 	}
-	return bestMap
+	return m
 }
 
 // beamOptimize beam searches the map until it can't improve the map further.
