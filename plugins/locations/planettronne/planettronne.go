@@ -10,32 +10,32 @@ import (
 
 //go:embed data/*
 var assets embed.FS
-var img image.Image
-var mask locations.Mask
 
 const (
 	prettyName = "Planet Tronne"
 	uglyName   = "PlanetTronne"
 )
 
-type planettronne struct{}
+type planettronne struct {
+	img  image.Image
+	mask locations.Mask
+}
 
-func (p *planettronne) Image() image.Image   { return img }
-func (p *planettronne) Mask() locations.Mask { return mask }
+func (p *planettronne) Image() image.Image   { return p.img }
+func (p *planettronne) Mask() locations.Mask { return p.mask }
 func (p *planettronne) PrettyName() string   { return prettyName }
 func (p *planettronne) UglyName() string     { return uglyName }
 
 func init() {
-	locations.Add(uglyName, func() locations.Location { return &planettronne{} })
-
-	var err error
-	img, err = locations.FileToImage(assets, "data/PlanetTronne.png")
+	img, err := locations.FileToImage(assets, "data/PlanetTronne.png")
 	if err != nil {
 		log.Fatalf("map image not found: %s", err.Error())
 	}
 
-	_, mask, err = locations.FileToMask(assets, "data/PlanetTronne.txt")
+	_, mask, err := locations.FileToMask(assets, "data/PlanetTronne.txt")
 	if err != nil {
 		log.Fatalf("map mask not found: %s", err.Error())
 	}
+
+	locations.Add(uglyName, &planettronne{img: img, mask: mask})
 }

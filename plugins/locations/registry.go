@@ -1,9 +1,7 @@
 package locations
 
-type Creator func() Location
+var Locations = map[string]Location{}
 
-var Locations = map[string]Creator{}
-
-func Add(name string, creator Creator) {
-	Locations[name] = creator
+func Add(name string, location Location) {
+	Locations[name] = location
 }

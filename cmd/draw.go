@@ -8,7 +8,6 @@ import (
 
 	"github.com/MisterCodo/ngu/maps"
 	"github.com/MisterCodo/ngu/plugins/beacons"
-	"github.com/MisterCodo/ngu/plugins/locations"
 	"github.com/spf13/cobra"
 )
 
@@ -31,13 +30,9 @@ var drawCmd = &cobra.Command{
 		if !ok {
 			return fmt.Errorf("provided map number invalid")
 		}
-		location, ok := locations.Locations[locationName]
-		if !ok {
-			return fmt.Errorf("could not find map location %s", locationName)
-		}
 
 		// Convert file to a map
-		m := maps.NewMap(location())
+		m := maps.NewMap(locationName)
 
 		f, err := os.Open(drawCmdFile)
 		if err != nil {

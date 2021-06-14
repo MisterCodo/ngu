@@ -6,13 +6,12 @@ import (
 	"sort"
 
 	"github.com/MisterCodo/ngu/plugins/beacons"
-	"github.com/MisterCodo/ngu/plugins/locations"
 )
 
 // Optimizer performs map optimization with randomised hill climbing and beam search.
 type Optimizer struct {
-	Goal           OptimizationGoal   // Either Speed, Production or Production&Speed
-	Location       locations.Location // Location (e.g. tutorial island)
+	Goal           OptimizationGoal // Either Speed, Production or Production&Speed
+	Location       string           // Location (e.g. tutorial island)
 	BeaconTypes    []beacons.BType
 	TileRandomizer *TileRandomizer // Allows switching tiles randomly
 
@@ -35,12 +34,7 @@ func (og OptimizationGoal) String() string {
 }
 
 // NewOptimizer returns a map optimizer for a specific map location, specific goal and using a list of available beacons.
-func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, locationName string, candidateCount int, randomMapCount int, adjustCycle int) (*Optimizer, error) {
-	location, ok := locations.Locations[locationName]
-	if !ok {
-		return nil, fmt.Errorf("could not find map location %s", locationName)
-	}
-
+func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, location string, candidateCount int, randomMapCount int, adjustCycle int) (*Optimizer, error) {
 	var beaconCategories []beacons.Category
 	if goal == SpeedAndProductionGoal {
 		beaconCategories = []beacons.Category{beacons.Speed, beacons.Production}
@@ -52,7 +46,7 @@ func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, locationNa
 
 	o := &Optimizer{
 		Goal:            goal,
-		Location:        location(),
+		Location:        location,
 		BeaconTypes:     beaconTypes,
 		TileRandomizer:  NewTileRandomizer(beaconCategories, beaconTypes),
 		CandidatesCount: candidateCount,

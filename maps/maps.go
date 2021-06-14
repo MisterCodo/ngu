@@ -30,17 +30,21 @@ func init() {
 // Map is a NGU Industries map layout consisting of tiles and a location.
 type Map struct {
 	Tiles    [MapY][MapX]Tile
-	Location locations.Location
+	Location string
 }
 
 // NewMap generates a new map based on the provided location. Each tile which can be
 // modified by the gamer is set to a regular resource tile.
-func NewMap(location locations.Location) *Map {
+func NewMap(location string) *Map {
 	m := &Map{
 		Tiles:    [MapY][MapX]Tile{},
 		Location: location,
 	}
-	for y, row := range m.Location.Mask() {
+	l, ok := locations.Locations[location]
+	if !ok {
+		log.Fatalf("NewMap could not find location %s", location)
+	}
+	for y, row := range l.Mask() {
 		for x, val := range row {
 			if val == 1 {
 				m.Tiles[y][x] = Tile{Type: ProductionTile, ProductionMultiplier: 0.0, SpeedMultiplier: 0.0, EfficiencyMultiplier: 0.0}
@@ -57,7 +61,7 @@ func NewMap(location locations.Location) *Map {
 func (m *Map) Randomize(t *TileRandomizer) {
 	for y, row := range m.Tiles {
 		for x := range row {
-			if m.Location.Mask()[y][x] == 1 {
+			if m.Tiles[y][x].Type != UnusableTile {
 				m.Tiles[y][x].Type = t.randomTile()
 			}
 		}
@@ -167,7 +171,11 @@ func (m *Map) Print() {
 // DrawMap draws the map image.
 func (m *Map) Draw(goal OptimizationGoal, beaconTypes []beacons.BType) error {
 	// Initialize output image
-	img := m.Location.Image()
+	l, ok := locations.Locations[m.Location]
+	if !ok {
+		log.Fatalf("NewMap could not find location %s", m.Location)
+	}
+	img := l.Image()
 	outputImg := image.NewRGBA(image.Rect(0, 0, locations.ImgSizeX, locations.ImgSizeY))
 	sr := img.Bounds()
 	draw.Draw(outputImg, sr, img, image.Point{}, draw.Src)
@@ -194,10 +202,10 @@ func (m *Map) Draw(goal OptimizationGoal, beaconTypes []beacons.BType) error {
 	score := m.Score(goal)
 	var outName string
 	if len(beaconTypes) == 0 || goal == -1 {
-		outName = strings.Join([]string{m.Location.UglyName(), fmt.Sprintf("%d", time.Now().Unix())}, "_") + ".png"
+		outName = strings.Join([]string{l.UglyName(), fmt.Sprintf("%d", time.Now().Unix())}, "_") + ".png"
 	} else {
 
-		outName = strings.Join([]string{m.Location.UglyName(), OptimizationGoal(goal).String(), beaconTypes[len(beaconTypes)-1].String(), fmt.Sprintf("%.0f", score*100)}, "_") + ".png"
+		outName = strings.Join([]string{l.UglyName(), OptimizationGoal(goal).String(), beaconTypes[len(beaconTypes)-1].String(), fmt.Sprintf("%.0f", score*100)}, "_") + ".png"
 	}
 
 	out, err := os.Create(outName)
@@ -218,11 +226,11 @@ func (m *Map) Draw(goal OptimizationGoal, beaconTypes []beacons.BType) error {
 // Adjust changes one tile of the map to another type. It sends details about which tile got modified and
 // what was the previous tile type.
 func (m *Map) Adjust(tr *TileRandomizer) (impactedX int, impactedY int, oldType string) {
-	// Find a tile to adjust, it must be a valid spot based on the map mask.
+	// Find a tile to adjust, it must be a valid spot.
 	for {
 		impactedX = rand.Intn(MapX)
 		impactedY = rand.Intn(MapY)
-		if m.Location.Mask()[impactedY][impactedX] == 1 {
+		if m.Tiles[impactedY][impactedX].Type != UnusableTile {
 			break
 		}
 	}
