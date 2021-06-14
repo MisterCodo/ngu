@@ -180,7 +180,7 @@ func (o *Optimizer) beam(maps Maps, beamKeep int) Maps {
 		tmpMaps := []*Map{}
 		for y, row := range m.Tiles {
 			for x := range row {
-				if m.Tiles[y][x].Type == ProductionTile {
+				if m.Tiles[y][x].Type != UnusableTile {
 					for _, bt := range o.TileRandomizer.Beacons {
 						if m.Tiles[y][x].Type == bt {
 							continue
