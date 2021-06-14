@@ -34,7 +34,7 @@ func init() {
 	optimizeCmd.Flags().IntVarP(&optimizeCmdMap, "map", "m", 1, "map to optimize: (1)Tutorial Island, (2)Flesh World, (3)Planet Tronne, (4)Candy Land, (5)Mansions & Managers")
 	optimizeCmd.Flags().IntVarP(&optimizeCmdGoal, "goal", "g", 1, "optimization goal: (1)Speed&Production, (2)Speed, (3)Production")
 	optimizeCmd.Flags().IntVarP(&optimizeCmdBeacons, "beacons", "b", 5, "optimization beacon types available: (1)Box, (2)Box & Knight, (3)Box, Knight & Arrow, (4) Box, Knight, Arrow & Wall, (5)All")
-	optimizeCmd.Flags().IntVarP(&optimizeCmdCycles, "cycle", "c", 100, "how many global optimization cycles to run. Set to -1 to run forever.")
+	optimizeCmd.Flags().IntVarP(&optimizeCmdCycles, "cycle", "c", -1, "how many global optimization cycles to run. Set to -1 to run forever.")
 	optimizeCmd.Flags().IntVarP(&optimizeCmdRandomCycles, "random", "r", 100, "how many random map to generate per cycle")
 	optimizeCmd.Flags().IntVarP(&optimizeCmdAdjustCycles, "adjust", "a", 10000, "how many adjustments to perform on each random map")
 	rootCmd.AddCommand(optimizeCmd)

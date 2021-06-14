@@ -65,7 +65,7 @@ func (o *Optimizer) Run(drawMap bool) (*Map, error) {
 	infinite := false
 	if o.CandidatesCount == -1 {
 		infinite = true
-		o.CandidatesCount = 3
+		o.CandidatesCount = 1
 	}
 
 	bestScore := 0.0
@@ -80,9 +80,6 @@ func (o *Optimizer) Run(drawMap bool) (*Map, error) {
 				highScore = newScore
 			}
 		}
-
-		// Optimize this best candidate to get the best map
-		bestMap = o.beamOptimize(bestMap, 3, 5)
 
 		// Print results
 		score := bestMap.Score(o.Goal)
