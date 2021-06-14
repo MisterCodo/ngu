@@ -15,8 +15,9 @@ func TestOptimizationGoal(t *testing.T) {
 }
 
 func TestOptimizerRun(t *testing.T) {
-	o, err := NewOptimizer(SpeedGoal, []beacons.BType{beacons.Box, beacons.Knight, beacons.Arrow, beacons.Wall, beacons.Donut}, "CandyLand", 1, 100, 10000)
+	o, err := NewOptimizer(SpeedGoal, []beacons.BType{beacons.Box, beacons.Knight, beacons.Arrow, beacons.Wall, beacons.Donut}, "CandyLand")
 	assert.NoError(t, err)
+	o.Infinite = false
 
 	// Force always the same random seed so test results are static. This doesn't work, likely a map order problem
 	rand.Seed(7)

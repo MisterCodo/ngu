@@ -31,6 +31,7 @@ func init() {
 type Map struct {
 	Tiles    [MapY][MapX]Tile
 	Location string
+	Score    float64
 }
 
 // NewMap generates a new map based on the provided location. Each tile which can be
@@ -48,6 +49,7 @@ func NewMap(location string) *Map {
 		for x, val := range row {
 			if val == 1 {
 				m.Tiles[y][x] = Tile{Type: ProductionTile, ProductionMultiplier: 0.0, SpeedMultiplier: 0.0, EfficiencyMultiplier: 0.0}
+				m.Score++
 				continue
 			}
 			m.Tiles[y][x] = Tile{Type: UnusableTile, ProductionMultiplier: 0.0, SpeedMultiplier: 0.0, EfficiencyMultiplier: 0.0}
@@ -57,7 +59,7 @@ func NewMap(location string) *Map {
 	return m
 }
 
-// Randomize picks random tile types for the entire map.
+// Randomize picks random tile types for the entire map. Careful, it does not update the map score.
 func (m *Map) Randomize(t *TileRandomizer) {
 	for y, row := range m.Tiles {
 		for x := range row {
@@ -76,12 +78,21 @@ func (m *Map) Copy() *Map {
 			newMap.Tiles[y][x] = m.Tiles[y][x]
 		}
 	}
+	newMap.Score = m.Score
 	return newMap
 }
 
-// Score evaluates the score of the map.
+// Score evaluates multipliers for each tile of the map and evaluates the score of the map.
+func (m *Map) UpdateScore(goal OptimizationGoal) {
+	// Reset Multipliers
+	for y, row := range m.Tiles {
+		for x := range row {
+			m.Tiles[y][x].SpeedMultiplier = 0.0
+			m.Tiles[y][x].ProductionMultiplier = 0.0
+			m.Tiles[y][x].EfficiencyMultiplier = 0.0
+		}
+	}
 
-func (m *Map) Score(goal OptimizationGoal) float64 {
 	// Go through all map tiles and apply the effect of each beacon found.
 	for y, row := range m.Tiles {
 		for x, val := range row {
@@ -137,25 +148,16 @@ func (m *Map) Score(goal OptimizationGoal) float64 {
 		}
 	}
 
-	// Reset Multipliers, this is crappy
-	for y, row := range m.Tiles {
-		for x := range row {
-			m.Tiles[y][x].SpeedMultiplier = 0.0
-			m.Tiles[y][x].ProductionMultiplier = 0.0
-			m.Tiles[y][x].EfficiencyMultiplier = 0.0
-		}
-	}
-
+	// Update map score
 	if goal == SpeedGoal {
-		return speedScore
+		m.Score = speedScore
+	} else if goal == ProductionGoal {
+		m.Score = productionScore
+	} else if goal == SpeedAndProductionGoal {
+		m.Score = productionAndSpeedScore
+	} else {
+		m.Score = 0.0
 	}
-	if goal == ProductionGoal {
-		return productionScore
-	}
-	if goal == SpeedAndProductionGoal {
-		return productionAndSpeedScore
-	}
-	return 0.0
 }
 
 // Print displays the map layout.
@@ -199,13 +201,12 @@ func (m *Map) Draw(goal OptimizationGoal, beaconTypes []beacons.BType) error {
 	}
 
 	// Save image to disk
-	score := m.Score(goal)
+	m.UpdateScore(goal)
 	var outName string
 	if len(beaconTypes) == 0 || goal == -1 {
 		outName = strings.Join([]string{l.UglyName(), fmt.Sprintf("%d", time.Now().Unix())}, "_") + ".png"
 	} else {
-
-		outName = strings.Join([]string{l.UglyName(), OptimizationGoal(goal).String(), beaconTypes[len(beaconTypes)-1].String(), fmt.Sprintf("%.0f", score*100)}, "_") + ".png"
+		outName = strings.Join([]string{l.UglyName(), OptimizationGoal(goal).String(), beaconTypes[len(beaconTypes)-1].String(), fmt.Sprintf("%.0f", m.Score*100)}, "_") + ".png"
 	}
 
 	out, err := os.Create(outName)
@@ -253,23 +254,6 @@ func (m *Map) Adjust(tr *TileRandomizer) (impactedX int, impactedY int, oldType 
 
 type Maps []*Map
 
-func (m Maps) Len() int      { return len(m) }
-func (m Maps) Swap(i, j int) { m[i], m[j] = m[j], m[i] }
-
-type BySpeedScore struct{ Maps }
-
-func (s BySpeedScore) Less(i, j int) bool {
-	return s.Maps[i].Score(SpeedGoal) > s.Maps[j].Score(SpeedGoal)
-}
-
-type ByProductionScore struct{ Maps }
-
-func (s ByProductionScore) Less(i, j int) bool {
-	return s.Maps[i].Score(ProductionGoal) > s.Maps[j].Score(ProductionGoal)
-}
-
-type BySpeedAndProductionScore struct{ Maps }
-
-func (s BySpeedAndProductionScore) Less(i, j int) bool {
-	return s.Maps[i].Score(SpeedAndProductionGoal) > s.Maps[j].Score(SpeedAndProductionGoal)
-}
+func (m Maps) Len() int           { return len(m) }
+func (m Maps) Swap(i, j int)      { m[i], m[j] = m[j], m[i] }
+func (m Maps) Less(i, j int) bool { return m[i].Score > m[j].Score }

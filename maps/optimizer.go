@@ -2,6 +2,7 @@ package maps
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"sort"
 
@@ -15,9 +16,9 @@ type Optimizer struct {
 	BeaconTypes    []beacons.BType
 	TileRandomizer *TileRandomizer // Allows switching tiles randomly
 
-	CandidatesCount int // How many map candidates to generate during optimization
-	RandomMapCount  int // How many random map to generate for each candidate map
-	AdjustCycle     int // How many optimization cycles during randomised hill climbing
+	Infinite       bool // Run forever if true
+	RandomMapCount int  // How many random map to generate for each candidate map
+	AdjustCycle    int  // How many optimization cycles during randomised hill climbing
 }
 
 // OptimizationGoal represents the optimization goal.
@@ -34,7 +35,7 @@ func (og OptimizationGoal) String() string {
 }
 
 // NewOptimizer returns a map optimizer for a specific map location, specific goal and using a list of available beacons.
-func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, location string, candidateCount int, randomMapCount int, adjustCycle int) (*Optimizer, error) {
+func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, location string) (*Optimizer, error) {
 	var beaconCategories []beacons.Category
 	if goal == SpeedAndProductionGoal {
 		beaconCategories = []beacons.Category{beacons.Speed, beacons.Production}
@@ -45,13 +46,13 @@ func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, location s
 	}
 
 	o := &Optimizer{
-		Goal:            goal,
-		Location:        location,
-		BeaconTypes:     beaconTypes,
-		TileRandomizer:  NewTileRandomizer(beaconCategories, beaconTypes),
-		CandidatesCount: candidateCount,
-		RandomMapCount:  randomMapCount,
-		AdjustCycle:     adjustCycle,
+		Goal:           goal,
+		Location:       location,
+		BeaconTypes:    beaconTypes,
+		TileRandomizer: NewTileRandomizer(beaconCategories, beaconTypes),
+		Infinite:       true,
+		RandomMapCount: 100,
+		AdjustCycle:    10000,
 	}
 
 	return o, nil
@@ -59,33 +60,18 @@ func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, location s
 
 // Optimize attempts to find the best map possible for a specific optimization type, be it speed, production or a combination of speed and production.
 func (o *Optimizer) Run(drawMap bool) (*Map, error) {
-	var bestMap *Map
-	highScore := -1.0
-
-	infinite := false
-	if o.CandidatesCount == -1 {
-		infinite = true
-		o.CandidatesCount = 1
-	}
-
-	bestScore := 0.0
+	// Initialize empty map
+	bestMap := NewMap(o.Location)
+	bestMap.UpdateScore(o.Goal)
 
 	for {
 		// Find a very good map
-		for i := 0; i < o.CandidatesCount; i++ {
-			m := o.generateGoodMapCandidate()
-			newScore := m.Score(o.Goal)
-			if newScore > highScore {
-				bestMap = m
-				highScore = newScore
-			}
-		}
+		m := o.generateGoodMapCandidate()
 
 		// Print results
-		score := bestMap.Score(o.Goal)
-		if score > bestScore {
-			fmt.Printf("=====\nNew high score of %.2f\n", score)
-			bestScore = score
+		if m.Score > bestMap.Score {
+			fmt.Printf("=====\nNew high score of %.2f\n", m.Score)
+			bestMap = m
 			bestMap.Print()
 
 			// Generate map image
@@ -97,7 +83,7 @@ func (o *Optimizer) Run(drawMap bool) (*Map, error) {
 			}
 		}
 
-		if infinite {
+		if o.Infinite {
 			continue
 		}
 		break
@@ -124,10 +110,11 @@ func (o *Optimizer) generateGoodRandomMap() *Map {
 	for i := 0; i < o.RandomMapCount; i++ {
 		m := NewMap(o.Location)
 		m.Randomize(o.TileRandomizer)
-		newScore := m.Score(o.Goal)
-		if newScore > highScore {
+		// Todo: Randomize does not update score, fix this. For now just call UpdateScore(.
+		m.UpdateScore(o.Goal)
+		if m.Score > highScore {
 			bestMap = m
-			highScore = newScore
+			highScore = m.Score
 		}
 	}
 	return bestMap
@@ -135,15 +122,17 @@ func (o *Optimizer) generateGoodRandomMap() *Map {
 
 // hillClimbMap performs adjustments on provided map and slowly makes it better.
 func (o *Optimizer) hillClimbMap(m *Map) *Map {
-	highScore := m.Score(o.Goal)
+	highScore := m.Score
 	for i := 0; i < o.AdjustCycle; i++ {
+		// Todo: fix to only recalculate what's needed
 		impactedX, impactedY, oldType := m.Adjust(o.TileRandomizer)
-		newScore := m.Score(o.Goal)
-		if newScore > highScore {
-			highScore = newScore
+		m.UpdateScore(o.Goal)
+		if m.Score > highScore {
+			highScore = m.Score
 		} else {
 			//reset move
 			m.Tiles[impactedY][impactedX].Type = oldType
+			m.UpdateScore(o.Goal)
 		}
 	}
 	return m
@@ -152,21 +141,105 @@ func (o *Optimizer) hillClimbMap(m *Map) *Map {
 // beamOptimize beam searches the map until it can't improve the map further.
 func (o *Optimizer) beamOptimize(m *Map, beamSize int, beamKeep int) *Map {
 	for {
-		highScore := m.Score(o.Goal)
-
+		// m.UpdateScore(o.Goal)
 		maps := []*Map{m}
 		for b := 0; b < beamSize; b++ {
 			maps = o.beam(maps, beamKeep)
 		}
-		sort.Sort(BySpeedScore{maps})
+		sort.Sort(Maps(maps))
 
-		if maps[0].Score(o.Goal) > highScore {
+		// Check if the beam search offers a better map. If so, use it and do another beam search. Else beam optimize is done.
+		if maps[0].Score > m.Score {
 			m = maps[0]
 			continue
 		}
 		break
 	}
 	return m
+}
+
+// TODO: this needs work but I'm mostly certain it works properly
+func (o *Optimizer) applyBeamImpact(m *Map, x int, y int, beacon string) {
+	scoreImpact := 0.0
+	oldBeaconType := m.Tiles[y][x].Type
+
+	// If beacon we are replacing was a production tile, then removing the production tile lowers the map score
+	if oldBeaconType == ProductionTile {
+		if o.Goal == SpeedGoal {
+			scoreImpact -= 1.0 + m.Tiles[y][x].SpeedMultiplier/100
+		} else if o.Goal == ProductionGoal {
+			scoreImpact -= 1.0 + m.Tiles[y][x].ProductionMultiplier/100
+		} else if o.Goal == SpeedAndProductionGoal {
+			scoreImpact -= (1.0 + m.Tiles[y][x].SpeedMultiplier/100) * (1.0 + m.Tiles[y][x].ProductionMultiplier/100)
+		}
+	} else { // If beacon we are replacing was a beacon, then we need to remove it's beacon effects and all production tiles affected lowers the map score
+		b, ok := beacons.Beacons[oldBeaconType]
+		if !ok {
+			log.Fatalf("apply beam impact func could not find beacon %s", oldBeaconType)
+		}
+		for _, effect := range b.Effect() {
+			impactedX := x + effect.X
+			impactedY := y + effect.Y
+			if impactedX >= 0 && impactedX < MapX && impactedY >= 0 && impactedY < MapY {
+				oldSpeedProdScore := (1.0 + m.Tiles[impactedY][impactedX].SpeedMultiplier/100) * (1.0 + m.Tiles[impactedY][impactedX].ProductionMultiplier/100)
+				if b.Category() == beacons.Speed {
+					m.Tiles[impactedY][impactedX].SpeedMultiplier -= effect.Gain
+				} else if b.Category() == beacons.Production {
+					m.Tiles[impactedY][impactedX].ProductionMultiplier -= effect.Gain
+				}
+				if m.Tiles[impactedY][impactedX].Type == ProductionTile {
+					if o.Goal == SpeedGoal || o.Goal == ProductionGoal {
+						scoreImpact -= effect.Gain / 100
+					} else if o.Goal == SpeedAndProductionGoal {
+						newSpeedProdScore := (1.0 + m.Tiles[impactedY][impactedX].SpeedMultiplier/100) * (1.0 + m.Tiles[impactedY][impactedX].ProductionMultiplier/100)
+						scoreImpact += newSpeedProdScore - oldSpeedProdScore
+					}
+				}
+			}
+		}
+	}
+
+	// Update map beacon
+	m.Tiles[y][x].Type = beacon
+
+	// If new beacon is a production tile, it increases the map score
+	if beacon == ProductionTile {
+		if o.Goal == SpeedGoal {
+			scoreImpact += 1.0 + m.Tiles[y][x].SpeedMultiplier/100
+		} else if o.Goal == ProductionGoal {
+			scoreImpact += 1.0 + m.Tiles[y][x].ProductionMultiplier/100
+		} else if o.Goal == SpeedAndProductionGoal {
+			scoreImpact += (1.0 + m.Tiles[y][x].SpeedMultiplier/100) * (1.0 + m.Tiles[y][x].ProductionMultiplier/100)
+		}
+	} else { // If new beacon is a beacon, then apply it's effects to other tiles and if those are production tiles the map score increases
+		b, ok := beacons.Beacons[beacon]
+		if !ok {
+			log.Fatalf("apply beam impact func could not find beacon %s", oldBeaconType)
+		}
+		for _, effect := range b.Effect() {
+			impactedX := x + effect.X
+			impactedY := y + effect.Y
+			if impactedX >= 0 && impactedX < MapX && impactedY >= 0 && impactedY < MapY {
+				oldSpeedProdScore := (1.0 + m.Tiles[impactedY][impactedX].SpeedMultiplier/100) * (1.0 + m.Tiles[impactedY][impactedX].ProductionMultiplier/100)
+				if b.Category() == beacons.Speed {
+					m.Tiles[impactedY][impactedX].SpeedMultiplier += effect.Gain
+				} else if b.Category() == beacons.Production {
+					m.Tiles[impactedY][impactedX].ProductionMultiplier += effect.Gain
+				}
+				if m.Tiles[impactedY][impactedX].Type == ProductionTile {
+					if o.Goal == SpeedGoal || o.Goal == ProductionGoal {
+						scoreImpact += effect.Gain / 100
+					} else if o.Goal == SpeedAndProductionGoal {
+						newSpeedProdScore := (1.0 + m.Tiles[impactedY][impactedX].SpeedMultiplier/100) * (1.0 + m.Tiles[impactedY][impactedX].ProductionMultiplier/100)
+						scoreImpact += newSpeedProdScore - oldSpeedProdScore
+					}
+				}
+			}
+		}
+	}
+
+	// Update map score
+	m.Score += scoreImpact
 }
 
 // beam performs a beam search on the map
@@ -183,7 +256,11 @@ func (o *Optimizer) beam(maps Maps, beamKeep int) Maps {
 							continue
 						}
 						tmpMap := m.Copy()
-						tmpMap.Tiles[y][x].Type = bt
+						o.applyBeamImpact(tmpMap, x, y, bt)
+						// this commented block helps validate the applyBeamImpact func accuracy
+						// asdf := tmpMap.Score
+						// tmpMap.UpdateScore(o.Goal)
+						// fmt.Printf("%.2f %.2f\n", asdf, tmpMap.Score)
 						tmpMaps = append(tmpMaps, tmpMap)
 					}
 				}
@@ -194,13 +271,7 @@ func (o *Optimizer) beam(maps Maps, beamKeep int) Maps {
 		rand.Shuffle(len(tmpMaps), func(i, j int) { tmpMaps[i], tmpMaps[j] = tmpMaps[j], tmpMaps[i] })
 
 		// Keep the best X maps only
-		if o.Goal == SpeedGoal {
-			sort.Sort(BySpeedScore{tmpMaps})
-		} else if o.Goal == ProductionGoal {
-			sort.Sort(ByProductionScore{tmpMaps})
-		} else {
-			sort.Sort(BySpeedAndProductionScore{tmpMaps})
-		}
+		sort.Sort(Maps(tmpMaps))
 		howMany := beamKeep
 		if len(tmpMaps) < howMany {
 			howMany = len(tmpMaps)
