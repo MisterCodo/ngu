@@ -72,14 +72,29 @@ func (m *Map) Randomize(t *TileRandomizer) {
 
 // Copy creates a new map with the same tiles as the original map.
 func (m *Map) Copy() *Map {
-	newMap := NewMap(m.Location)
+	newMap := &Map{
+		Location: m.Location,
+		Tiles:    [MapY][MapX]Tile{},
+		Score:    m.Score,
+	}
 	for y, row := range m.Tiles {
 		for x := range row {
 			newMap.Tiles[y][x] = m.Tiles[y][x]
 		}
 	}
-	newMap.Score = m.Score
 	return newMap
+}
+
+// CopyUsing creates a new map with the same tiles as the original map using an old map reference.
+func (m *Map) CopyUsing(oldMap *Map) *Map {
+	oldMap.Location = m.Location
+	oldMap.Score = m.Score
+	for y, row := range m.Tiles {
+		for x := range row {
+			oldMap.Tiles[y][x] = m.Tiles[y][x]
+		}
+	}
+	return oldMap
 }
 
 // Score evaluates multipliers for each tile of the map and evaluates the score of the map.

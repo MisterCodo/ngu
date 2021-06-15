@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"sort"
+	"sync"
 
 	"github.com/MisterCodo/ngu/plugins/beacons"
 )
@@ -19,6 +20,8 @@ type Optimizer struct {
 	Infinite       bool // Run forever if true
 	RandomMapCount int  // How many random map to generate for each candidate map
 	AdjustCycle    int  // How many optimization cycles during randomised hill climbing
+
+	beamMapPool sync.Pool
 }
 
 // OptimizationGoal represents the optimization goal.
@@ -53,6 +56,11 @@ func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, location s
 		Infinite:       true,
 		RandomMapCount: 100,
 		AdjustCycle:    10000,
+		beamMapPool: sync.Pool{
+			New: func() interface{} {
+				return NewMap(location)
+			},
+		},
 	}
 
 	return o, nil
@@ -255,7 +263,7 @@ func (o *Optimizer) beam(maps Maps, beamKeep int) Maps {
 						if m.Tiles[y][x].Type == bt {
 							continue
 						}
-						tmpMap := m.Copy()
+						tmpMap := m.CopyUsing(o.beamMapPool.Get().(*Map))
 						o.applyBeamImpact(tmpMap, x, y, bt)
 						// this commented block helps validate the applyBeamImpact func accuracy
 						// asdf := tmpMap.Score
@@ -275,6 +283,11 @@ func (o *Optimizer) beam(maps Maps, beamKeep int) Maps {
 		howMany := beamKeep
 		if len(tmpMaps) < howMany {
 			howMany = len(tmpMaps)
+		}
+
+		// return unused maps to the pool
+		for _, tmpM := range tmpMaps[howMany:] {
+			o.beamMapPool.Put(tmpM)
 		}
 
 		returnMaps = append(returnMaps, tmpMaps[0:howMany-1]...)
