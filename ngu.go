@@ -71,7 +71,7 @@ func (n *ngu) Render() app.UI {
 								t := n.tiles[i]
 								if t.usable == 1 {
 									return app.Button().Style("cursor", "pointer").Style("padding", "0").Style("border", "0").Style("height", "30px").Style("width", "30px").Style("background-color", "transparent").
-										Body(app.Img().Style("height", "30px").Style("width", "30px").Src("web/speedbox.png"))
+										Body(app.Img().Style("height", "30px").Style("width", "30px").Src("web/SpeedBox.png"))
 								}
 								return app.Div().Style("padding", "0").Style("border", "0").Style("height", "30px").Style("width", "30px").Text("")
 							}),
