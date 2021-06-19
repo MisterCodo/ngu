@@ -2,7 +2,7 @@
 
 ## How to Use
 
-Download the latest release and use command `ngu -h` to see usage instructions:
+Download the latest release and use command `cli -h` to see usage instructions:
 
 ### Optimize Map
 
@@ -21,9 +21,9 @@ Flags:
   -m, --map int       map to optimize: (1)Tutorial Island, (2)Flesh World, (3)Planet Tronne, (4)Candy Land, (5)Mansions & Managers (default 1)
 ```
 
-For instance, to launch a speed optimization for Candy Land with box and knight beacons, use command `ngu optimize -m 4 -b 2 -g 2`. It will run forever and everytime a new higher scoring map is found it will be both printed to console and saved as a png image.
+For instance, to launch a speed optimization for Candy Land with box and knight beacons, use command `cli optimize -m 4 -b 2 -g 2`. It will run forever and everytime a new higher scoring map is found it will be both printed to console and saved as a png image.
 
-If you want to make modifications to the code, the only dependency is [GoLang](https://golang.org/). Once GoLang is installed, clone the repo and from its root use command `go run ngu.go`.
+If you want to make modifications to the code, the only dependency is [GoLang](https://golang.org/). Once GoLang is installed, clone the repo and from its root use command `go run github.com/MisterCodo/ngu/cli`.
 
 ### Draw Map
 
@@ -41,7 +41,7 @@ Flags:
   -m, --map int       map to optimize: (1)Tutorial Island, (2)Flesh World, (3)Planet Tronne, (4)Candy Land, (5)Mansions & Managers (default 1)
 ```
 
-The file should contain the console map layout results, for instance running `ngu draw -m 1 -f beacons.txt` draws the following image:
+The file should contain the console map layout results, for instance running `cli draw -m 1 -f beacons.txt` draws the following image:
 
 ![Optimized Map Image](/_images/TutorialIslandSample.png)
 

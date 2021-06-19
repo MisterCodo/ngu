@@ -16,7 +16,9 @@ type ngu struct {
 	locations  []location
 	beacons    []beacon
 	background string
+	location   string
 	tiles      []tile
+	mask       locations.Mask
 }
 
 func (n *ngu) OnMount(ctx app.Context) {
@@ -25,13 +27,14 @@ func (n *ngu) OnMount(ctx app.Context) {
 
 func (n *ngu) initNGU(ctx app.Context) {
 	n.locations = []location{
-		{id: 0, label: "tutorialisland", prettyName: "Tutorial Island", selected: true},
-		{id: 1, label: "fleshworld", prettyName: "Flesh World", selected: false},
-		{id: 2, label: "planettronne", prettyName: "Planet Tronne", selected: false},
-		{id: 3, label: "candyland", prettyName: "Candy Land", selected: false},
-		{id: 4, label: "mansionsandmanagers", prettyName: "Mansions & Managers", selected: false},
+		{id: 0, label: "TutorialIsland", prettyName: "Tutorial Island", selected: true},
+		{id: 1, label: "FleshWorld", prettyName: "Flesh World", selected: false},
+		{id: 2, label: "PlanetTronne", prettyName: "Planet Tronne", selected: false},
+		{id: 3, label: "CandyLand", prettyName: "Candy Land", selected: false},
+		{id: 4, label: "MansionsAndManagers", prettyName: "Mansions & Managers", selected: false},
 	}
-	n.background = "url(/web/tutorialisland.png)"
+	n.location = "TutorialIsland"
+	n.background = fmt.Sprintf("url(/web/%s.png)", n.location)
 	n.beacons = []beacon{
 		{id: 0, label: "box", prettyName: "Box"},
 		{id: 0, label: "knight", prettyName: "Knight"},
@@ -40,16 +43,8 @@ func (n *ngu) initNGU(ctx app.Context) {
 		{id: 0, label: "donut", prettyName: "Donut"},
 	}
 	n.tiles = []tile{}
-	mask := locations.Locations["TutorialIsland"].Mask()
-	for y, row := range mask {
-		for x, val := range row {
-			asdf := "X"
-			if val == 1 {
-				asdf = "O"
-			}
-			n.tiles = append(n.tiles, tile{id: y*20 + x, mask: asdf})
-		}
-	}
+	n.mask = locations.Locations[n.location].Mask()
+	n.updateTiles()
 	n.Update()
 }
 
@@ -69,7 +64,7 @@ func (n *ngu) Render() app.UI {
 						Body(
 							app.Range(n.tiles).Slice(func(i int) app.UI {
 								t := n.tiles[i]
-								if t.mask == "O" {
+								if t.usable == 1 {
 									return app.Button().Style("cursor", "pointer").Style("padding", "0").Style("border", "0").Style("height", "30px").Style("width", "30px").Style("background-color", "transparent").
 										Body(app.Img().Style("height", "30px").Style("width", "30px").Src("web/speedbox.png"))
 								}
@@ -114,7 +109,19 @@ func (n *ngu) changeLocation(l location) app.EventHandler {
 	return func(ctx app.Context, e app.Event) {
 		fmt.Printf("changed location to %s\n", l.label)
 		n.background = fmt.Sprintf("url(/web/%s.png)", l.label)
+		n.location = l.label
+		n.mask = locations.Locations[n.location].Mask()
+		n.updateTiles()
 		n.Update()
+	}
+}
+
+func (n *ngu) updateTiles() {
+	n.tiles = []tile{}
+	for y, row := range n.mask {
+		for x, val := range row {
+			n.tiles = append(n.tiles, tile{id: y*20 + x, usable: val})
+		}
 	}
 }
 
@@ -132,7 +139,7 @@ func (n *ngu) optimize(ctx app.Context, e app.Event) {
 	// hardcoded for debugging, use ngu values instead
 	goal := maps.OptimizationGoal(maps.SpeedGoal)
 	beaconTypes := []beacons.BType{beacons.Box}
-	locationName := "TutorialIsland"
+	locationName := n.location
 
 	optimizer, err := maps.NewOptimizer(goal, beaconTypes, locationName)
 	if err != nil {
@@ -166,8 +173,8 @@ type beacon struct {
 }
 
 type tile struct {
-	id   int
-	mask string
+	id     int
+	usable int
 }
 
 func main() {
@@ -181,6 +188,4 @@ func main() {
 	if err := http.ListenAndServe(":8000", nil); err != nil {
 		log.Fatal(err)
 	}
-
-	// cmd.Execute()
 }
