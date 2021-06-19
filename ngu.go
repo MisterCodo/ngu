@@ -16,6 +16,8 @@ import (
 	"github.com/maxence-charriere/go-app/v8/pkg/logs"
 )
 
+var relativePath = "/web/"
+
 type ngu struct {
 	app.Compo
 	locations  []location
@@ -39,7 +41,7 @@ func (n *ngu) initNGU(ctx app.Context) {
 		{id: 4, label: "MansionsAndManagers", prettyName: "Mansions & Managers", selected: false},
 	}
 	n.location = "TutorialIsland"
-	n.background = fmt.Sprintf("url(/web/%s.png)", n.location)
+	n.background = fmt.Sprintf("url(%s/%s.png)", relativePath, n.location)
 	n.beacons = []beacon{
 		{id: 0, label: "box", prettyName: "Box"},
 		{id: 0, label: "knight", prettyName: "Knight"},
@@ -113,7 +115,7 @@ func (n *ngu) Render() app.UI {
 func (n *ngu) changeLocation(l location) app.EventHandler {
 	return func(ctx app.Context, e app.Event) {
 		fmt.Printf("changed location to %s\n", l.label)
-		n.background = fmt.Sprintf("url(/web/%s.png)", l.label)
+		n.background = fmt.Sprintf("url(%s%s.png)", relativePath, l.label)
 		n.location = l.label
 		n.mask = locations.Locations[n.location].Mask()
 		n.updateTiles()
@@ -249,6 +251,7 @@ func runLocal(ctx context.Context, h http.Handler, opts options) {
 }
 
 func generateGitHubPages(ctx context.Context, h *app.Handler, opts githubOptions) {
+	relativePath = "/ngu/web/"
 	h.Resources = app.GitHubPages("ngu")
 	if err := app.GenerateStaticWebsite(opts.Output, h); err != nil {
 		panic(err)
