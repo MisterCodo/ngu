@@ -26,6 +26,7 @@ type ngu struct {
 	location   string
 	tiles      []tile
 	mask       locations.Mask
+	score      float64
 }
 
 func (n *ngu) OnMount(ctx app.Context) {
@@ -51,6 +52,7 @@ func (n *ngu) initNGU(ctx app.Context) {
 	}
 	n.tiles = []tile{}
 	n.mask = locations.Locations[n.location].Mask()
+	n.score = 0.0
 	n.updateTiles()
 	n.Update()
 }
@@ -72,8 +74,12 @@ func (n *ngu) Render() app.UI {
 							app.Range(n.tiles).Slice(func(i int) app.UI {
 								t := n.tiles[i]
 								if t.usable == 1 {
+									if t.image == "" {
+										return app.Button().Style("cursor", "pointer").Style("padding", "0").Style("border", "0").Style("height", "30px").Style("width", "30px").Style("background-color", "transparent").
+											Body()
+									}
 									return app.Button().Style("cursor", "pointer").Style("padding", "0").Style("border", "0").Style("height", "30px").Style("width", "30px").Style("background-color", "transparent").
-										Body(app.Img().Style("height", "30px").Style("width", "30px").Src("web/SpeedBox.png"))
+										Body(app.Img().Style("height", "30px").Style("width", "30px").Src(t.image))
 								}
 								return app.Div().Style("padding", "0").Style("border", "0").Style("height", "30px").Style("width", "30px").Text("")
 							}),
@@ -108,6 +114,7 @@ func (n *ngu) Render() app.UI {
 			app.P().
 				Body(
 					app.Input().Type("submit").Value("Optimize!").OnClick(n.optimize),
+					app.Label().Text(fmt.Sprintf("Score: %.2f", n.score)),
 				),
 		)
 }
@@ -127,7 +134,7 @@ func (n *ngu) updateTiles() {
 	n.tiles = []tile{}
 	for y, row := range n.mask {
 		for x, val := range row {
-			n.tiles = append(n.tiles, tile{id: y*20 + x, usable: val})
+			n.tiles = append(n.tiles, tile{id: y*20 + x, usable: val, image: ""})
 		}
 	}
 }
@@ -144,8 +151,8 @@ func (n *ngu) optimize(ctx app.Context, e app.Event) {
 	fmt.Println("Optimize!")
 
 	// hardcoded for debugging, use ngu values instead
-	goal := maps.OptimizationGoal(maps.SpeedGoal)
-	beaconTypes := []beacons.BType{beacons.Box}
+	goal := maps.OptimizationGoal(maps.SpeedAndProductionGoal)
+	beaconTypes := []beacons.BType{beacons.Box, beacons.Knight, beacons.Arrow, beacons.Wall, beacons.Donut}
 	locationName := n.location
 
 	optimizer, err := maps.NewOptimizer(goal, beaconTypes, locationName)
@@ -164,6 +171,20 @@ func (n *ngu) optimize(ctx app.Context, e app.Event) {
 	}
 
 	fmt.Printf("map scored %.2f\n", m.Score)
+	n.score = m.Score
+
+	for y, row := range m.Tiles {
+		for x, val := range row {
+			if val.Type == maps.UnusableTile || val.Type == maps.ProductionTile {
+				n.tiles[y*20+x].image = ""
+				continue
+			}
+			imgName := beacons.Beacons[val.Type].Name()
+			n.tiles[y*20+x].image = fmt.Sprintf("%s%s.png", relativePath, imgName)
+		}
+	}
+
+	n.Update()
 }
 
 type location struct {
@@ -182,6 +203,7 @@ type beacon struct {
 type tile struct {
 	id     int
 	usable int
+	image  string
 }
 
 type options struct {

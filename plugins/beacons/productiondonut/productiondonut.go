@@ -14,6 +14,7 @@ var imageData []byte
 type productiondonut struct {
 	effects []beacons.Effect
 	img     image.Image
+	name    string
 }
 
 func (p *productiondonut) Effect() []beacons.Effect {
@@ -29,6 +30,8 @@ func (p *productiondonut) BType() beacons.BType {
 }
 
 func (p *productiondonut) Image() image.Image { return p.img }
+
+func (p *productiondonut) Name() string { return p.name }
 
 func init() {
 	img, err := beacons.ImageFromBytes(imageData)
@@ -59,5 +62,5 @@ func init() {
 		{X: 2, Y: -2, Gain: 26.0},
 	}
 
-	beacons.Add("O", &productiondonut{img: img, effects: effects})
+	beacons.Add("O", &productiondonut{img: img, effects: effects, name: "ProductionDonut"})
 }

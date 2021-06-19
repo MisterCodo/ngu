@@ -8,11 +8,11 @@
 <meta content name="keywords">
 <meta name="theme-color" content="#2d2c2c">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
-<meta property="og:url" content="http://127.0.0.1:53498/">
+<meta property="og:url" content="http://127.0.0.1:53910/">
 <meta property="og:title" content="NGU Optimizer">
 <meta property="og:description" content="Yet another NGU Industries map optimizer">
 <meta property="og:type" content="website">
-<meta content property="og:image">
+<meta property="og:image" content>
 <title>
 NGU Optimizer
 </title>
@@ -20,8 +20,8 @@ NGU Optimizer
 <link rel="apple-touch-icon" href="https://storage.googleapis.com/murlok-github/icon-192.png">
 <link rel="manifest" href="/ngu/manifest.webmanifest">
 <link type="text/css" rel="stylesheet" href="/ngu/app.css">
-<script src="/ngu/wasm_exec.js" defer></script>
-<script src="/ngu/app.js" defer></script>
+<script defer src="/ngu/wasm_exec.js"></script>
+<script defer src="/ngu/app.js"></script>
 </head>
 <body>
 <div>
@@ -34,10 +34,13 @@ NGU Optimizer
 <p></p>
 <p>
 <input type="submit" value="Optimize!">
+<label>
+Score: 0.00
+</label>
 </p>
 </main>
 </div>
-<div class="goapp-app-info" id="app-wasm-loader">
+<div id="app-wasm-loader" class="goapp-app-info">
 <img id="app-wasm-loader-icon" class="goapp-logo goapp-spin" src="https://storage.googleapis.com/murlok-github/icon-192.png">
 <p id="app-wasm-loader-label" class="goapp-label">
 Loading

@@ -106,7 +106,8 @@ func (o *Optimizer) generateGoodMapCandidate() *Map {
 
 	m = o.hillClimbMap(m)
 
-	m = o.beamOptimize(m, 2, 3)
+	// beam search is slow, fix it then reactivate it
+	// m = o.beamOptimize(m, 2, 3)
 
 	return m
 }

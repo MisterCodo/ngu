@@ -14,6 +14,7 @@ var imageData []byte
 type speeddonut struct {
 	effects []beacons.Effect
 	img     image.Image
+	name    string
 }
 
 func (p *speeddonut) Effect() []beacons.Effect {
@@ -29,6 +30,8 @@ func (p *speeddonut) BType() beacons.BType {
 }
 
 func (p *speeddonut) Image() image.Image { return p.img }
+
+func (p *speeddonut) Name() string { return p.name }
 
 func init() {
 	img, err := beacons.ImageFromBytes(imageData)
@@ -59,5 +62,5 @@ func init() {
 		{X: 2, Y: -2, Gain: 23.0},
 	}
 
-	beacons.Add("o", &speeddonut{img: img, effects: effects})
+	beacons.Add("o", &speeddonut{img: img, effects: effects, name: "SpeedDonut"})
 }
