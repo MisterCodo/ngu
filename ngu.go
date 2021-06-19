@@ -16,7 +16,7 @@ import (
 	"github.com/maxence-charriere/go-app/v8/pkg/logs"
 )
 
-var relativePath = "/web/"
+var relativePath = "/ngu/web/"
 
 type ngu struct {
 	app.Compo
@@ -251,7 +251,6 @@ func runLocal(ctx context.Context, h http.Handler, opts options) {
 }
 
 func generateGitHubPages(ctx context.Context, h *app.Handler, opts githubOptions) {
-	relativePath = "/ngu/web/"
 	h.Resources = app.GitHubPages("ngu")
 	if err := app.GenerateStaticWebsite(opts.Output, h); err != nil {
 		panic(err)
