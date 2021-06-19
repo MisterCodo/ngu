@@ -7,6 +7,7 @@ import (
 
 	"github.com/MisterCodo/ngu/maps"
 	"github.com/MisterCodo/ngu/plugins/beacons"
+	"github.com/MisterCodo/ngu/plugins/locations"
 	"github.com/maxence-charriere/go-app/v8/pkg/app"
 )
 
@@ -15,6 +16,7 @@ type ngu struct {
 	locations  []location
 	beacons    []beacon
 	background string
+	tiles      []tile
 }
 
 func (n *ngu) OnMount(ctx app.Context) {
@@ -37,6 +39,17 @@ func (n *ngu) initNGU(ctx app.Context) {
 		{id: 0, label: "wall", prettyName: "Wall"},
 		{id: 0, label: "donut", prettyName: "Donut"},
 	}
+	n.tiles = []tile{}
+	mask := locations.Locations["TutorialIsland"].Mask()
+	for y, row := range mask {
+		for x, val := range row {
+			asdf := "X"
+			if val == 1 {
+				asdf = "O"
+			}
+			n.tiles = append(n.tiles, tile{id: y*20 + x, mask: asdf})
+		}
+	}
 	n.Update()
 }
 
@@ -51,7 +64,18 @@ func (n *ngu) Render() app.UI {
 						Style("height", fmt.Sprintf("%vpx", 510)).
 						Style("background", n.background).
 						Style("background-size", "contain").
-						Body(),
+						Style("display", "grid").
+						Style("grid-template-columns", "auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto").
+						Body(
+							app.Range(n.tiles).Slice(func(i int) app.UI {
+								t := n.tiles[i]
+								if t.mask == "O" {
+									return app.Button().Style("cursor", "pointer").Style("padding", "0").Style("border", "0").Style("height", "30px").Style("width", "30px").Style("background-color", "transparent").
+										Body(app.Img().Style("height", "30px").Style("width", "30px").Src("web/speedbox.png"))
+								}
+								return app.Div().Style("padding", "0").Style("border", "0").Style("height", "30px").Style("width", "30px").Text("")
+							}),
+						),
 				),
 			// location picker
 			app.P().
@@ -139,6 +163,11 @@ type beacon struct {
 	id         int
 	label      string
 	prettyName string
+}
+
+type tile struct {
+	id   int
+	mask string
 }
 
 func main() {
