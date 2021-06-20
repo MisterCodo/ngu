@@ -241,7 +241,7 @@ func (m *Map) Draw(goal OptimizationGoal, beaconTypes []beacons.BType) error {
 
 // Adjust changes one tile of the map to another type. It sends details about which tile got modified and
 // what was the previous tile type.
-func (m *Map) Adjust(tr *TileRandomizer) (impactedX int, impactedY int, oldType string) {
+func (m *Map) Adjust(tr *TileRandomizer, goal OptimizationGoal) (impactedX int, impactedY int, oldType string, newType string, impactedTiles []impactedTile, impactedScore float64) {
 	// Find a tile to adjust, it must be a valid spot.
 	for {
 		impactedX = rand.Intn(MapX)
@@ -250,21 +250,167 @@ func (m *Map) Adjust(tr *TileRandomizer) (impactedX int, impactedY int, oldType 
 			break
 		}
 	}
+	oldType = m.Tiles[impactedY][impactedX].Type
 
 	// Find a new type for the tile, it must be different than the current type.
-	var newType string
 	for {
 		newType = tr.randomTile()
-		if m.Tiles[impactedY][impactedX].Type != newType {
+		if oldType != newType {
 			break
 		}
 	}
 
-	// Apply change
-	oldType = m.Tiles[impactedY][impactedX].Type
-	m.Tiles[impactedY][impactedX].Type = newType
+	// Evaluate tile multipliers and score impact
+	impactedTiles, scoreImpact := m.evaluateTileScoreImpact(impactedX, impactedY, oldType, newType, goal)
 
-	return impactedX, impactedY, oldType
+	return impactedX, impactedY, oldType, newType, impactedTiles, scoreImpact
+}
+
+type impactedTile struct {
+	X                       int
+	Y                       int
+	OldSpeedMultiplier      float64
+	NewSpeedMultiplier      float64
+	OldProductionMultiplier float64
+	NewProductionMultiplier float64
+	ScoreImpact             float64
+}
+
+func (m *Map) evaluateTileScoreImpact(x int, y int, oldType string, newType string, goal OptimizationGoal) (impactedTiles []impactedTile, scoreImpact float64) {
+	impactedTiles = []impactedTile{}
+	scoreImpact = 0.0
+
+	// If beacon we are replacing was a production tile, then removing the production tile lowers the map score
+	if oldType == ProductionTile {
+		if goal == SpeedGoal {
+			scoreImpact -= 1.0 + m.Tiles[y][x].SpeedMultiplier/100
+		} else if goal == ProductionGoal {
+			scoreImpact -= 1.0 + m.Tiles[y][x].ProductionMultiplier/100
+		} else { // SpeedAndProductionGoal
+			scoreImpact -= (1.0 + m.Tiles[y][x].SpeedMultiplier/100) * (1.0 + m.Tiles[y][x].ProductionMultiplier/100)
+		}
+	} else {
+		// If beacon we are replacing was a beacon, then we need to remove it's beacon effects and all production tiles affected lowers the map score
+		b, ok := beacons.Beacons[oldType]
+		if !ok {
+			log.Fatalf("apply beam impact func could not find beacon %s", oldType)
+		}
+		for _, effect := range b.Effect() {
+			impactedX := x + effect.X
+			impactedY := y + effect.Y
+			if impactedX >= 0 && impactedX < MapX && impactedY >= 0 && impactedY < MapY {
+				impactedTile := impactedTile{
+					X:                       impactedX,
+					Y:                       impactedY,
+					OldSpeedMultiplier:      m.Tiles[impactedY][impactedX].SpeedMultiplier,
+					OldProductionMultiplier: m.Tiles[impactedY][impactedX].ProductionMultiplier,
+					ScoreImpact:             0.0,
+				}
+
+				// measure the old combined speed and production score
+				oldSpeedProdScore := (1.0 + impactedTile.OldSpeedMultiplier/100) * (1.0 + impactedTile.OldProductionMultiplier/100)
+
+				// new beacon impacts either speed or production
+				if b.Category() == beacons.Speed {
+					impactedTile.NewSpeedMultiplier = impactedTile.OldSpeedMultiplier - effect.Gain
+				} else if b.Category() == beacons.Production {
+					impactedTile.NewProductionMultiplier = impactedTile.OldProductionMultiplier - effect.Gain
+				}
+
+				// If impacted tile was a production tile, then score needs to be adjusted
+				if m.Tiles[impactedY][impactedX].Type == ProductionTile {
+					if goal == SpeedGoal || goal == ProductionGoal {
+						// fmt.Printf("negative impactedY %d impactedX %d effect %.2f\n", impactedY, impactedX, effect.Gain)
+						impactedTile.ScoreImpact -= effect.Gain / 100
+					} else if goal == SpeedAndProductionGoal {
+						newSpeedProdScore := (1.0 + impactedTile.NewSpeedMultiplier/100) * (1.0 + impactedTile.NewProductionMultiplier/100)
+						impactedTile.ScoreImpact += newSpeedProdScore - oldSpeedProdScore
+					}
+				}
+
+				impactedTiles = append(impactedTiles, impactedTile)
+			}
+		}
+	}
+
+	// If new type is a production tile, it increases the map score
+	if newType == ProductionTile {
+		if goal == SpeedGoal {
+			scoreImpact += 1.0 + m.Tiles[y][x].SpeedMultiplier/100
+			// fmt.Printf("added %.2f\n", scoreImpact)
+		} else if goal == ProductionGoal {
+			scoreImpact += 1.0 + m.Tiles[y][x].ProductionMultiplier/100
+		} else { // SpeedAndProductionGoal
+			scoreImpact += (1.0 + m.Tiles[y][x].SpeedMultiplier/100) * (1.0 + m.Tiles[y][x].ProductionMultiplier/100)
+		}
+	} else {
+		// If new beacon is a beacon, then apply it's effects to other tiles and if those are production tiles the map score increases
+		b, ok := beacons.Beacons[newType]
+		if !ok {
+			log.Fatalf("apply beam impact func could not find beacon %s", newType)
+		}
+		for _, effect := range b.Effect() {
+			impactedX := x + effect.X
+			impactedY := y + effect.Y
+			if impactedX >= 0 && impactedX < MapX && impactedY >= 0 && impactedY < MapY {
+				impactedTile := impactedTile{
+					X:                       impactedX,
+					Y:                       impactedY,
+					OldSpeedMultiplier:      m.Tiles[impactedY][impactedX].SpeedMultiplier,
+					OldProductionMultiplier: m.Tiles[impactedY][impactedX].ProductionMultiplier,
+					ScoreImpact:             0.0,
+				}
+
+				// check if this tile was already impacted by removal
+				doubleImpacted := false
+				itID := 0
+				for id, it := range impactedTiles {
+					if it.X == impactedX && it.Y == impactedY {
+						impactedTile.OldSpeedMultiplier = it.NewSpeedMultiplier
+						impactedTile.OldProductionMultiplier = it.NewProductionMultiplier
+						impactedTile.ScoreImpact = it.ScoreImpact
+						doubleImpacted = true
+						itID = id
+					}
+				}
+
+				// measure the old combined speed and production score
+				oldSpeedProdScore := (1.0 + impactedTile.OldSpeedMultiplier/100) * (1.0 + impactedTile.OldProductionMultiplier/100)
+
+				// new beacon impacts either speed or production
+				if b.Category() == beacons.Speed {
+					impactedTile.NewSpeedMultiplier = impactedTile.OldSpeedMultiplier + effect.Gain
+				} else if b.Category() == beacons.Production {
+					impactedTile.NewProductionMultiplier = impactedTile.OldProductionMultiplier + effect.Gain
+				}
+
+				// If impacted tile was a production tile, then score needs to be adjusted
+				if m.Tiles[impactedY][impactedX].Type == ProductionTile {
+					if goal == SpeedGoal || goal == ProductionGoal {
+						impactedTile.ScoreImpact += effect.Gain / 100
+					} else if goal == SpeedAndProductionGoal {
+						newSpeedProdScore := (1.0 + impactedTile.NewSpeedMultiplier/100) * (1.0 + impactedTile.NewProductionMultiplier/100)
+						impactedTile.ScoreImpact += newSpeedProdScore - oldSpeedProdScore
+					}
+				}
+
+				// Update impacted tiles
+				if doubleImpacted {
+					impactedTiles[itID].NewSpeedMultiplier = impactedTile.NewSpeedMultiplier
+					impactedTiles[itID].NewProductionMultiplier = impactedTile.NewProductionMultiplier
+					impactedTiles[itID].ScoreImpact = impactedTile.ScoreImpact
+				} else {
+					impactedTiles = append(impactedTiles, impactedTile)
+				}
+			}
+		}
+	}
+
+	for _, it := range impactedTiles {
+		scoreImpact += it.ScoreImpact
+	}
+
+	return impactedTiles, scoreImpact
 }
 
 type Maps []*Map

@@ -112,36 +112,36 @@ func (o *Optimizer) generateGoodMapCandidate() *Map {
 	return m
 }
 
-// generateGoodRandomMap tries to find a good random map.
+// generateGoodRandomMap generates a random map.
 func (o *Optimizer) generateGoodRandomMap() *Map {
-	highScore := 0.0
-	bestMap := NewMap(o.Location)
-	for i := 0; i < o.RandomMapCount; i++ {
-		m := NewMap(o.Location)
-		m.Randomize(o.TileRandomizer)
-		// Todo: Randomize does not update score, fix this. For now just call UpdateScore(.
-		m.UpdateScore(o.Goal)
-		if m.Score > highScore {
-			bestMap = m
-			highScore = m.Score
-		}
-	}
-	return bestMap
+	m := NewMap(o.Location)
+	m.Randomize(o.TileRandomizer)
+	// Todo: Randomize does not update score, fix this. For now just call UpdateScore(.
+	m.UpdateScore(o.Goal)
+
+	return m
 }
 
 // hillClimbMap performs adjustments on provided map and slowly makes it better.
 func (o *Optimizer) hillClimbMap(m *Map) *Map {
-	highScore := m.Score
 	for i := 0; i < o.AdjustCycle; i++ {
-		// Todo: fix to only recalculate what's needed
-		impactedX, impactedY, oldType := m.Adjust(o.TileRandomizer)
-		m.UpdateScore(o.Goal)
-		if m.Score > highScore {
-			highScore = m.Score
-		} else {
-			//reset move
-			m.Tiles[impactedY][impactedX].Type = oldType
-			m.UpdateScore(o.Goal)
+		impactedX, impactedY, _, newType, impactedTiles, impactedScore := m.Adjust(o.TileRandomizer, o.Goal)
+
+		if impactedScore > 0.0 {
+			// Apply adjust change
+			m.Tiles[impactedY][impactedX].Type = newType
+			for _, impactedTile := range impactedTiles {
+				m.Tiles[impactedTile.Y][impactedTile.X].SpeedMultiplier = impactedTile.NewSpeedMultiplier
+				m.Tiles[impactedTile.Y][impactedTile.X].ProductionMultiplier = impactedTile.NewProductionMultiplier
+			}
+
+			// Update map score
+			m.Score += impactedScore
+
+			// Debugging code block
+			// fmt.Printf("new calculation %.2f", m.Score)
+			// m.UpdateScore(o.Goal)
+			// fmt.Printf(" updated %.2f oldType %s newType %s impactedX %d impactedY %d impactedScore %.2f\n", m.Score, oldType, newType, impactedX, impactedY, impactedScore)
 		}
 	}
 	return m
@@ -223,7 +223,7 @@ func (o *Optimizer) applyBeamImpact(m *Map, x int, y int, beacon string) {
 	} else { // If new beacon is a beacon, then apply it's effects to other tiles and if those are production tiles the map score increases
 		b, ok := beacons.Beacons[beacon]
 		if !ok {
-			log.Fatalf("apply beam impact func could not find beacon %s", oldBeaconType)
+			log.Fatalf("apply beam impact func could not find beacon %s", beacon)
 		}
 		for _, effect := range b.Effect() {
 			impactedX := x + effect.X

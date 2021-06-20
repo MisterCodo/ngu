@@ -151,7 +151,7 @@ func (n *ngu) optimize(ctx app.Context, e app.Event) {
 	fmt.Println("Optimize!")
 
 	// hardcoded for debugging, use ngu values instead
-	goal := maps.OptimizationGoal(maps.SpeedAndProductionGoal)
+	goal := maps.OptimizationGoal(maps.SpeedGoal)
 	beaconTypes := []beacons.BType{beacons.Box, beacons.Knight, beacons.Arrow, beacons.Wall, beacons.Donut}
 	locationName := n.location
 
