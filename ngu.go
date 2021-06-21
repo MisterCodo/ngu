@@ -22,6 +22,7 @@ type ngu struct {
 	app.Compo
 	locations  []location
 	beacons    []beacon
+	goals      []goal
 	background string
 	location   string
 	tiles      []tile
@@ -44,11 +45,15 @@ func (n *ngu) initNGU(ctx app.Context) {
 	n.location = "TutorialIsland"
 	n.background = fmt.Sprintf("url(%s/%s.png)", relativePath, n.location)
 	n.beacons = []beacon{
-		{id: 0, label: "box", prettyName: "Box"},
-		{id: 0, label: "knight", prettyName: "Knight"},
-		{id: 0, label: "arrow", prettyName: "Arrow"},
-		{id: 0, label: "wall", prettyName: "Wall"},
-		{id: 0, label: "donut", prettyName: "Donut"},
+		{id: 0, label: "box", prettyName: "Box", selected: true},
+		{id: 1, label: "knight", prettyName: "Knight", selected: true},
+		{id: 2, label: "arrow", prettyName: "Arrow", selected: true},
+		{id: 3, label: "wall", prettyName: "Wall", selected: true},
+		{id: 4, label: "donut", prettyName: "Donut", selected: true},
+	}
+	n.goals = []goal{
+		{id: 0, label: "speed", prettyName: "Speed", selected: true},
+		{id: 1, label: "production", prettyName: "Production", selected: true},
 	}
 	n.tiles = []tile{}
 	n.mask = locations.Locations[n.location].Mask()
@@ -104,12 +109,23 @@ func (n *ngu) Render() app.UI {
 						b := n.beacons[i]
 						return app.Div().
 							Body(
-								app.Input().Type("checkbox").ID(b.label).Name(b.label).Checked(true).OnChange(n.changeBeacon(b)),
+								app.Input().Type("checkbox").ID(b.label).Name(b.label).Checked(b.selected).OnChange(n.changeBeacon(b)),
 								app.Label().For(b.label).Text(b.prettyName),
 							)
 					}),
 				),
-			// optimization picker
+			// optimization goal picker
+			app.P().
+				Body(
+					app.Range(n.goals).Slice(func(i int) app.UI {
+						g := n.goals[i]
+						return app.Div().
+							Body(
+								app.Input().Type("checkbox").ID(g.label).Name(g.label).Checked(g.selected).OnChange(n.changeGoal(g)),
+								app.Label().For(g.label).Text(g.prettyName),
+							)
+					}),
+				),
 			// start optimization
 			app.P().
 				Body(
@@ -125,7 +141,26 @@ func (n *ngu) changeLocation(l location) app.EventHandler {
 		n.background = fmt.Sprintf("url(%s%s.png)", relativePath, l.label)
 		n.location = l.label
 		n.mask = locations.Locations[n.location].Mask()
+		n.score = 0.0
 		n.updateTiles()
+		n.Update()
+	}
+}
+
+func (n *ngu) changeBeacon(b beacon) app.EventHandler {
+	return func(ctx app.Context, e app.Event) {
+		beaconValue := ctx.JSSrc.Get("checked").Bool()
+		fmt.Printf("changed beacon %s to %v\n", b.label, beaconValue)
+		n.beacons[b.id].selected = beaconValue
+		n.Update()
+	}
+}
+
+func (n *ngu) changeGoal(g goal) app.EventHandler {
+	return func(ctx app.Context, e app.Event) {
+		goalValue := ctx.JSSrc.Get("checked").Bool()
+		fmt.Printf("changed goal %s to %v\n", g.label, goalValue)
+		n.goals[g.id].selected = goalValue
 		n.Update()
 	}
 }
@@ -139,20 +174,42 @@ func (n *ngu) updateTiles() {
 	}
 }
 
-func (n *ngu) changeBeacon(b beacon) app.EventHandler {
-	return func(ctx app.Context, e app.Event) {
-		beaconValue := ctx.JSSrc.Get("checked").Bool()
-		fmt.Printf("changed beacon %s to %v\n", b.label, beaconValue)
-		n.Update()
-	}
-}
-
 func (n *ngu) optimize(ctx app.Context, e app.Event) {
 	fmt.Println("Optimize!")
 
-	// hardcoded for debugging, use ngu values instead
-	goal := maps.OptimizationGoal(maps.SpeedGoal)
-	beaconTypes := []beacons.BType{beacons.Box, beacons.Knight, beacons.Arrow, beacons.Wall, beacons.Donut}
+	var goal maps.OptimizationGoal
+	if n.goals[0].selected && n.goals[1].selected {
+		goal = maps.OptimizationGoal(maps.SpeedAndProductionGoal)
+	} else if n.goals[0].selected {
+		goal = maps.OptimizationGoal(maps.SpeedGoal)
+	} else if n.goals[1].selected {
+		goal = maps.OptimizationGoal(maps.ProductionGoal)
+	} else {
+		// nothing to do
+		return
+	}
+
+	var beaconTypes []beacons.BType
+	if n.beacons[0].selected {
+		beaconTypes = append(beaconTypes, beacons.Box)
+	}
+	if n.beacons[1].selected {
+		beaconTypes = append(beaconTypes, beacons.Knight)
+	}
+	if n.beacons[2].selected {
+		beaconTypes = append(beaconTypes, beacons.Arrow)
+	}
+	if n.beacons[3].selected {
+		beaconTypes = append(beaconTypes, beacons.Wall)
+	}
+	if n.beacons[4].selected {
+		beaconTypes = append(beaconTypes, beacons.Donut)
+	}
+	if len(beaconTypes) == 0 {
+		// nothing to do
+		return
+	}
+
 	locationName := n.location
 
 	optimizer, err := maps.NewOptimizer(goal, beaconTypes, locationName)
@@ -198,6 +255,14 @@ type beacon struct {
 	id         int
 	label      string
 	prettyName string
+	selected   bool
+}
+
+type goal struct {
+	id         int
+	label      string
+	prettyName string
+	selected   bool
 }
 
 type tile struct {

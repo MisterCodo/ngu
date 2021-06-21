@@ -55,5 +55,5 @@ func init() {
 		{X: 0, Y: 6, Gain: 27.0},
 	}
 
-	beacons.Add("w", &productionwallvertical{img: img, effects: effects, name: "SpeedWallVertical"})
+	beacons.Add("w", &productionwallvertical{img: img, effects: effects, name: "ProductionWallVertical"})
 }
