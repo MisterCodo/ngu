@@ -17,7 +17,7 @@ import (
 	"github.com/maxence-charriere/go-app/v8/pkg/logs"
 )
 
-var relativePath = "/ngu/web/"
+var relativePath = "/ngu/web"
 
 type ngu struct {
 	app.Compo
