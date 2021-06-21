@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"syscall"
+	"time"
 
 	"github.com/MisterCodo/ngu/maps"
 	"github.com/MisterCodo/ngu/plugins/beacons"
@@ -129,7 +130,7 @@ func (n *ngu) Render() app.UI {
 			// start optimization
 			app.P().
 				Body(
-					app.Input().Type("submit").Value("Optimize!").OnClick(n.optimize),
+					app.Input().Type("submit").Value("Optimize! (Runs for 15 seconds)").OnClick(n.optimize),
 					app.Label().Text(fmt.Sprintf("Score: %.2f", n.score)),
 				),
 		)
@@ -152,6 +153,7 @@ func (n *ngu) changeBeacon(b beacon) app.EventHandler {
 		beaconValue := ctx.JSSrc.Get("checked").Bool()
 		fmt.Printf("changed beacon %s to %v\n", b.label, beaconValue)
 		n.beacons[b.id].selected = beaconValue
+		n.score = 0.0
 		n.Update()
 	}
 }
@@ -161,6 +163,7 @@ func (n *ngu) changeGoal(g goal) app.EventHandler {
 		goalValue := ctx.JSSrc.Get("checked").Bool()
 		fmt.Printf("changed goal %s to %v\n", g.label, goalValue)
 		n.goals[g.id].selected = goalValue
+		n.score = 0.0
 		n.Update()
 	}
 }
@@ -217,31 +220,32 @@ func (n *ngu) optimize(ctx app.Context, e app.Event) {
 		fmt.Printf("could not start optimization: %s", err.Error())
 		return
 	}
-	optimizer.Infinite = false
 
 	fmt.Printf("Running %s optimization of map %s\n\n", goal.String(), locationName)
 
-	m, err := optimizer.Run(false)
+	m, err := optimizer.Run(false, 10*time.Second)
 	if err != nil {
 		fmt.Printf("could not run optimization: %s", err.Error())
 		return
 	}
 
 	fmt.Printf("map scored %.2f\n", m.Score)
-	n.score = m.Score
+	if m.Score > n.score {
+		n.score = m.Score
 
-	for y, row := range m.Tiles {
-		for x, val := range row {
-			if val.Type == maps.UnusableTile || val.Type == maps.ProductionTile {
-				n.tiles[y*20+x].image = ""
-				continue
+		for y, row := range m.Tiles {
+			for x, val := range row {
+				if val.Type == maps.UnusableTile || val.Type == maps.ProductionTile {
+					n.tiles[y*20+x].image = ""
+					continue
+				}
+				imgName := beacons.Beacons[val.Type].Name()
+				n.tiles[y*20+x].image = fmt.Sprintf("%s%s.png", relativePath, imgName)
 			}
-			imgName := beacons.Beacons[val.Type].Name()
-			n.tiles[y*20+x].image = fmt.Sprintf("%s%s.png", relativePath, imgName)
 		}
-	}
 
-	n.Update()
+		n.Update()
+	}
 }
 
 type location struct {

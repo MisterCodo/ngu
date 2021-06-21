@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"sort"
 	"sync"
+	"time"
 
 	"github.com/MisterCodo/ngu/plugins/beacons"
 )
@@ -17,8 +18,7 @@ type Optimizer struct {
 	BeaconTypes    []beacons.BType
 	TileRandomizer *TileRandomizer // Allows switching tiles randomly
 
-	Infinite    bool // Run forever if true
-	AdjustCycle int  // How many optimization cycles during randomised hill climbing
+	AdjustCycle int // How many optimization cycles during randomised hill climbing
 
 	beamMapPool sync.Pool
 }
@@ -69,7 +69,6 @@ func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, location s
 		Location:       location,
 		BeaconTypes:    beaconTypes,
 		TileRandomizer: NewTileRandomizer(beaconCategories, beaconTypes),
-		Infinite:       true,
 		AdjustCycle:    adjustCycle,
 		beamMapPool: sync.Pool{
 			New: func() interface{} {
@@ -82,10 +81,12 @@ func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, location s
 }
 
 // Optimize attempts to find the best map possible for a specific optimization type, be it speed, production or a combination of speed and production.
-func (o *Optimizer) Run(drawMap bool) (*Map, error) {
+func (o *Optimizer) Run(drawMap bool, howLong time.Duration) (*Map, error) {
 	// Initialize empty map
 	bestMap := NewMap(o.Location)
 	bestMap.UpdateScore(o.Goal)
+
+	start := time.Now()
 
 	for {
 		// Find a very good map
@@ -106,10 +107,9 @@ func (o *Optimizer) Run(drawMap bool) (*Map, error) {
 			}
 		}
 
-		if o.Infinite {
-			continue
+		if time.Since(start) > howLong {
+			break
 		}
-		break
 	}
 
 	return bestMap, nil
