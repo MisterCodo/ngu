@@ -299,6 +299,7 @@ func main() {
 		Name:        "NGU Optimizer",
 		Description: "Yet another NGU Industries map optimizer",
 		Title:       "NGU Optimizer",
+		Icon:        app.Icon{Default: "/web/SpeedKnight.png"},
 	}
 
 	opts := options{Port: 4000}

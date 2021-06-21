@@ -1,20 +1,20 @@
-const cacheName = "app-" + "fd8d760cc8dc27844f42fe6682e1f6b4850ca2ae";
+const cacheName = "app-" + "2f10d6faee2a5f613afc3ea394715d2ce40c2b42";
 
 self.addEventListener("install", event => {
-  console.log("installing app worker fd8d760cc8dc27844f42fe6682e1f6b4850ca2ae");
+  console.log("installing app worker 2f10d6faee2a5f613afc3ea394715d2ce40c2b42");
   self.skipWaiting();
 
   event.waitUntil(
     caches.open(cacheName).then(cache => {
       return cache.addAll([
+        "",
         "/ngu",
         "/ngu/app.css",
         "/ngu/app.js",
         "/ngu/manifest.webmanifest",
         "/ngu/wasm_exec.js",
+        "/ngu/web/SpeedKnight.png",
         "/ngu/web/app.wasm",
-        "https://storage.googleapis.com/murlok-github/icon-192.png",
-        "https://storage.googleapis.com/murlok-github/icon-512.png",
         
       ]);
     })
@@ -33,7 +33,7 @@ self.addEventListener("activate", event => {
       );
     })
   );
-  console.log("app worker fd8d760cc8dc27844f42fe6682e1f6b4850ca2ae is activated");
+  console.log("app worker 2f10d6faee2a5f613afc3ea394715d2ce40c2b42 is activated");
 });
 
 self.addEventListener("fetch", event => {
