@@ -79,12 +79,12 @@ func (n *ngu) Render() app.UI {
 						Body(
 							app.Range(n.tiles).Slice(func(i int) app.UI {
 								t := n.tiles[i]
-								if t.usable == 1 {
+								if t.usable == 1 || t.usable == 2 {
 									if t.image == "" {
-										return app.Button().Style("cursor", "pointer").Style("padding", "0").Style("border", "0").Style("height", "30px").Style("width", "30px").Style("background-color", "transparent").
+										return app.Button().Style("cursor", "pointer").Style("padding", "0").Style("border", "0").Style("height", "30px").Style("width", "30px").Style("background-color", "transparent").OnClick(n.clickTile(t)).
 											Body()
 									}
-									return app.Button().Style("cursor", "pointer").Style("padding", "0").Style("border", "0").Style("height", "30px").Style("width", "30px").Style("background-color", "transparent").
+									return app.Button().Style("cursor", "pointer").Style("padding", "0").Style("border", "0").Style("height", "30px").Style("width", "30px").Style("background-color", "transparent").OnClick(n.clickTile(t)).
 										Body(app.Img().Style("height", "30px").Style("width", "30px").Src(t.image))
 								}
 								return app.Div().Style("padding", "0").Style("border", "0").Style("height", "30px").Style("width", "30px").Text("")
@@ -139,7 +139,7 @@ func (n *ngu) Render() app.UI {
 func (n *ngu) changeLocation(l location) app.EventHandler {
 	return func(ctx app.Context, e app.Event) {
 		fmt.Printf("changed location to %s\n", l.label)
-		n.background = fmt.Sprintf("url(%s%s.png)", relativePath, l.label)
+		n.background = fmt.Sprintf("url(%s/%s.png)", relativePath, l.label)
 		n.location = l.label
 		n.mask = locations.Locations[n.location].Mask()
 		n.score = 0.0
@@ -164,6 +164,23 @@ func (n *ngu) changeGoal(g goal) app.EventHandler {
 		fmt.Printf("changed goal %s to %v\n", g.label, goalValue)
 		n.goals[g.id].selected = goalValue
 		n.score = 0.0
+		n.Update()
+	}
+}
+
+func (n *ngu) clickTile(t tile) app.EventHandler {
+	if t.usable == 2 {
+		return func(ctx app.Context, e app.Event) {
+			fmt.Printf("unblocked tile %d\n", t.id)
+			n.tiles[t.id].image = ""
+			n.tiles[t.id].usable = 1
+			n.Update()
+		}
+	}
+	return func(ctx app.Context, e app.Event) {
+		fmt.Printf("blocked tile %d\n", t.id)
+		n.tiles[t.id].image = fmt.Sprintf("%s/Unusable.png", relativePath)
+		n.tiles[t.id].usable = 2
 		n.Update()
 	}
 }
@@ -215,7 +232,15 @@ func (n *ngu) optimize(ctx app.Context, e app.Event) {
 
 	locationName := n.location
 
-	optimizer, err := maps.NewOptimizer(goal, beaconTypes, locationName)
+	// blocked tiles clicked on map by user
+	blockedTiles := []int{}
+	for _, t := range n.tiles {
+		if t.usable == 2 {
+			blockedTiles = append(blockedTiles, t.id)
+		}
+	}
+
+	optimizer, err := maps.NewOptimizer(goal, beaconTypes, locationName, blockedTiles)
 	if err != nil {
 		fmt.Printf("could not start optimization: %s", err.Error())
 		return
@@ -235,12 +260,16 @@ func (n *ngu) optimize(ctx app.Context, e app.Event) {
 
 		for y, row := range m.Tiles {
 			for x, val := range row {
+				// Don't update blocked tiles by user
+				if n.tiles[y*20+x].usable == 2 {
+					continue
+				}
 				if val.Type == maps.UnusableTile || val.Type == maps.ProductionTile {
 					n.tiles[y*20+x].image = ""
 					continue
 				}
 				imgName := beacons.Beacons[val.Type].Name()
-				n.tiles[y*20+x].image = fmt.Sprintf("%s%s.png", relativePath, imgName)
+				n.tiles[y*20+x].image = fmt.Sprintf("%s/%s.png", relativePath, imgName)
 			}
 		}
 
@@ -271,7 +300,7 @@ type goal struct {
 
 type tile struct {
 	id     int
-	usable int
+	usable int // 0 means mask says not usable, 1 means mask says usable, 2 means user did not unlock tile yet
 	image  string
 }
 

@@ -59,7 +59,7 @@ var optimizeCmd = &cobra.Command{
 			return fmt.Errorf("provided optimization beacons number invalid")
 		}
 
-		optimizer, err := maps.NewOptimizer(goal, beaconTypes, locationName)
+		optimizer, err := maps.NewOptimizer(goal, beaconTypes, locationName, []int{})
 		if err != nil {
 			return fmt.Errorf("could not start optimization: %s", err.Error())
 		}

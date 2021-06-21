@@ -14,9 +14,10 @@ import (
 // Optimizer performs map optimization with randomised hill climbing and beam search.
 type Optimizer struct {
 	Goal           OptimizationGoal // Either Speed, Production or Production&Speed
-	Location       string           // Location (e.g. tutorial island)
+	LocationName   string           // Location (e.g. tutorial island)
 	BeaconTypes    []beacons.BType
 	TileRandomizer *TileRandomizer // Allows switching tiles randomly
+	BlockedTiles   []int
 
 	AdjustCycle int // How many optimization cycles during randomised hill climbing
 
@@ -37,7 +38,7 @@ func (og OptimizationGoal) String() string {
 }
 
 // NewOptimizer returns a map optimizer for a specific map location, specific goal and using a list of available beacons.
-func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, location string) (*Optimizer, error) {
+func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, locationName string, blockedTiles []int) (*Optimizer, error) {
 	var beaconCategories []beacons.Category
 	if goal == SpeedAndProductionGoal {
 		beaconCategories = []beacons.Category{beacons.Speed, beacons.Production}
@@ -66,13 +67,14 @@ func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, location s
 
 	o := &Optimizer{
 		Goal:           goal,
-		Location:       location,
+		LocationName:   locationName,
 		BeaconTypes:    beaconTypes,
 		TileRandomizer: NewTileRandomizer(beaconCategories, beaconTypes),
 		AdjustCycle:    adjustCycle,
+		BlockedTiles:   blockedTiles,
 		beamMapPool: sync.Pool{
 			New: func() interface{} {
-				return NewMap(location)
+				return NewMap(locationName, blockedTiles)
 			},
 		},
 	}
@@ -83,7 +85,7 @@ func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, location s
 // Optimize attempts to find the best map possible for a specific optimization type, be it speed, production or a combination of speed and production.
 func (o *Optimizer) Run(drawMap bool, howLong time.Duration) (*Map, error) {
 	// Initialize empty map
-	bestMap := NewMap(o.Location)
+	bestMap := NewMap(o.LocationName, o.BlockedTiles)
 	bestMap.UpdateScore(o.Goal)
 
 	start := time.Now()
@@ -129,7 +131,7 @@ func (o *Optimizer) generateGoodMapCandidate() *Map {
 
 // generateGoodRandomMap generates a random map.
 func (o *Optimizer) generateGoodRandomMap() *Map {
-	m := NewMap(o.Location)
+	m := NewMap(o.LocationName, o.BlockedTiles)
 	m.Randomize(o.TileRandomizer)
 	// Todo: Randomize does not update score, fix this. For now just call UpdateScore(.
 	m.UpdateScore(o.Goal)

@@ -29,21 +29,21 @@ func init() {
 
 // Map is a NGU Industries map layout consisting of tiles and a location.
 type Map struct {
-	Tiles    [MapY][MapX]Tile
-	Location string
-	Score    float64
+	Tiles        [MapY][MapX]Tile
+	LocationName string
+	Score        float64
 }
 
 // NewMap generates a new map based on the provided location. Each tile which can be
 // modified by the gamer is set to a regular resource tile.
-func NewMap(location string) *Map {
+func NewMap(locationName string, blockedTiles []int) *Map {
 	m := &Map{
-		Tiles:    [MapY][MapX]Tile{},
-		Location: location,
+		Tiles:        [MapY][MapX]Tile{},
+		LocationName: locationName,
 	}
-	l, ok := locations.Locations[location]
+	l, ok := locations.Locations[locationName]
 	if !ok {
-		log.Fatalf("NewMap could not find location %s", location)
+		log.Fatalf("NewMap could not find location %s", locationName)
 	}
 	for y, row := range l.Mask() {
 		for x, val := range row {
@@ -54,6 +54,14 @@ func NewMap(location string) *Map {
 			}
 			m.Tiles[y][x] = Tile{Type: UnusableTile, ProductionMultiplier: 0.0, SpeedMultiplier: 0.0, EfficiencyMultiplier: 0.0}
 		}
+	}
+
+	// Remove blocked tiles
+	for _, id := range blockedTiles {
+		x := id % MapX
+		y := (id - x) / MapX
+		m.Tiles[y][x] = Tile{Type: UnusableTile, ProductionMultiplier: 0.0, SpeedMultiplier: 0.0, EfficiencyMultiplier: 0.0}
+		m.Score--
 	}
 
 	return m
@@ -73,9 +81,9 @@ func (m *Map) Randomize(t *TileRandomizer) {
 // Copy creates a new map with the same tiles as the original map.
 func (m *Map) Copy() *Map {
 	newMap := &Map{
-		Location: m.Location,
-		Tiles:    [MapY][MapX]Tile{},
-		Score:    m.Score,
+		LocationName: m.LocationName,
+		Tiles:        [MapY][MapX]Tile{},
+		Score:        m.Score,
 	}
 	for y, row := range m.Tiles {
 		for x := range row {
@@ -87,7 +95,7 @@ func (m *Map) Copy() *Map {
 
 // CopyUsing creates a new map with the same tiles as the original map using an old map reference.
 func (m *Map) CopyUsing(oldMap *Map) *Map {
-	oldMap.Location = m.Location
+	oldMap.LocationName = m.LocationName
 	oldMap.Score = m.Score
 	for y, row := range m.Tiles {
 		for x := range row {
@@ -188,9 +196,9 @@ func (m *Map) Print() {
 // DrawMap draws the map image.
 func (m *Map) Draw(goal OptimizationGoal, beaconTypes []beacons.BType) error {
 	// Initialize output image
-	l, ok := locations.Locations[m.Location]
+	l, ok := locations.Locations[m.LocationName]
 	if !ok {
-		log.Fatalf("NewMap could not find location %s", m.Location)
+		log.Fatalf("NewMap could not find location %s", m.LocationName)
 	}
 	img := l.Image()
 	outputImg := image.NewRGBA(image.Rect(0, 0, locations.ImgSizeX, locations.ImgSizeY))
