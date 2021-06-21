@@ -14,6 +14,7 @@ var imageData []byte
 type speedwallvertical struct {
 	effects []beacons.Effect
 	img     image.Image
+	name    string
 }
 
 func (p *speedwallvertical) Effect() []beacons.Effect {
@@ -29,6 +30,8 @@ func (p *speedwallvertical) BType() beacons.BType {
 }
 
 func (p *speedwallvertical) Image() image.Image { return p.img }
+
+func (p *speedwallvertical) Name() string { return p.name }
 
 func init() {
 	img, err := beacons.ImageFromBytes(imageData)
@@ -52,5 +55,5 @@ func init() {
 		{X: 0, Y: 6, Gain: 27.0},
 	}
 
-	beacons.Add("|", &speedwallvertical{img: img, effects: effects})
+	beacons.Add("|", &speedwallvertical{img: img, effects: effects, name: "SpeedWallVertical"})
 }

@@ -14,6 +14,7 @@ var imageData []byte
 type productionbox struct {
 	effects []beacons.Effect
 	img     image.Image
+	name    string
 }
 
 func (p *productionbox) Effect() []beacons.Effect {
@@ -29,6 +30,8 @@ func (p *productionbox) BType() beacons.BType {
 }
 
 func (p *productionbox) Image() image.Image { return p.img }
+
+func (p *productionbox) Name() string { return p.name }
 
 func init() {
 	img, err := beacons.ImageFromBytes(imageData)
@@ -47,5 +50,5 @@ func init() {
 		{X: 1, Y: -1, Gain: 30.0},
 	}
 
-	beacons.Add("b", &productionbox{img: img, effects: effects})
+	beacons.Add("b", &productionbox{img: img, effects: effects, name: "ProductionBox"})
 }

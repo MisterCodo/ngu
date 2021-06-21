@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/MisterCodo/ngu/maps"
 	"github.com/MisterCodo/ngu/plugins/beacons"
@@ -58,14 +59,14 @@ var optimizeCmd = &cobra.Command{
 			return fmt.Errorf("provided optimization beacons number invalid")
 		}
 
-		optimizer, err := maps.NewOptimizer(goal, beaconTypes, locationName)
+		optimizer, err := maps.NewOptimizer(goal, beaconTypes, locationName, []int{})
 		if err != nil {
 			return fmt.Errorf("could not start optimization: %s", err.Error())
 		}
 
 		fmt.Printf("Running %s optimization of map %s\n\n", goal.String(), locationName)
 
-		_, err = optimizer.Run(true)
+		_, err = optimizer.Run(true, 24*365*time.Hour)
 		if err != nil {
 			return fmt.Errorf("could not run optimization: %s", err.Error())
 		}

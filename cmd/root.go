@@ -6,7 +6,7 @@ import (
 
 var (
 	rootCmd = &cobra.Command{
-		Use:   "ngu",
+		Use:   "cli",
 		Short: "A NGU Industries beacons optimizer",
 		Long:  "Provides optimized beacons placement of NGU Industries maps.",
 	}

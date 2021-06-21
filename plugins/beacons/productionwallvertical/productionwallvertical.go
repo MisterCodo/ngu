@@ -14,6 +14,7 @@ var imageData []byte
 type productionwallvertical struct {
 	effects []beacons.Effect
 	img     image.Image
+	name    string
 }
 
 func (p *productionwallvertical) Effect() []beacons.Effect {
@@ -29,6 +30,8 @@ func (p *productionwallvertical) BType() beacons.BType {
 }
 
 func (p *productionwallvertical) Image() image.Image { return p.img }
+
+func (p *productionwallvertical) Name() string { return p.name }
 
 func init() {
 	img, err := beacons.ImageFromBytes(imageData)
@@ -52,5 +55,5 @@ func init() {
 		{X: 0, Y: 6, Gain: 27.0},
 	}
 
-	beacons.Add("w", &productionwallvertical{img: img, effects: effects})
+	beacons.Add("w", &productionwallvertical{img: img, effects: effects, name: "ProductionWallVertical"})
 }

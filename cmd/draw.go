@@ -32,7 +32,7 @@ var drawCmd = &cobra.Command{
 		}
 
 		// Convert file to a map
-		m := maps.NewMap(locationName)
+		m := maps.NewMap(locationName, []int{})
 
 		f, err := os.Open(drawCmdFile)
 		if err != nil {

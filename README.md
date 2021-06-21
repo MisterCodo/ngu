@@ -2,7 +2,7 @@
 
 ## How to Use
 
-Download the latest release and use command `ngu -h` to see usage instructions:
+Go to [NGU Optimizer](https://mistercodo.github.io/ngu/) or download the latest release and use command `cli -h` to see usage instructions:
 
 ### Optimize Map
 
@@ -12,7 +12,7 @@ Optimize a map with command `optimize`.
 Optimize placement of beacons on NGU Industries map.
 
 Usage:
-  ngu optimize [flags]
+  cli optimize [flags]
 
 Flags:
   -b, --beacons int   optimization beacon types available: (1)Box, (2)Box & Knight, (3)Box, Knight & Arrow, (4) Box, Knight, Arrow & Wall, (5)All (default 5)
@@ -21,9 +21,9 @@ Flags:
   -m, --map int       map to optimize: (1)Tutorial Island, (2)Flesh World, (3)Planet Tronne, (4)Candy Land, (5)Mansions & Managers (default 1)
 ```
 
-For instance, to launch a speed optimization for Candy Land with box and knight beacons, use command `ngu optimize -m 4 -b 2 -g 2`. It will run forever and everytime a new higher scoring map is found it will be both printed to console and saved as a png image.
+For instance, to launch a speed optimization for Candy Land with box and knight beacons, use command `cli optimize -m 4 -b 2 -g 2`. It will run forever and everytime a new higher scoring map is found it will be both printed to console and saved as a png image.
 
-If you want to make modifications to the code, the only dependency is [GoLang](https://golang.org/). Once GoLang is installed, clone the repo and from its root use command `go run ngu.go`.
+If you want to make modifications to the code, the only dependency is [GoLang](https://golang.org/). Once GoLang is installed, clone the repo and from its root use command `go run github.com/MisterCodo/ngu/cli`.
 
 ### Draw Map
 
@@ -33,15 +33,15 @@ If you already have an optimized map layout, you can draw an image of it by usin
 Draw map to disk for choosen location according to beacons file provided.
 
 Usage:
-  ngu draw [flags]
+  cli draw [flags]
 
 Flags:
-  -f, --file string   file consisting of characters defining placement of beacons. These beacons will be drawn on top of selected map.
+  -f, --file string   file consisting of characters defining placement of beacons. These beacons will be drawn on top of selected map.        
   -h, --help          help for draw
   -m, --map int       map to optimize: (1)Tutorial Island, (2)Flesh World, (3)Planet Tronne, (4)Candy Land, (5)Mansions & Managers (default 1)
 ```
 
-The file should contain the console map layout results, for instance running `ngu draw -m 1 -f beacons.txt` draws the following image:
+The file should contain the console map layout results, for instance running `cli draw -m 1 -f beacons.txt` draws the following image:
 
 ![Optimized Map Image](/_images/TutorialIslandSample.png)
 
@@ -96,8 +96,11 @@ If you have not yet unlocked all the tiles of a given map, you can go into subfo
 ## TODO / Upcoming Features
 
 - Improve performance
-- Improve beam
+- Reactivate beam after fixing it
+- Add efficiency beacons
 - Add heat maps of both speed and production gains
+- Clean code
+- Multithread UI
 
 ## Best Maps
 

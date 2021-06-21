@@ -16,6 +16,7 @@ type Beacon interface {
 	Category() Category
 	BType() BType
 	Image() image.Image
+	Name() string
 }
 
 // Category represents the beacon category (Speed, Production or Efficiency)
