@@ -313,8 +313,10 @@ func (m *Map) evaluateTileScoreImpact(x int, y int, oldType string, newType stri
 				// new beacon impacts either speed or production
 				if b.Category() == beacons.Speed {
 					impactedTile.NewSpeedMultiplier = impactedTile.OldSpeedMultiplier - effect.Gain
+					impactedTile.NewProductionMultiplier = impactedTile.OldProductionMultiplier
 				} else if b.Category() == beacons.Production {
 					impactedTile.NewProductionMultiplier = impactedTile.OldProductionMultiplier - effect.Gain
+					impactedTile.NewSpeedMultiplier = impactedTile.OldSpeedMultiplier
 				}
 
 				// If impacted tile was a production tile, then score needs to be adjusted
@@ -380,8 +382,10 @@ func (m *Map) evaluateTileScoreImpact(x int, y int, oldType string, newType stri
 				// new beacon impacts either speed or production
 				if b.Category() == beacons.Speed {
 					impactedTile.NewSpeedMultiplier = impactedTile.OldSpeedMultiplier + effect.Gain
+					impactedTile.NewProductionMultiplier = impactedTile.OldProductionMultiplier
 				} else if b.Category() == beacons.Production {
 					impactedTile.NewProductionMultiplier = impactedTile.OldProductionMultiplier + effect.Gain
+					impactedTile.NewSpeedMultiplier = impactedTile.OldSpeedMultiplier
 				}
 
 				// If impacted tile was a production tile, then score needs to be adjusted

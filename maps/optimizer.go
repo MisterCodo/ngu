@@ -17,9 +17,8 @@ type Optimizer struct {
 	BeaconTypes    []beacons.BType
 	TileRandomizer *TileRandomizer // Allows switching tiles randomly
 
-	Infinite       bool // Run forever if true
-	RandomMapCount int  // How many random map to generate for each candidate map
-	AdjustCycle    int  // How many optimization cycles during randomised hill climbing
+	Infinite    bool // Run forever if true
+	AdjustCycle int  // How many optimization cycles during randomised hill climbing
 
 	beamMapPool sync.Pool
 }
@@ -48,14 +47,30 @@ func NewOptimizer(goal OptimizationGoal, beaconTypes []beacons.BType, location s
 		beaconCategories = []beacons.Category{beacons.Production}
 	}
 
+	// Adjust number of cycles based on number of beacons. Numbers below are based on some quick stats from running the tool.
+	var adjustCycle int
+	switch len(beaconTypes) {
+	case 1:
+		adjustCycle = 5000 * len(beaconCategories)
+	case 2:
+		adjustCycle = 15000 * len(beaconCategories)
+	case 3:
+		adjustCycle = 40000 * len(beaconCategories)
+	case 4:
+		adjustCycle = 50000 * len(beaconCategories)
+	case 5:
+		adjustCycle = 60000 * len(beaconCategories)
+	default:
+		adjustCycle = 125000
+	}
+
 	o := &Optimizer{
 		Goal:           goal,
 		Location:       location,
 		BeaconTypes:    beaconTypes,
 		TileRandomizer: NewTileRandomizer(beaconCategories, beaconTypes),
 		Infinite:       true,
-		RandomMapCount: 100,
-		AdjustCycle:    10000,
+		AdjustCycle:    adjustCycle,
 		beamMapPool: sync.Pool{
 			New: func() interface{} {
 				return NewMap(location)
