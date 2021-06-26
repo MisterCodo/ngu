@@ -67,11 +67,165 @@ func (n *ngu) initNGU(ctx app.Context) {
 }
 
 func (n *ngu) Render() app.UI {
+	// measure statistics
+	var settingsTotalPlayedTime time.Duration
+	settingsSteamAchievements := 0
+	settingsMaxSteamAchievements := 10
+	mapsUnlocked := 0
+	mapsMaxUnlocked := 5
+	mapsClearedTiles := 0
+	mapsMaxClearedTiles := 432
+	if n.saveFile != nil {
+		settingsTotalPlayedTime = time.Duration(int(n.saveFile.Settings.TotalTimePlayed)) * time.Second
+
+		for _, s := range n.saveFile.Settings.SteamAchievements {
+			if s {
+				settingsSteamAchievements++
+			}
+		}
+
+		for _, m := range n.saveFile.FactoryData.Maps {
+			if m.Unlocked {
+				mapsUnlocked++
+			}
+			mapsClearedTiles += len(m.ClearedTiles)
+		}
+	}
+
 	return app.Main().
 		Body(
-			// map
-			app.P().
+			// about
+			app.Div().ID("about").
 				Body(
+					app.H1().Text("NGU Industries Progress Analyzer & Map Optimizer"),
+					app.H2().Text("About"),
+					app.P().
+						Body(
+							app.Text("Welcome. You have stumbled upon a "),
+							app.A().Href("https://store.steampowered.com/app/1433990/NGU_INDUSTRIES/").Text("NGU Industries"),
+							app.Text(` file save analyzer and map optimizer.
+								You can load your save file to view some game progress statistics.
+								You can also use the beacons optimizer section to optimize your beacons placement on maps, be it for
+								speed, production or a combination of speed&production.`),
+						),
+					app.P().
+						Body(
+							app.Text("NOTE: Expect spoilers."),
+						),
+					app.P().
+						Body(
+							app.Text("This tool is written in GoLang and relies on "),
+							app.A().Href("https://go-app.dev/").Text("Go-App"),
+							app.Text(" and "),
+							app.A().Href("https://github.com/kms70847/NGUI-Save-Reader").Text("NGUI-Save-Reader"),
+							app.Text(". Source code can be found at "),
+							app.A().Href("https://github.com/MisterCodo/ngu").Text("https://github.com/MisterCodo/ngu"),
+							app.Text("."),
+						),
+				),
+			// save file
+			app.Div().ID("savefile").
+				Body(
+					app.Script().Src("/web/ngui_reader.bundled.js"),
+					app.H2().Text("Select Save File"),
+					app.Text(`This section allows you to see statistics on your NGU Industries progress. Furthermore, loading a save file
+					    will automatically add blocked sections on maps to represent tiles you have yet to unlock in the game.`),
+					app.Br(),
+					app.Br(),
+					app.Label().For("fileinput").Text("Select save file "),
+					app.Input().Type("file").ID("fileinput").Name("fileinput").OnChange(n.gameFileLoad),
+				),
+			// statistics
+			app.If(n.saveFile != nil,
+				app.Div().ID("statistics").
+					Body(
+						app.H2().Text("Progress Details"),
+						// general
+						app.H3().Text("General"),
+						app.Ul().
+							Body(
+								app.Li().Text(fmt.Sprintf("Played for %s", settingsTotalPlayedTime)),
+								app.Li().Text(fmt.Sprintf("Completed %d of %d Steam achievements", settingsSteamAchievements, settingsMaxSteamAchievements)),
+							),
+						// maps
+						app.H3().Text("Maps"),
+						app.Ul().
+							Body(
+								app.Li().Text(fmt.Sprintf("Unlocked %d of %d maps", mapsUnlocked, mapsMaxUnlocked)),
+								app.Li().Text(fmt.Sprintf("Unlocked %d of %d tiles", mapsClearedTiles, mapsMaxClearedTiles)),
+							),
+					),
+			),
+			// optimizer
+			app.Div().ID("optimizer").
+				Body(
+					app.H2().Text("Beacons Optimizer"),
+					app.Div().
+						Body(
+							app.Text("This section allows you to optimize the placement of beacons on NGU Industries maps."),
+						),
+					app.Br(),
+					// location picker
+					app.Div().
+						Body(
+							app.Text("Select the map to optimize:"),
+							app.Range(n.locations).Slice(func(i int) app.UI {
+								l := n.locations[i]
+								return app.Div().
+									Body(
+										app.Input().Type("radio").ID(l.label).Name("location").Value(l.label).Checked(l.selected).OnChange(n.changeLocation(l)),
+										app.Label().For(l.label).Text(l.prettyName),
+									)
+							}),
+						),
+					app.Br(),
+					// beacons picker
+					app.Div().
+						Body(
+							app.Text("Select the beacon types to use during optimization:"),
+							app.Range(n.beacons).Slice(func(i int) app.UI {
+								b := n.beacons[i]
+								return app.Div().
+									Body(
+										app.Input().Type("checkbox").ID(b.label).Name(b.label).Checked(b.selected).OnChange(n.changeBeacon(b)),
+										app.Label().For(b.label).Text(b.prettyName),
+									)
+							}),
+						),
+					app.Br(),
+					// optimization goal picker
+					app.Div().
+						Body(
+							app.Text(`Select the optimization goal. Generally speaking, speed is useful for labs, production is useful for
+								materials with low speed caps and speed&production is useful otherwise.
+								`),
+							app.Range(n.goals).Slice(func(i int) app.UI {
+								g := n.goals[i]
+								return app.Div().
+									Body(
+										app.Input().Type("checkbox").ID(g.label).Name(g.label).Checked(g.selected).OnChange(n.changeGoal(g)),
+										app.Label().For(g.label).Text(g.prettyName),
+									)
+							}),
+						),
+					app.Br(),
+					// click on map
+					app.Div().
+						Body(
+							app.Text("You can click on the map to block sections you have yet to unlock in the game. If you load a save file, this will be done automatically for you."),
+						),
+					app.Br(),
+					// start optimization
+					app.Div().
+						Body(
+							app.Text("Press Start to optimize the map. This will block the application for approximately 15 seconds before displaying results on the map below."),
+							app.Br(),
+							app.Input().Type("submit").Value("Start").OnClick(n.optimize),
+							app.Br(),
+							app.Br(),
+							app.Label().Text(fmt.Sprintf("Optimized Map Score: %.2f", n.score)),
+						),
+					// map
 					app.Div().
 						Style("width", fmt.Sprintf("%vpx", 600)).
 						Style("height", fmt.Sprintf("%vpx", 510)).
@@ -103,55 +257,6 @@ func (n *ngu) Render() app.UI {
 							}),
 						),
 				),
-			// location picker
-			app.P().
-				Body(
-					app.Range(n.locations).Slice(func(i int) app.UI {
-						l := n.locations[i]
-						return app.Div().
-							Body(
-								app.Input().Type("radio").ID(l.label).Name("location").Value(l.label).Checked(l.selected).OnChange(n.changeLocation(l)),
-								app.Label().For(l.label).Text(l.prettyName),
-							)
-					}),
-				),
-			// beacons picker
-			app.P().
-				Body(
-					app.Range(n.beacons).Slice(func(i int) app.UI {
-						b := n.beacons[i]
-						return app.Div().
-							Body(
-								app.Input().Type("checkbox").ID(b.label).Name(b.label).Checked(b.selected).OnChange(n.changeBeacon(b)),
-								app.Label().For(b.label).Text(b.prettyName),
-							)
-					}),
-				),
-			// optimization goal picker
-			app.P().
-				Body(
-					app.Range(n.goals).Slice(func(i int) app.UI {
-						g := n.goals[i]
-						return app.Div().
-							Body(
-								app.Input().Type("checkbox").ID(g.label).Name(g.label).Checked(g.selected).OnChange(n.changeGoal(g)),
-								app.Label().For(g.label).Text(g.prettyName),
-							)
-					}),
-				),
-			// save file loader
-			app.P().
-				Body(
-					app.Script().Src("/web/ngui_reader.bundled.js"),
-					app.Label().For("fileinput").Text("Load save file (optional) "),
-					app.Input().Type("file").ID("fileinput").Name("fileinput").OnChange(n.gameFileLoad),
-				),
-			// start optimization
-			app.P().
-				Body(
-					app.Input().Type("submit").Value("Optimize! (Runs for 15 seconds)").OnClick(n.optimize),
-					app.Label().Text(fmt.Sprintf("Score: %.2f", n.score)),
-				),
 		)
 }
 
@@ -167,10 +272,37 @@ type SaveFile struct {
 	PlayerBase  interface{} `json:"playerBase"`
 	Relics      interface{} `json:"relics"`
 	Research    interface{} `json:"research"`
-	Settings    interface{} `json:"settings"`
+	Settings    Settings    `json:"settings"`
 	Spin        interface{} `json:"spin"`
 	Tutorial    interface{} `json:"tutorial"`
 	WorkOrders  interface{} `json:"workOrders"`
+}
+
+type Settings struct {
+	BeaconLock            bool    `json:"beaconLock"`
+	ColourblindMode       bool    `json:"colourblindMode"`
+	DamageFloatersOn      bool    `json:"damageFloatersOn"`
+	FancierGainLossColour bool    `json:"fancierGainLossColour"`
+	FancySpins            bool    `json:"fancyspins"`
+	GainLossBuffer        int     `json:"gainLossBuffer"`
+	LastTimeStamp         int     `json:"lastTimeStamp"`
+	Number                int     `json:"number"`
+	NumberDisplayMode     int     `json:"numberDisplayMode"`
+	SteamAchievements     []bool  `json:"steamAchievements"`
+	Theme                 int     `json:"theme"`
+	TileOverlayID         int     `json:"tileOverlayID"`
+	TimedTooltipsOn       bool    `json:"timedTooltipsOn"`
+	ToolTipsOn            bool    `json:"tooltipsOn"`
+	TotalTimePlayed       float64 `json:"totalTimePlayed"`
+	TutorialState         int     `json:"tutorialState"`
+	Version               Version `json:"version"`
+}
+
+type Version struct {
+	Major int `json:"major"`
+	Minor int `json:"minor"`
+	Patch int `json:"patch"`
+	RC    int `json:"rc"`
 }
 
 type FactoryData struct {

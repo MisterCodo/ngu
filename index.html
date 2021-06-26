@@ -3,49 +3,118 @@
 <head>
 <meta charset="UTF-8">
 <meta httpequiv="Content-Type" content="text/html; charset=utf-8">
-<meta content="Mister Codo" name="author">
+<meta name="author" content="Mister Codo">
 <meta name="description" content="Yet another NGU Industries map optimizer">
 <meta content name="keywords">
-<meta name="theme-color" content="#2d2c2c">
+<meta content="#2d2c2c" name="theme-color">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
-<meta property="og:url" content="http://127.0.0.1:59122/">
+<meta property="og:url" content="http://127.0.0.1:61014/">
 <meta property="og:title" content="NGU Optimizer">
 <meta property="og:description" content="Yet another NGU Industries map optimizer">
-<meta content="website" property="og:type">
+<meta property="og:type" content="website">
 <meta property="og:image" content>
 <title>
 NGU Optimizer
 </title>
-<link type="image/png" href="/ngu/web/SpeedKnight.png" rel="icon">
-<link rel="apple-touch-icon" href="/ngu/web/SpeedKnight.png">
+<link rel="icon" type="image/png" href="/ngu/web/SpeedKnight.png">
+<link href="/ngu/web/SpeedKnight.png" rel="apple-touch-icon">
 <link rel="manifest" href="/ngu/manifest.webmanifest">
 <link type="text/css" rel="stylesheet" href="/ngu/app.css">
-<script src="/ngu/wasm_exec.js" defer></script>
+<script defer src="/ngu/wasm_exec.js"></script>
 <script defer src="/ngu/app.js"></script>
 </head>
 <body>
 <div>
 <div id="app-pre-render">
 <main>
+<div id="about">
+<h1>
+NGU Industries Progress Analyzer &amp; Map Optimizer
+</h1>
+<h2>
+About
+</h2>
 <p>
-<div style="width:600px;height:510px;background:;background-size:contain;display:grid;grid-template-columns:auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto;"></div>
+Welcome. You have stumbled upon a 
+<a href="https://store.steampowered.com/app/1433990/NGU_INDUSTRIES/">
+NGU Industries
+</a>
+ file save analyzer and map optimizer.
+								You can load your save file to view some game progress statistics.
+								You can also use the beacons optimizer section to optimize your beacons placement on maps, be it for
+								speed, production or a combination of speed&amp;production.
 </p>
-<p></p>
-<p></p>
-<p></p>
 <p>
+NOTE: Expect spoilers.
+</p>
+<p>
+This tool is written in GoLang and relies on 
+<a href="https://go-app.dev/">
+Go-App
+</a>
+ and 
+<a href="https://github.com/kms70847/NGUI-Save-Reader">
+NGUI-Save-Reader
+</a>
+. Source code can be found at 
+<a href="https://github.com/MisterCodo/ngu">
+https://github.com/MisterCodo/ngu
+</a>
+.
+</p>
+</div>
+<div id="savefile">
 <script src="/ngu/web/ngui_reader.bundled.js"></script>
+<h2>
+Select Save File
+</h2>
+This section allows you to see statistics on your NGU Industries progress. Furthermore, loading a save file
+					    will automatically add blocked sections on maps to represent tiles you have yet to unlock in the game.
+<br>
+<br>
 <label for="fileinput">
-Load save file (optional) 
+Select save file 
 </label>
-<input id="fileinput" name="fileinput" type="file">
-</p>
-<p>
-<input type="submit" value="Optimize! (Runs for 15 seconds)">
+<input type="file" id="fileinput" name="fileinput">
+</div>
+<div id="optimizer">
+<h2>
+Beacons Optimizer
+</h2>
+<div>
+This section allows you to optimize the placement of beacons on NGU Industries maps.
+</div>
+<br>
+<div>
+Select the map to optimize:
+</div>
+<br>
+<div>
+Select the beacon types to use during optimization:
+</div>
+<br>
+<div>
+Select the optimization goal. Generally speaking, speed is useful for labs, production is useful for
+								materials with low speed caps and speed&amp;production is useful otherwise.
+								
+</div>
+<br>
+<div>
+You can click on the map to block sections you have yet to unlock in the game. If you load a save file, this will be done automatically for you.
+</div>
+<br>
+<div>
+Press Start to optimize the map. This will block the application for approximately 15 seconds before displaying results on the map below.
+<br>
+<input value="Start" type="submit">
+<br>
+<br>
 <label>
-Score: 0.00
+Optimized Map Score: 0.00
 </label>
-</p>
+</div>
+<div style="width:600px;height:510px;background:;background-size:contain;display:grid;grid-template-columns:auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto;"></div>
+</div>
 </main>
 </div>
 <div id="app-wasm-loader" class="goapp-app-info">
