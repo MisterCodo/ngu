@@ -71,11 +71,27 @@ func (n *ngu) Render() app.UI {
 	var settingsTotalPlayedTime time.Duration
 	settingsSteamAchievements := 0
 	settingsMaxSteamAchievements := 10
+
 	mapsUnlocked := 0
 	mapsMaxUnlocked := 5
 	mapsClearedTiles := 0
 	mapsMaxClearedTiles := 432
+
+	materialsUnlocked := 0
+	materialsMaxUnlocked := 150
+	materialsGoneInfinite := 0
+	materialsMaxInfinite := 134
+
 	if n.saveFile != nil {
+		for _, m := range n.saveFile.Materials.Materials {
+			if m.Unlocked {
+				materialsUnlocked++
+			}
+			if m.GoneInfinite {
+				materialsGoneInfinite++
+			}
+		}
+
 		settingsTotalPlayedTime = time.Duration(int(n.saveFile.Settings.TotalTimePlayed)) * time.Second
 
 		for _, s := range n.saveFile.Settings.SteamAchievements {
@@ -155,6 +171,13 @@ func (n *ngu) Render() app.UI {
 							Body(
 								app.Li().Text(fmt.Sprintf("Unlocked %d of %d maps", mapsUnlocked, mapsMaxUnlocked)),
 								app.Li().Text(fmt.Sprintf("Unlocked %d of %d tiles", mapsClearedTiles, mapsMaxClearedTiles)),
+							),
+						// materials
+						app.H3().Text("Materials"),
+						app.Ul().
+							Body(
+								app.Li().Text(fmt.Sprintf("Unlocked %d of %d materials and beacons", materialsUnlocked, materialsMaxUnlocked)),
+								app.Li().Text(fmt.Sprintf("Infinite reached for %d of %d materials", materialsGoneInfinite, materialsMaxInfinite)),
 							),
 					),
 			),
@@ -266,7 +289,7 @@ type SaveFile struct {
 	FactoryData FactoryData `json:"factoryData"`
 	Farm        interface{} `json:"farm"`
 	Journal     interface{} `json:"journal"`
-	Materials   interface{} `json:"materials"`
+	Materials   Materials   `json:"materials"`
 	Pit         interface{} `json:"pit"`
 	PlayerBase  interface{} `json:"playerBase"`
 	Relics      interface{} `json:"relics"`
@@ -275,6 +298,17 @@ type SaveFile struct {
 	Spin        interface{} `json:"spin"`
 	Tutorial    interface{} `json:"tutorial"`
 	WorkOrders  interface{} `json:"workOrders"`
+}
+
+type Materials struct {
+	Materials []Material `json:"materials"`
+}
+
+type Material struct {
+	Amount            int  `json:"amount"`
+	GoneInfinite      bool `json:"goneInfinite"`
+	LargestProduction int  `json:"largestProduction"`
+	Unlocked          bool `json:"unlocked"`
 }
 
 type Settings struct {
