@@ -101,7 +101,15 @@ If you have not yet unlocked all the tiles of a given map, you can go into subfo
 - Add heat maps of both speed and production gains
 - Clean code
 - Multithread UI
+- Add stats based on loaded save file
+- Change locked tile image according to map
 
 ## Best Maps
 
 Best generated maps from this tool, and other tools, can be found at [NGU Industries Fandom](https://ngu-industries.fandom.com/wiki/Optimal_beacons_configurations).
+
+## License
+
+This software is licensed under MIT.
+
+Save file reader is using [https://github.com/kms70847/NGUI-Save-Reader](https://github.com/kms70847/NGUI-Save-Reader).

@@ -35,7 +35,8 @@ type Map struct {
 }
 
 // NewMap generates a new map based on the provided location. Each tile which can be
-// modified by the gamer is set to a regular resource tile.
+// modified by the gamer is set to a regular resource tile. NewMap assumes all tiles
+// are unlocked on the map. If not, then it should be indicated by blockedTiles.
 func NewMap(locationName string, blockedTiles []int) *Map {
 	m := &Map{
 		Tiles:        [MapY][MapX]Tile{},
@@ -47,7 +48,7 @@ func NewMap(locationName string, blockedTiles []int) *Map {
 	}
 	for y, row := range l.Mask() {
 		for x, val := range row {
-			if val == 1 {
+			if val == 1 || val == 2 {
 				m.Tiles[y][x] = Tile{Type: ProductionTile, ProductionMultiplier: 0.0, SpeedMultiplier: 0.0, EfficiencyMultiplier: 0.0}
 				m.Score++
 				continue
@@ -56,7 +57,7 @@ func NewMap(locationName string, blockedTiles []int) *Map {
 		}
 	}
 
-	// Remove blocked tiles
+	// Blocked tiles are considered unusable for optimization
 	for _, id := range blockedTiles {
 		x := id % MapX
 		y := (id - x) / MapX

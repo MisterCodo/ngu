@@ -3,24 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta httpequiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="author" content="Mister Codo">
+<meta content="Mister Codo" name="author">
 <meta name="description" content="Yet another NGU Industries map optimizer">
-<meta name="keywords" content>
+<meta content name="keywords">
 <meta name="theme-color" content="#2d2c2c">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
-<meta property="og:url" content="http://127.0.0.1:53574/">
+<meta property="og:url" content="http://127.0.0.1:59122/">
 <meta property="og:title" content="NGU Optimizer">
 <meta property="og:description" content="Yet another NGU Industries map optimizer">
-<meta property="og:type" content="website">
+<meta content="website" property="og:type">
 <meta property="og:image" content>
 <title>
 NGU Optimizer
 </title>
-<link href="/ngu/web/SpeedKnight.png" rel="icon" type="image/png">
+<link type="image/png" href="/ngu/web/SpeedKnight.png" rel="icon">
 <link rel="apple-touch-icon" href="/ngu/web/SpeedKnight.png">
 <link rel="manifest" href="/ngu/manifest.webmanifest">
 <link type="text/css" rel="stylesheet" href="/ngu/app.css">
-<script defer src="/ngu/wasm_exec.js"></script>
+<script src="/ngu/wasm_exec.js" defer></script>
 <script defer src="/ngu/app.js"></script>
 </head>
 <body>
@@ -33,6 +33,13 @@ NGU Optimizer
 <p></p>
 <p></p>
 <p></p>
+<p>
+<script src="/ngu/web/ngui_reader.bundled.js"></script>
+<label for="fileinput">
+Load save file (optional) 
+</label>
+<input id="fileinput" name="fileinput" type="file">
+</p>
 <p>
 <input type="submit" value="Optimize! (Runs for 15 seconds)">
 <label>

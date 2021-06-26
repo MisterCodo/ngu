@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -25,10 +26,11 @@ type ngu struct {
 	beacons    []beacon
 	goals      []goal
 	background string
-	location   string
+	location   int
 	tiles      []tile
 	mask       locations.Mask
 	score      float64
+	saveFile   *SaveFile
 }
 
 func (n *ngu) OnMount(ctx app.Context) {
@@ -43,8 +45,8 @@ func (n *ngu) initNGU(ctx app.Context) {
 		{id: 3, label: "CandyLand", prettyName: "Candy Land", selected: false},
 		{id: 4, label: "MansionsAndManagers", prettyName: "Mansions & Managers", selected: false},
 	}
-	n.location = "TutorialIsland"
-	n.background = fmt.Sprintf("url(%s/%s.png)", relativePath, n.location)
+	n.location = 0
+	n.background = fmt.Sprintf("url(%s/%s.png)", relativePath, n.locations[n.location].label)
 	n.beacons = []beacon{
 		{id: 0, label: "box", prettyName: "Box", selected: true},
 		{id: 1, label: "knight", prettyName: "Knight", selected: true},
@@ -57,8 +59,9 @@ func (n *ngu) initNGU(ctx app.Context) {
 		{id: 1, label: "production", prettyName: "Production", selected: true},
 	}
 	n.tiles = []tile{}
-	n.mask = locations.Locations[n.location].Mask()
+	n.mask = locations.Locations[n.locations[0].label].Mask()
 	n.score = 0.0
+	n.saveFile = nil
 	n.updateTiles()
 	n.Update()
 }
@@ -79,14 +82,23 @@ func (n *ngu) Render() app.UI {
 						Body(
 							app.Range(n.tiles).Slice(func(i int) app.UI {
 								t := n.tiles[i]
-								if t.usable == 1 || t.usable == 2 {
+								// usable tiles, either beacon or production
+								if t.usable == 1 {
+									// production tile
 									if t.image == "" {
 										return app.Button().Style("cursor", "pointer").Style("padding", "0").Style("border", "0").Style("height", "30px").Style("width", "30px").Style("background-color", "transparent").OnClick(n.clickTile(t)).
 											Body()
 									}
+									// beacon tile
 									return app.Button().Style("cursor", "pointer").Style("padding", "0").Style("border", "0").Style("height", "30px").Style("width", "30px").Style("background-color", "transparent").OnClick(n.clickTile(t)).
 										Body(app.Img().Style("height", "30px").Style("width", "30px").Src(t.image))
 								}
+								// blocked tile
+								if t.usable == 2 {
+									return app.Button().Style("cursor", "pointer").Style("padding", "0").Style("border", "0").Style("height", "30px").Style("width", "30px").Style("background-color", "transparent").OnClick(n.clickTile(t)).
+										Body(app.Img().Style("height", "30px").Style("width", "30px").Src(fmt.Sprintf("%s/Unusable.png", relativePath)))
+								}
+								// unusable tile (e.g. water)
 								return app.Div().Style("padding", "0").Style("border", "0").Style("height", "30px").Style("width", "30px").Text("")
 							}),
 						),
@@ -127,6 +139,13 @@ func (n *ngu) Render() app.UI {
 							)
 					}),
 				),
+			// save file loader
+			app.P().
+				Body(
+					app.Script().Src("/web/ngui_reader.bundled.js"),
+					app.Label().For("fileinput").Text("Load save file (optional) "),
+					app.Input().Type("file").ID("fileinput").Name("fileinput").OnChange(n.gameFileLoad),
+				),
 			// start optimization
 			app.P().
 				Body(
@@ -136,12 +155,101 @@ func (n *ngu) Render() app.UI {
 		)
 }
 
+type SaveFile struct {
+	Arbitrary   interface{} `json:"arbitrary"`
+	Combat      interface{} `json:"combat"`
+	Experiments interface{} `json:"experiments"`
+	FactoryData FactoryData `json:"factoryData"`
+	Farm        interface{} `json:"farm"`
+	Journal     interface{} `json:"journal"`
+	Materials   interface{} `json:"materials"`
+	Pit         interface{} `json:"pit"`
+	PlayerBase  interface{} `json:"playerBase"`
+	Relics      interface{} `json:"relics"`
+	Research    interface{} `json:"research"`
+	Settings    interface{} `json:"settings"`
+	Spin        interface{} `json:"spin"`
+	Tutorial    interface{} `json:"tutorial"`
+	WorkOrders  interface{} `json:"workOrders"`
+}
+
+type FactoryData struct {
+	BlueprintsUnlocked bool        `json:"blueprintsUnlocked"`
+	FavsList           interface{} `json:"favsList"`
+	Maps               []SaveMap   `json:"maps"`
+}
+
+type SaveMap struct {
+	Beacons      interface{} `json:"beacons"`
+	Blueprints   interface{} `json:"blueprints"`
+	Buildings    interface{} `json:"buildings"`
+	ClearedTiles []int       `json:"clearedTiles"`
+	Labs         interface{} `json:"labs"`
+	Unlocked     bool        `json:"unlocked"`
+}
+
+func (n *ngu) gameFileLoad(ctx app.Context, e app.Event) {
+	fmt.Printf("loading game file using NGUI Save Reader\n")
+
+	files := ctx.JSSrc.Get("files")
+	if !files.Truthy() || files.Get("length").Int() == 0 {
+		fmt.Println("file not found")
+		return
+	}
+
+	file := files.Index(0)
+	var close func()
+
+	onFileLoad := app.FuncOf(func(this app.Value, args []app.Value) interface{} {
+		event := args[0]
+		content := event.Get("target").Get("result")
+		decoded := app.Window().Call("decode_ngu_save", content, true).String()
+		// fmt.Println(decoded)
+
+		// Make a JSON out of decoded
+		in := []byte(decoded)
+
+		var saveFile SaveFile
+		if err := json.Unmarshal(in, &saveFile); err != nil {
+			return err
+		}
+		n.saveFile = &saveFile
+
+		// call updateTiles func to clear unlocked tiles according to save file
+		n.updateTiles()
+
+		// render map again
+		n.score = 0.0
+		n.Update()
+		close()
+		return nil
+	})
+
+	onFileLoadError := app.FuncOf(func(this app.Value, args []app.Value) interface{} {
+		// Your error handling...
+		fmt.Println("oh no, something went boom")
+		close()
+		return nil
+	})
+
+	// To release resources when callback are called.
+	close = func() {
+		onFileLoad.Release()
+		onFileLoadError.Release()
+	}
+
+	reader := app.Window().Get("FileReader").New()
+	reader.Set("onload", onFileLoad)
+	reader.Set("onerror", onFileLoadError)
+	reader.Call("readAsArrayBuffer", file)
+}
+
 func (n *ngu) changeLocation(l location) app.EventHandler {
 	return func(ctx app.Context, e app.Event) {
 		fmt.Printf("changed location to %s\n", l.label)
 		n.background = fmt.Sprintf("url(%s/%s.png)", relativePath, l.label)
-		n.location = l.label
-		n.mask = locations.Locations[n.location].Mask()
+		n.location = l.id
+		n.mask = locations.Locations[n.locations[n.location].label].Mask()
 		n.score = 0.0
 		n.updateTiles()
 		n.Update()
@@ -179,7 +287,7 @@ func (n *ngu) clickTile(t tile) app.EventHandler {
 	}
 	return func(ctx app.Context, e app.Event) {
 		fmt.Printf("blocked tile %d\n", t.id)
-		n.tiles[t.id].image = fmt.Sprintf("%s/Unusable.png", relativePath)
+		// n.tiles[t.id].image is handled in Render given it will change based on location (eventually, still have to code this)
 		n.tiles[t.id].usable = 2
 		n.Update()
 	}
@@ -189,7 +297,22 @@ func (n *ngu) updateTiles() {
 	n.tiles = []tile{}
 	for y, row := range n.mask {
 		for x, val := range row {
+			// if user has not loaded a save file and the mask says it's a block tile, overwrite it to a usable tile
+			if n.saveFile == nil && val == 2 {
+				val = 1
+			}
+
 			n.tiles = append(n.tiles, tile{id: y*20 + x, usable: val, image: ""})
+		}
+	}
+
+	// change usable from 2 to 1 for unlocked tiles based on save file
+	if n.saveFile != nil {
+		fmt.Printf("save file is being used, handle unlocked tiles\n")
+
+		// TODO: add proper error handling
+		for _, clearedTile := range n.saveFile.FactoryData.Maps[n.location].ClearedTiles {
+			n.tiles[clearedTile].usable = 1
 		}
 	}
 }
@@ -230,7 +353,7 @@ func (n *ngu) optimize(ctx app.Context, e app.Event) {
 		return
 	}
 
-	locationName := n.location
+	locationName := n.locations[n.location].label
 
 	// blocked tiles clicked on map by user
 	blockedTiles := []int{}

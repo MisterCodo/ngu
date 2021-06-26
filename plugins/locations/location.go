@@ -70,6 +70,8 @@ func FileToMask(fsys fs.FS, filename string) (name string, mask Mask, err error)
 			result := 0
 			if char == "1" {
 				result = 1
+			} else if char == "2" {
+				result = 2
 			}
 			mask[y][x] = result
 		}
