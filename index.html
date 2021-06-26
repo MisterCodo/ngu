@@ -4,51 +4,48 @@
 <meta charset="UTF-8">
 <meta httpequiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="author" content="Mister Codo">
-<meta name="description" content="Yet another NGU Industries map optimizer">
-<meta content name="keywords">
-<meta content="#2d2c2c" name="theme-color">
+<meta name="description" content="NGU Industries file save analyzer and map beacons placement optimizer">
+<meta name="keywords" content>
+<meta name="theme-color" content="#2d2c2c">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
-<meta property="og:url" content="http://127.0.0.1:61014/">
-<meta property="og:title" content="NGU Optimizer">
-<meta property="og:description" content="Yet another NGU Industries map optimizer">
+<meta property="og:url" content="http://127.0.0.1:61601/">
+<meta property="og:title" content="NGU Analyzer & Optimizer">
+<meta property="og:description" content="NGU Industries file save analyzer and map beacons placement optimizer">
 <meta property="og:type" content="website">
 <meta property="og:image" content>
 <title>
-NGU Optimizer
+NGU Analyzer &amp; Optimizer
 </title>
 <link rel="icon" type="image/png" href="/ngu/web/SpeedKnight.png">
-<link href="/ngu/web/SpeedKnight.png" rel="apple-touch-icon">
+<link rel="apple-touch-icon" href="/ngu/web/SpeedKnight.png">
 <link rel="manifest" href="/ngu/manifest.webmanifest">
 <link type="text/css" rel="stylesheet" href="/ngu/app.css">
 <script defer src="/ngu/wasm_exec.js"></script>
-<script defer src="/ngu/app.js"></script>
+<script src="/ngu/app.js" defer></script>
 </head>
 <body>
 <div>
 <div id="app-pre-render">
 <main>
-<div id="about">
+<div id="about" style="background-color:lightgrey;margin:5px;border-radius:15px;border:5px solid #1d1d1d;padding:15px;">
 <h1>
-NGU Industries Progress Analyzer &amp; Map Optimizer
+NGU Industries Analyzer &amp; Optimizer
 </h1>
-<h2>
-About
-</h2>
 <p>
 Welcome. You have stumbled upon a 
 <a href="https://store.steampowered.com/app/1433990/NGU_INDUSTRIES/">
 NGU Industries
 </a>
- file save analyzer and map optimizer.
-								You can load your save file to view some game progress statistics.
-								You can also use the beacons optimizer section to optimize your beacons placement on maps, be it for
-								speed, production or a combination of speed&amp;production.
+ file save analyzer and map beacons placement optimizer.
+								Load your save file to view some game progress details.
+								Use the Optimizer section to find near optimal beacons placement on maps, be it for
+								speed, production or a combination of the two.
 </p>
 <p>
-NOTE: Expect spoilers.
+Warning: There are game spoilers on this page.
 </p>
 <p>
-This tool is written in GoLang and relies on 
+This tool is written in GoLang WebAssembly (Wasm). It relies on 
 <a href="https://go-app.dev/">
 Go-App
 </a>
@@ -63,57 +60,53 @@ https://github.com/MisterCodo/ngu
 .
 </p>
 </div>
-<div id="savefile">
+<div id="savefile" style="background-color:lightgrey;margin:5px;border-radius:15px;border:5px solid #1d1d1d;padding:15px;">
 <script src="/ngu/web/ngui_reader.bundled.js"></script>
 <h2>
 Select Save File
 </h2>
-This section allows you to see statistics on your NGU Industries progress. Furthermore, loading a save file
-					    will automatically add blocked sections on maps to represent tiles you have yet to unlock in the game.
+Load a save file to see game progress details. Furthermore, beacons placement optimization will automatically consider
+					    tiles you have yet to unlock in your NGU Industries save file.
 <br>
 <br>
 <label for="fileinput">
 Select save file 
 </label>
-<input type="file" id="fileinput" name="fileinput">
+<input id="fileinput" name="fileinput" type="file">
 </div>
-<div id="optimizer">
+<div id="optimizer" style="background-color:lightgrey;margin:5px;border-radius:15px;border:5px solid #1d1d1d;padding:15px;">
 <h2>
 Beacons Optimizer
 </h2>
 <div>
-This section allows you to optimize the placement of beacons on NGU Industries maps.
+1. Select a map:
 </div>
 <br>
 <div>
-Select the map to optimize:
+2. Select beacon types to place:
 </div>
 <br>
 <div>
-Select the beacon types to use during optimization:
-</div>
-<br>
-<div>
-Select the optimization goal. Generally speaking, speed is useful for labs, production is useful for
-								materials with low speed caps and speed&amp;production is useful otherwise.
+3. Select an optimization goal. Speed is useful for labs, production is useful for
+								low speed cap materials and a combination of speed &amp; production is useful otherwise.
 								
 </div>
 <br>
 <div>
-You can click on the map to block sections you have yet to unlock in the game. If you load a save file, this will be done automatically for you.
+4. Click on the map image to block sections you have yet to unlock in the game. Loading a save file handles this automatically.
 </div>
 <br>
 <div>
-Press Start to optimize the map. This will block the application for approximately 15 seconds before displaying results on the map below.
+5. Click Start to optimize the map. The application will block for approximately 15 seconds before displaying results.
 <br>
-<input value="Start" type="submit">
+<input type="submit" value="Start">
 <br>
 <br>
 <label>
 Optimized Map Score: 0.00
 </label>
 </div>
-<div style="width:600px;height:510px;background:;background-size:contain;display:grid;grid-template-columns:auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto;"></div>
+<div style="width:600px;height:510px;background:;background-size:contain;display:grid;border:1px solid #1d1d1d;grid-template-columns:auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto;"></div>
 </div>
 </main>
 </div>

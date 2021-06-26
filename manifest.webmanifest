@@ -1,6 +1,6 @@
 {
-  "short_name": "NGU Optimizer",
-  "name": "NGU Optimizer",
+  "short_name": "NGU Analyzer & Optimizer",
+  "name": "NGU Analyzer & Optimizer",
   "icons": [
     {
       "src": "/ngu/web/SpeedKnight.png",

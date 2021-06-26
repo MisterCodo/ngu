@@ -96,25 +96,25 @@ func (n *ngu) Render() app.UI {
 		Body(
 			// about
 			app.Div().ID("about").
+				Style("background-color", "lightgrey").Style("margin", "5px").Style("border-radius", "15px").Style("border", "5px solid #1d1d1d").Style("padding", "15px").
 				Body(
-					app.H1().Text("NGU Industries Progress Analyzer & Map Optimizer"),
-					app.H2().Text("About"),
+					app.H1().Text("NGU Industries Analyzer & Optimizer"),
 					app.P().
 						Body(
 							app.Text("Welcome. You have stumbled upon a "),
 							app.A().Href("https://store.steampowered.com/app/1433990/NGU_INDUSTRIES/").Text("NGU Industries"),
-							app.Text(` file save analyzer and map optimizer.
-								You can load your save file to view some game progress statistics.
-								You can also use the beacons optimizer section to optimize your beacons placement on maps, be it for
-								speed, production or a combination of speed&production.`),
+							app.Text(` file save analyzer and map beacons placement optimizer.
+								Load your save file to view some game progress details.
+								Use the Optimizer section to find near optimal beacons placement on maps, be it for
+								speed, production or a combination of the two.`),
 						),
 					app.P().
 						Body(
-							app.Text("NOTE: Expect spoilers."),
+							app.Text("Warning: There are game spoilers on this page."),
 						),
 					app.P().
 						Body(
-							app.Text("This tool is written in GoLang and relies on "),
+							app.Text("This tool is written in GoLang WebAssembly (Wasm). It relies on "),
 							app.A().Href("https://go-app.dev/").Text("Go-App"),
 							app.Text(" and "),
 							app.A().Href("https://github.com/kms70847/NGUI-Save-Reader").Text("NGUI-Save-Reader"),
@@ -125,11 +125,12 @@ func (n *ngu) Render() app.UI {
 				),
 			// save file
 			app.Div().ID("savefile").
+				Style("background-color", "lightgrey").Style("margin", "5px").Style("border-radius", "15px").Style("border", "5px solid #1d1d1d").Style("padding", "15px").
 				Body(
 					app.Script().Src("/web/ngui_reader.bundled.js"),
 					app.H2().Text("Select Save File"),
-					app.Text(`This section allows you to see statistics on your NGU Industries progress. Furthermore, loading a save file
-					    will automatically add blocked sections on maps to represent tiles you have yet to unlock in the game.`),
+					app.Text(`Load a save file to see game progress details. Furthermore, beacons placement optimization will automatically consider
+					    tiles you have yet to unlock in your NGU Industries save file.`),
 					app.Br(),
 					app.Br(),
 					app.Label().For("fileinput").Text("Select save file "),
@@ -138,6 +139,7 @@ func (n *ngu) Render() app.UI {
 			// statistics
 			app.If(n.saveFile != nil,
 				app.Div().ID("statistics").
+					Style("background-color", "lightgrey").Style("margin", "5px").Style("border-radius", "15px").Style("border", "5px solid #1d1d1d").Style("padding", "15px").
 					Body(
 						app.H2().Text("Progress Details"),
 						// general
@@ -158,17 +160,13 @@ func (n *ngu) Render() app.UI {
 			),
 			// optimizer
 			app.Div().ID("optimizer").
+				Style("background-color", "lightgrey").Style("margin", "5px").Style("border-radius", "15px").Style("border", "5px solid #1d1d1d").Style("padding", "15px").
 				Body(
 					app.H2().Text("Beacons Optimizer"),
-					app.Div().
-						Body(
-							app.Text("This section allows you to optimize the placement of beacons on NGU Industries maps."),
-						),
-					app.Br(),
 					// location picker
 					app.Div().
 						Body(
-							app.Text("Select the map to optimize:"),
+							app.Text("1. Select a map:"),
 							app.Range(n.locations).Slice(func(i int) app.UI {
 								l := n.locations[i]
 								return app.Div().
@@ -182,7 +180,7 @@ func (n *ngu) Render() app.UI {
 					// beacons picker
 					app.Div().
 						Body(
-							app.Text("Select the beacon types to use during optimization:"),
+							app.Text("2. Select beacon types to place:"),
 							app.Range(n.beacons).Slice(func(i int) app.UI {
 								b := n.beacons[i]
 								return app.Div().
@@ -196,8 +194,8 @@ func (n *ngu) Render() app.UI {
 					// optimization goal picker
 					app.Div().
 						Body(
-							app.Text(`Select the optimization goal. Generally speaking, speed is useful for labs, production is useful for
-								materials with low speed caps and speed&production is useful otherwise.
+							app.Text(`3. Select an optimization goal. Speed is useful for labs, production is useful for
+								low speed cap materials and a combination of speed & production is useful otherwise.
 								`),
 							app.Range(n.goals).Slice(func(i int) app.UI {
 								g := n.goals[i]
@@ -212,13 +210,13 @@ func (n *ngu) Render() app.UI {
 					// click on map
 					app.Div().
 						Body(
-							app.Text("You can click on the map to block sections you have yet to unlock in the game. If you load a save file, this will be done automatically for you."),
+							app.Text("4. Click on the map image to block sections you have yet to unlock in the game. Loading a save file handles this automatically."),
 						),
 					app.Br(),
 					// start optimization
 					app.Div().
 						Body(
-							app.Text("Press Start to optimize the map. This will block the application for approximately 15 seconds before displaying results on the map below."),
+							app.Text("5. Click Start to optimize the map. The application will block for approximately 15 seconds before displaying results."),
 							app.Br(),
 							app.Input().Type("submit").Value("Start").OnClick(n.optimize),
 							app.Br(),
@@ -232,6 +230,7 @@ func (n *ngu) Render() app.UI {
 						Style("background", n.background).
 						Style("background-size", "contain").
 						Style("display", "grid").
+						Style("border", "1px solid #1d1d1d").
 						Style("grid-template-columns", "auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto").
 						Body(
 							app.Range(n.tiles).Slice(func(i int) app.UI {
@@ -580,9 +579,9 @@ func main() {
 
 	h := app.Handler{
 		Author:      "Mister Codo",
-		Name:        "NGU Optimizer",
-		Description: "Yet another NGU Industries map optimizer",
-		Title:       "NGU Optimizer",
+		Name:        "NGU Analyzer & Optimizer",
+		Description: "NGU Industries file save analyzer and map beacons placement optimizer",
+		Title:       "NGU Analyzer & Optimizer",
 		Icon:        app.Icon{Default: "/web/SpeedKnight.png"},
 	}
 
