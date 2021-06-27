@@ -179,6 +179,31 @@ func (n *ngu) Render() app.UI {
 								app.Li().Text(fmt.Sprintf("Unlocked %d of %d materials and beacons", materialsUnlocked, materialsMaxUnlocked)),
 								app.Li().Text(fmt.Sprintf("Infinite reached for %d of %d materials", materialsGoneInfinite, materialsMaxInfinite)),
 							),
+						// relics
+						app.H3().Text("Relics"),
+						app.Ul().
+							Body(
+								app.Range(relicsInfo).Slice(func(i int) app.UI {
+									ri := relicsInfo[i]
+									saveGameRelicLevel := n.getSaveGameRelicLevel(i)
+									// some relics are just unlocked or not, no level
+									if len(ri.Levels) == 0 {
+										if saveGameRelicLevel == 0 {
+											return app.Li().Style("color", "darkgreen").Text(fmt.Sprintf("Unlocked %s (%s)", ri.Name, ri.Impacts))
+										}
+										return app.Li().Style("color", "darkred").Text(fmt.Sprintf("Yet to unlock %s (%s)", ri.Name, ri.Impacts))
+									}
+									if saveGameRelicLevel == -1 {
+										saveGameRelicLevel = 0
+									}
+									// done
+									if saveGameRelicLevel == len(ri.Levels) {
+										return app.Li().Style("color", "darkgreen").Text(fmt.Sprintf("Unlocked %d of %d %s (%s) levels", saveGameRelicLevel, len(ri.Levels), ri.Name, ri.Impacts))
+									}
+									// not done
+									return app.Li().Style("color", "darkred").Text(fmt.Sprintf("Unlocked %d of %d %s (%s) levels", saveGameRelicLevel, len(ri.Levels), ri.Name, ri.Impacts))
+								}),
+							),
 					),
 			),
 			// optimizer
@@ -292,7 +317,7 @@ type SaveFile struct {
 	Materials   Materials   `json:"materials"`
 	Pit         interface{} `json:"pit"`
 	PlayerBase  interface{} `json:"playerBase"`
-	Relics      interface{} `json:"relics"`
+	Relics      Relics      `json:"relics"`
 	Research    interface{} `json:"research"`
 	Settings    Settings    `json:"settings"`
 	Spin        interface{} `json:"spin"`
@@ -309,6 +334,30 @@ type Material struct {
 	GoneInfinite      bool `json:"goneInfinite"`
 	LargestProduction int  `json:"largestProduction"`
 	Unlocked          bool `json:"unlocked"`
+}
+
+type Relics struct {
+	Relics []Relic `json:"relic"`
+}
+
+type Relic struct {
+	Level   int `json:"level"`
+	RelicID int `json:"relicID"`
+}
+
+func (n *ngu) getSaveGameRelicLevel(relicID int) int {
+	if n.saveFile == nil {
+		return -1
+	}
+
+	for _, r := range n.saveFile.Relics.Relics {
+		if r.RelicID == relicID {
+			return r.Level
+		}
+	}
+
+	// not showing up yet
+	return -1
 }
 
 type Settings struct {
