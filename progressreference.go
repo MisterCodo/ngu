@@ -345,3 +345,18 @@ var achievementsInfo = AchievementsInfo{
 	{Name: "Look at you go!", Details: "Combat 1000 ISOPOD"},
 	{Name: "Unlocked M&M!", Details: ""},
 }
+
+type MapsInfo []MapInfo
+
+type MapInfo struct {
+	Name              string
+	TilesToClearCount int
+}
+
+var mapsInfo = MapsInfo{
+	{Name: "Tutorial Island", TilesToClearCount: 76},
+	{Name: "Flesh World", TilesToClearCount: 113},
+	{Name: "Planet Tronne", TilesToClearCount: 67},
+	{Name: "Candy Land", TilesToClearCount: 100},
+	{Name: "Mansions & Managers", TilesToClearCount: 73},
+}

@@ -70,11 +70,6 @@ func (n *ngu) Render() app.UI {
 	// measure statistics
 	var settingsTotalPlayedTime time.Duration
 
-	mapsUnlocked := 0
-	mapsMaxUnlocked := 5
-	mapsClearedTiles := 0
-	mapsMaxClearedTiles := 432
-
 	materialsUnlocked := 0
 	materialsMaxUnlocked := 150
 	materialsGoneInfinite := 0
@@ -91,13 +86,6 @@ func (n *ngu) Render() app.UI {
 		}
 
 		settingsTotalPlayedTime = time.Duration(int(n.saveFile.Settings.TotalTimePlayed)) * time.Second
-
-		for _, m := range n.saveFile.FactoryData.Maps {
-			if m.Unlocked {
-				mapsUnlocked++
-			}
-			mapsClearedTiles += len(m.ClearedTiles)
-		}
 	}
 
 	return app.Main().
@@ -172,8 +160,20 @@ func (n *ngu) Render() app.UI {
 						app.H3().Text("Maps"),
 						app.Ul().
 							Body(
-								app.Li().Text(fmt.Sprintf("Unlocked %d of %d maps", mapsUnlocked, mapsMaxUnlocked)),
-								app.Li().Text(fmt.Sprintf("Unlocked %d of %d tiles", mapsClearedTiles, mapsMaxClearedTiles)),
+								app.Range(mapsInfo).Slice(func(i int) app.UI {
+									mi := mapsInfo[i]
+									unlocked, saveGameClearedTiles := n.getSaveGameMapDetails(i)
+									if unlocked {
+										if saveGameClearedTiles == mi.TilesToClearCount {
+											return app.Li().Style("color", "darkgreen").Text(fmt.Sprintf("%s unlocked and cleared %d of %d tiles", mi.Name, saveGameClearedTiles, mi.TilesToClearCount))
+										}
+										return app.Li().Style("color", "darkred").Text(fmt.Sprintf("%s unlocked and cleared %d of %d tiles", mi.Name, saveGameClearedTiles, mi.TilesToClearCount))
+									}
+									if saveGameClearedTiles == mi.TilesToClearCount {
+										return app.Li().Style("color", "darkred").Text(fmt.Sprintf("%s not yet unlocked and cleared %d of %d tiles", mi.Name, saveGameClearedTiles, mi.TilesToClearCount))
+									}
+									return app.Li().Style("color", "darkred").Text(fmt.Sprintf("%s not yet unlocked and cleared %d of %d tiles", mi.Name, saveGameClearedTiles, mi.TilesToClearCount))
+								}),
 							),
 						// materials
 						app.H3().Text("Materials"),
@@ -363,16 +363,28 @@ func (n *ngu) getSaveGameRelicLevel(relicID int) int {
 	return -1
 }
 
-func (n *ngu) getSaveGameAchievementUnlocked(achivementID int) bool {
+func (n *ngu) getSaveGameAchievementUnlocked(achievementID int) bool {
 	if n.saveFile == nil {
 		return false
 	}
 
-	if achivementID < len(n.saveFile.Settings.SteamAchievements) {
-		return n.saveFile.Settings.SteamAchievements[achivementID]
+	if achievementID < len(n.saveFile.Settings.SteamAchievements) {
+		return n.saveFile.Settings.SteamAchievements[achievementID]
 	}
 
 	return false
+}
+
+func (n *ngu) getSaveGameMapDetails(mapID int) (bool, int) {
+	if n.saveFile == nil {
+		return false, 0
+	}
+
+	if mapID < len(n.saveFile.FactoryData.Maps) {
+		return n.saveFile.FactoryData.Maps[mapID].Unlocked, len(n.saveFile.FactoryData.Maps[mapID].ClearedTiles)
+	}
+
+	return false, 0
 }
 
 type Settings struct {
