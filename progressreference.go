@@ -325,3 +325,23 @@ var relicsInfo = []RelicInfo{
 			{Number: 1, Cost: ""},
 		}},
 }
+
+type AchievementsInfo []AchievementInfo
+
+type AchievementInfo struct {
+	Name    string
+	Details string
+}
+
+var achievementsInfo = AchievementsInfo{
+	{Name: "Unlocked Flesh World!", Details: ""},
+	{Name: "Unlocked Planet Tronne", Details: ""},
+	{Name: "Unlocked Candy Land!", Details: ""},
+	{Name: "Hidden Achievement", Details: ""},
+	{Name: "How Immature", Details: "Threw more than 69420 of something in the pit"},
+	{Name: "Turn your first material INFINITE", Details: ""},
+	{Name: "First Steps!", Details: "Combat 100 ISOPOD"},
+	{Name: "Getting Higher", Details: "Combat 500 ISOPOD"},
+	{Name: "Look at you go!", Details: "Combat 1000 ISOPOD"},
+	{Name: "Unlocked M&M!", Details: ""},
+}

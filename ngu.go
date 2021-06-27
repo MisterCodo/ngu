@@ -69,8 +69,6 @@ func (n *ngu) initNGU(ctx app.Context) {
 func (n *ngu) Render() app.UI {
 	// measure statistics
 	var settingsTotalPlayedTime time.Duration
-	settingsSteamAchievements := 0
-	settingsMaxSteamAchievements := 10
 
 	mapsUnlocked := 0
 	mapsMaxUnlocked := 5
@@ -93,12 +91,6 @@ func (n *ngu) Render() app.UI {
 		}
 
 		settingsTotalPlayedTime = time.Duration(int(n.saveFile.Settings.TotalTimePlayed)) * time.Second
-
-		for _, s := range n.saveFile.Settings.SteamAchievements {
-			if s {
-				settingsSteamAchievements++
-			}
-		}
 
 		for _, m := range n.saveFile.FactoryData.Maps {
 			if m.Unlocked {
@@ -163,7 +155,18 @@ func (n *ngu) Render() app.UI {
 						app.Ul().
 							Body(
 								app.Li().Text(fmt.Sprintf("Played for %s", settingsTotalPlayedTime)),
-								app.Li().Text(fmt.Sprintf("Completed %d of %d Steam achievements", settingsSteamAchievements, settingsMaxSteamAchievements)),
+							),
+						// achievements
+						app.H3().Text("Steam Achievements"),
+						app.Ul().
+							Body(
+								app.Range(achievementsInfo).Slice(func(i int) app.UI {
+									ai := achievementsInfo[i]
+									if n.getSaveGameAchievementUnlocked(i) {
+										return app.Li().Style("color", "darkgreen").Text(ai.Name)
+									}
+									return app.Li().Style("color", "darkred").Text(ai.Name)
+								}),
 							),
 						// maps
 						app.H3().Text("Maps"),
@@ -189,19 +192,19 @@ func (n *ngu) Render() app.UI {
 									// some relics are just unlocked or not, no level
 									if len(ri.Levels) == 0 {
 										if saveGameRelicLevel == 0 {
-											return app.Li().Style("color", "darkgreen").Text(fmt.Sprintf("Unlocked %s (%s)", ri.Name, ri.Impacts))
+											return app.Li().Style("color", "darkgreen").Text(fmt.Sprintf("%s (%s)", ri.Name, ri.Impacts))
 										}
-										return app.Li().Style("color", "darkred").Text(fmt.Sprintf("Yet to unlock %s (%s)", ri.Name, ri.Impacts))
+										return app.Li().Style("color", "darkred").Text(fmt.Sprintf("%s (%s)", ri.Name, ri.Impacts))
 									}
 									if saveGameRelicLevel == -1 {
 										saveGameRelicLevel = 0
 									}
 									// done
 									if saveGameRelicLevel == len(ri.Levels) {
-										return app.Li().Style("color", "darkgreen").Text(fmt.Sprintf("Unlocked %d of %d %s (%s) levels", saveGameRelicLevel, len(ri.Levels), ri.Name, ri.Impacts))
+										return app.Li().Style("color", "darkgreen").Text(fmt.Sprintf("%d of %d %s (%s) levels", saveGameRelicLevel, len(ri.Levels), ri.Name, ri.Impacts))
 									}
 									// not done
-									return app.Li().Style("color", "darkred").Text(fmt.Sprintf("Unlocked %d of %d %s (%s) levels", saveGameRelicLevel, len(ri.Levels), ri.Name, ri.Impacts))
+									return app.Li().Style("color", "darkred").Text(fmt.Sprintf("%d of %d %s (%s) levels", saveGameRelicLevel, len(ri.Levels), ri.Name, ri.Impacts))
 								}),
 							),
 					),
@@ -358,6 +361,18 @@ func (n *ngu) getSaveGameRelicLevel(relicID int) int {
 
 	// not showing up yet
 	return -1
+}
+
+func (n *ngu) getSaveGameAchievementUnlocked(achivementID int) bool {
+	if n.saveFile == nil {
+		return false
+	}
+
+	if achivementID < len(n.saveFile.Settings.SteamAchievements) {
+		return n.saveFile.Settings.SteamAchievements[achivementID]
+	}
+
+	return false
 }
 
 type Settings struct {
