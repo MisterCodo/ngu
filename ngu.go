@@ -69,22 +69,7 @@ func (n *ngu) initNGU(ctx app.Context) {
 func (n *ngu) Render() app.UI {
 	// measure statistics
 	var settingsTotalPlayedTime time.Duration
-
-	materialsUnlocked := 0
-	materialsMaxUnlocked := 150
-	materialsGoneInfinite := 0
-	materialsMaxInfinite := 134
-
 	if n.saveFile != nil {
-		for _, m := range n.saveFile.Materials.Materials {
-			if m.Unlocked {
-				materialsUnlocked++
-			}
-			if m.GoneInfinite {
-				materialsGoneInfinite++
-			}
-		}
-
 		settingsTotalPlayedTime = time.Duration(int(n.saveFile.Settings.TotalTimePlayed)) * time.Second
 	}
 
@@ -175,13 +160,6 @@ func (n *ngu) Render() app.UI {
 									return app.Li().Style("color", "darkred").Text(fmt.Sprintf("%s not yet unlocked and cleared %d of %d tiles", mi.Name, saveGameClearedTiles, mi.TilesToClearCount))
 								}),
 							),
-						// materials
-						app.H3().Text("Materials"),
-						app.Ul().
-							Body(
-								app.Li().Text(fmt.Sprintf("Unlocked %d of %d materials and beacons", materialsUnlocked, materialsMaxUnlocked)),
-								app.Li().Text(fmt.Sprintf("Infinite reached for %d of %d materials", materialsGoneInfinite, materialsMaxInfinite)),
-							),
 						// relics
 						app.H3().Text("Relics"),
 						app.Ul().
@@ -205,6 +183,352 @@ func (n *ngu) Render() app.UI {
 									}
 									// not done
 									return app.Li().Style("color", "darkred").Text(fmt.Sprintf("%d of %d %s (%s) levels", saveGameRelicLevel, len(ri.Levels), ri.Name, ri.Impacts))
+								}),
+							),
+						// materials
+						app.H3().Text("Materials"),
+						app.Table().Style("width", "100%").
+							Body(
+								app.Tr().
+									Body(
+										app.Td().Style("vertical-align", "top").
+											Body(
+												app.Label().Text("Normal (Tier 1)"),
+												app.Ul().
+													Body(
+														app.Range(tier1NormalMaterials).Slice(func(i int) app.UI {
+															mi := tier1NormalMaterials[i]
+															unlocked, infinite := n.getSaveGameMaterial(mi.ID)
+															if unlocked && infinite {
+																return app.Li().Style("color", "darkgreen").Text(mi.Name)
+															}
+															return app.Li().Style("color", "darkred").Text(mi.Name)
+														}),
+													),
+											),
+										app.Td().Style("vertical-align", "top").
+											Body(
+												app.Label().Text("Normal (Tier 2)"),
+												app.Ul().
+													Body(
+														app.Range(tier2NormalMaterials).Slice(func(i int) app.UI {
+															mi := tier2NormalMaterials[i]
+															unlocked, infinite := n.getSaveGameMaterial(mi.ID)
+															if unlocked && infinite {
+																return app.Li().Style("color", "darkgreen").Text(mi.Name)
+															}
+															return app.Li().Style("color", "darkred").Text(mi.Name)
+														}),
+													),
+											),
+										app.Td().Style("vertical-align", "top").
+											Body(
+												app.Label().Text("Normal (Tier 3)"),
+												app.Ul().
+													Body(
+														app.Range(tier3NormalMaterials).Slice(func(i int) app.UI {
+															mi := tier3NormalMaterials[i]
+															unlocked, infinite := n.getSaveGameMaterial(mi.ID)
+															if unlocked && infinite {
+																return app.Li().Style("color", "darkgreen").Text(mi.Name)
+															}
+															return app.Li().Style("color", "darkred").Text(mi.Name)
+														}),
+													),
+											),
+										app.Td().Style("vertical-align", "top").
+											Body(
+												app.Label().Text("Normal (Tier 4)"),
+												app.Ul().
+													Body(
+														app.Range(tier4NormalMaterials).Slice(func(i int) app.UI {
+															mi := tier4NormalMaterials[i]
+															unlocked, infinite := n.getSaveGameMaterial(mi.ID)
+															if unlocked && infinite {
+																return app.Li().Style("color", "darkgreen").Text(mi.Name)
+															}
+															return app.Li().Style("color", "darkred").Text(mi.Name)
+														}),
+													),
+											),
+									),
+								app.Tr().
+									Body(
+										app.Td().Style("vertical-align", "top").
+											Body(
+												app.Label().Text("Flesh (Tier 1)"),
+												app.Ul().
+													Body(
+														app.Range(tier1FleshMaterials).Slice(func(i int) app.UI {
+															mi := tier1FleshMaterials[i]
+															unlocked, infinite := n.getSaveGameMaterial(mi.ID)
+															if unlocked && infinite {
+																return app.Li().Style("color", "darkgreen").Text(mi.Name)
+															}
+															return app.Li().Style("color", "darkred").Text(mi.Name)
+														}),
+													),
+											),
+										app.Td().Style("vertical-align", "top").
+											Body(
+												app.Label().Text("Flesh (Tier 2)"),
+												app.Ul().
+													Body(
+														app.Range(tier2FleshMaterials).Slice(func(i int) app.UI {
+															mi := tier2FleshMaterials[i]
+															unlocked, infinite := n.getSaveGameMaterial(mi.ID)
+															if unlocked && infinite {
+																return app.Li().Style("color", "darkgreen").Text(mi.Name)
+															}
+															return app.Li().Style("color", "darkred").Text(mi.Name)
+														}),
+													),
+											),
+										app.Td().Style("vertical-align", "top").
+											Body(
+												app.Label().Text("Flesh (Tier 3)"),
+												app.Ul().
+													Body(
+														app.Range(tier3FleshMaterials).Slice(func(i int) app.UI {
+															mi := tier3FleshMaterials[i]
+															unlocked, infinite := n.getSaveGameMaterial(mi.ID)
+															if unlocked && infinite {
+																return app.Li().Style("color", "darkgreen").Text(mi.Name)
+															}
+															return app.Li().Style("color", "darkred").Text(mi.Name)
+														}),
+													),
+											),
+										app.Td().Style("vertical-align", "top").
+											Body(
+												app.Label().Text("Flesh (Tier 4)"),
+												app.Ul().
+													Body(
+														app.Range(tier4FleshMaterials).Slice(func(i int) app.UI {
+															mi := tier4FleshMaterials[i]
+															unlocked, infinite := n.getSaveGameMaterial(mi.ID)
+															if unlocked && infinite {
+																return app.Li().Style("color", "darkgreen").Text(mi.Name)
+															}
+															return app.Li().Style("color", "darkred").Text(mi.Name)
+														}),
+													),
+											),
+									),
+								app.Tr().
+									Body(
+										app.Td().Style("vertical-align", "top").
+											Body(
+												app.Label().Text("Tronne (Tier 1)"),
+												app.Ul().
+													Body(
+														app.Range(tier1TronneMaterials).Slice(func(i int) app.UI {
+															mi := tier1TronneMaterials[i]
+															unlocked, infinite := n.getSaveGameMaterial(mi.ID)
+															if unlocked && infinite {
+																return app.Li().Style("color", "darkgreen").Text(mi.Name)
+															}
+															return app.Li().Style("color", "darkred").Text(mi.Name)
+														}),
+													),
+											),
+										app.Td().Style("vertical-align", "top").
+											Body(
+												app.Label().Text("Tronne (Tier 2)"),
+												app.Ul().
+													Body(
+														app.Range(tier2TronneMaterials).Slice(func(i int) app.UI {
+															mi := tier2TronneMaterials[i]
+															unlocked, infinite := n.getSaveGameMaterial(mi.ID)
+															if unlocked && infinite {
+																return app.Li().Style("color", "darkgreen").Text(mi.Name)
+															}
+															return app.Li().Style("color", "darkred").Text(mi.Name)
+														}),
+													),
+											),
+										app.Td().Style("vertical-align", "top").
+											Body(
+												app.Label().Text("Tronne (Tier 3)"),
+												app.Ul().
+													Body(
+														app.Range(tier3TronneMaterials).Slice(func(i int) app.UI {
+															mi := tier3TronneMaterials[i]
+															unlocked, infinite := n.getSaveGameMaterial(mi.ID)
+															if unlocked && infinite {
+																return app.Li().Style("color", "darkgreen").Text(mi.Name)
+															}
+															return app.Li().Style("color", "darkred").Text(mi.Name)
+														}),
+													),
+											),
+										app.Td().Style("vertical-align", "top").
+											Body(
+												app.Label().Text("Tronne (Tier 4)"),
+												app.Ul().
+													Body(
+														app.Range(tier4TronneMaterials).Slice(func(i int) app.UI {
+															mi := tier4TronneMaterials[i]
+															unlocked, infinite := n.getSaveGameMaterial(mi.ID)
+															if unlocked && infinite {
+																return app.Li().Style("color", "darkgreen").Text(mi.Name)
+															}
+															return app.Li().Style("color", "darkred").Text(mi.Name)
+														}),
+													),
+											),
+									),
+								app.Tr().
+									Body(
+										app.Td().Style("vertical-align", "top").
+											Body(
+												app.Label().Text("Candy (Tier 1)"),
+												app.Ul().
+													Body(
+														app.Range(tier1CandyMaterials).Slice(func(i int) app.UI {
+															mi := tier1CandyMaterials[i]
+															unlocked, infinite := n.getSaveGameMaterial(mi.ID)
+															if unlocked && infinite {
+																return app.Li().Style("color", "darkgreen").Text(mi.Name)
+															}
+															return app.Li().Style("color", "darkred").Text(mi.Name)
+														}),
+													),
+											),
+										app.Td().Style("vertical-align", "top").
+											Body(
+												app.Label().Text("Candy (Tier 2)"),
+												app.Ul().
+													Body(
+														app.Range(tier2CandyMaterials).Slice(func(i int) app.UI {
+															mi := tier2CandyMaterials[i]
+															unlocked, infinite := n.getSaveGameMaterial(mi.ID)
+															if unlocked && infinite {
+																return app.Li().Style("color", "darkgreen").Text(mi.Name)
+															}
+															return app.Li().Style("color", "darkred").Text(mi.Name)
+														}),
+													),
+											),
+										app.Td().Style("vertical-align", "top").
+											Body(
+												app.Label().Text("Candy (Tier 3)"),
+												app.Ul().
+													Body(
+														app.Range(tier3CandyMaterials).Slice(func(i int) app.UI {
+															mi := tier3CandyMaterials[i]
+															unlocked, infinite := n.getSaveGameMaterial(mi.ID)
+															if unlocked && infinite {
+																return app.Li().Style("color", "darkgreen").Text(mi.Name)
+															}
+															return app.Li().Style("color", "darkred").Text(mi.Name)
+														}),
+													),
+											),
+										app.Td().Style("vertical-align", "top").
+											Body(
+												app.Label().Text("Candy (Tier 4)"),
+												app.Ul().
+													Body(
+														app.Range(tier4CandyMaterials).Slice(func(i int) app.UI {
+															mi := tier4CandyMaterials[i]
+															unlocked, infinite := n.getSaveGameMaterial(mi.ID)
+															if unlocked && infinite {
+																return app.Li().Style("color", "darkgreen").Text(mi.Name)
+															}
+															return app.Li().Style("color", "darkred").Text(mi.Name)
+														}),
+													),
+											),
+									),
+								app.Tr().
+									Body(
+										app.Td().Style("vertical-align", "top").
+											Body(
+												app.Label().Text("M&M (Tier 1)"),
+												app.Ul().
+													Body(
+														app.Range(tier1MMMaterials).Slice(func(i int) app.UI {
+															mi := tier1MMMaterials[i]
+															unlocked, infinite := n.getSaveGameMaterial(mi.ID)
+															if unlocked && infinite {
+																return app.Li().Style("color", "darkgreen").Text(mi.Name)
+															}
+															return app.Li().Style("color", "darkred").Text(mi.Name)
+														}),
+													),
+											),
+										app.Td().Style("vertical-align", "top").
+											Body(
+												app.Label().Text("M&M (Tier 2)"),
+												app.Ul().
+													Body(
+														app.Range(tier2MMMaterials).Slice(func(i int) app.UI {
+															mi := tier2MMMaterials[i]
+															unlocked, infinite := n.getSaveGameMaterial(mi.ID)
+															if unlocked && infinite {
+																return app.Li().Style("color", "darkgreen").Text(mi.Name)
+															}
+															return app.Li().Style("color", "darkred").Text(mi.Name)
+														}),
+													),
+											),
+										app.Td().Style("vertical-align", "top").
+											Body(
+												app.Label().Text("M&M (Tier 3)"),
+												app.Ul().
+													Body(
+														app.Range(tier3MMMaterials).Slice(func(i int) app.UI {
+															mi := tier3MMMaterials[i]
+															unlocked, infinite := n.getSaveGameMaterial(mi.ID)
+															if unlocked && infinite {
+																return app.Li().Style("color", "darkgreen").Text(mi.Name)
+															}
+															return app.Li().Style("color", "darkred").Text(mi.Name)
+														}),
+													),
+											),
+										app.Td().Style("vertical-align", "top").
+											Body(
+												app.Label().Text("M&M (Tier 4)"),
+												app.Ul().
+													Body(
+														app.Range(tier4MMMaterials).Slice(func(i int) app.UI {
+															mi := tier4MMMaterials[i]
+															unlocked, infinite := n.getSaveGameMaterial(mi.ID)
+															if unlocked && infinite {
+																return app.Li().Style("color", "darkgreen").Text(mi.Name)
+															}
+															return app.Li().Style("color", "darkred").Text(mi.Name)
+														}),
+													),
+											),
+									),
+							),
+						// beacons
+						app.H3().Text("Beacons"),
+						app.Ul().
+							Body(
+								app.Range(beaconsInfo).Slice(func(i int) app.UI {
+									bi := beaconsInfo[i]
+									unlocked, _ := n.getSaveGameMaterial(bi.ID)
+									if unlocked {
+										return app.Li().Style("color", "darkgreen").Text(bi.Name)
+									}
+									return app.Li().Style("color", "darkred").Text(bi.Name)
+								}),
+							),
+						// army
+						app.H3().Text("Army"),
+						app.Ul().
+							Body(
+								app.Range(armyMaterials).Slice(func(i int) app.UI {
+									am := armyMaterials[i]
+									unlocked, infinite := n.getSaveGameMaterial(am.ID)
+									if unlocked && infinite {
+										return app.Li().Style("color", "darkgreen").Text(am.Name)
+									}
+									return app.Li().Style("color", "darkred").Text(am.Name)
 								}),
 							),
 					),
@@ -346,6 +670,20 @@ type Relics struct {
 type Relic struct {
 	Level   int `json:"level"`
 	RelicID int `json:"relicID"`
+}
+
+func (n *ngu) getSaveGameMaterial(materialID int) (unlocked bool, infinite bool) {
+	if n.saveFile == nil {
+		return false, false
+	}
+
+	if materialID < len(n.saveFile.Materials.Materials) {
+		m := n.saveFile.Materials.Materials[materialID]
+		return m.Unlocked, m.GoneInfinite
+	}
+
+	// not unlocked yet
+	return false, false
 }
 
 func (n *ngu) getSaveGameRelicLevel(relicID int) int {
