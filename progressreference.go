@@ -358,5 +358,5 @@ var mapsInfo = MapsInfo{
 	{Name: "Flesh World", TilesToClearCount: 113},
 	{Name: "Planet Tronne", TilesToClearCount: 67},
 	{Name: "Candy Land", TilesToClearCount: 100},
-	{Name: "Mansions & Managers", TilesToClearCount: 73},
+	{Name: "Mansions & Managers", TilesToClearCount: 76},
 }
